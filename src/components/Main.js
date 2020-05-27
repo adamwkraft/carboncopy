@@ -1,5 +1,7 @@
 import React from 'react'
 import { useWebcam } from '../context/webcam';
+import Webcam from './Webcam';
+import WebcamSelect from './WebcamSelect';
 
 const Main = (props) => {
   window.webcam = useWebcam();
@@ -7,7 +9,8 @@ const Main = (props) => {
 
   return (
     <div>
-      hey {props.name}
+      <WebcamSelect />
+      <Webcam width={1280} />
     </div>
   );
 };
