@@ -11,7 +11,15 @@ const Main = (props) => {
   const makePrediction = async () => {
     const net = await bodyPix.load();
     
-    const segmentation = await net.segmentPerson(webcam.canvasRef.current);
+    const segmentation = await net.segmentPerson(webcam.videoRef.current);
+    const coloredPartImage = bodyPix.toMask(segmentation);
+    const opacity = 0.7;
+    const flipHorizontal = false;
+    const maskBlurAmount = 0;
+
+    bodyPix.drawMask(
+     webcam.canvasRef.current, webcam.videoRef.current, coloredPartImage, opacity, maskBlurAmount,
+      flipHorizontal);
     console.log(segmentation);
   };
 
@@ -20,7 +28,7 @@ const Main = (props) => {
   return (
     <div>
       <WebcamSelect />
-      <Webcam width={1280} />
+      <Webcam width={1280} withCanvas={true} />
     </div>
   );
 };
