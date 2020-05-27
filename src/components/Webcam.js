@@ -49,6 +49,8 @@ const Webcam = (props) => {
     <div className={classes.root}>
       <video
         className={classes.video}
+        width={webcam.videoRef?.current?.videoWidth}
+        height={webcam.videoRef?.current?.videoHeight}
         ref={webcam.videoRef}
         autoPlay
         muted
