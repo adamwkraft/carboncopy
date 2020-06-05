@@ -15,6 +15,10 @@ const useStyles = makeStyles((theme) => ({
         width: 1280,
         height: 720,
       }),
+    // fix height discrepancy
+    width: '100%',
+    maxWidth: 1280,
+    maxHeight: 720,
   }),
   video: (props) => ({
     position: 'absolute',
@@ -35,13 +39,12 @@ const useStyles = makeStyles((theme) => ({
     right: 0,
     bottom: 0,
     width: '100%',
-    height: '100%',
   }),
 }));
 
 const Webcam = (props) => {
   const webcam = useWebcam();
-  const classes = useStyles({ ...props, ...webcam })
+  const classes = useStyles({ ...props, ...webcam });
 
   const withCanvas = props.withCanvas !== false;
 
