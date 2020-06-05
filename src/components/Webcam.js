@@ -43,19 +43,18 @@ const Webcam = (props) => {
   const webcam = useWebcam();
   const classes = useStyles({ ...props, ...webcam })
 
-  const drawCanvas = (props.withCanvas === undefined ? true : props.withCanvas);
+  const withCanvas = props.withCanvas !== false;
 
   return (
     <div className={classes.root}>
       <video
+        autoPlay={true}
+        ref={webcam.videoRef}
         className={classes.video}
         width={webcam.videoRef?.current?.videoWidth}
         height={webcam.videoRef?.current?.videoHeight}
-        ref={webcam.videoRef}
-        autoPlay
-        muted
       />
-      {drawCanvas && (
+      {withCanvas && (
         <canvas
           ref={webcam.canvasRef}
           className={classes.canvas}
