@@ -1,6 +1,6 @@
 import React, { createContext, useState, useMemo, useCallback, useRef, useEffect, useContext } from 'react';
 
-export const webcamContext = createContext({});
+export const webcamContext = createContext();
 
 export const useWebcam = () => {
   const state = useContext(webcamContext);
@@ -12,9 +12,10 @@ export const useWebcam = () => {
   return state;
 };
 
-const VIDEO_WIDTH = 1280
-const VIDEO_HEIGHT = 720
-const AUTOSTART_KEY = 'AutoStartId'
+const VIDEO_WIDTH = 1280;
+const VIDEO_HEIGHT = 720;
+const AUTOSTART_KEY = 'AutoStartId';
+const hasVideo = !!(navigator?.mediaDevices?.getUserMedia);
 
 const WebcamProvider = ({children}) => {
   const videoRef = useRef();
@@ -31,8 +32,6 @@ const WebcamProvider = ({children}) => {
     const context = canvasRef.current.getContext('2d');
     context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
   }, []);
-
-  const hasVideo = useMemo(() => !!(navigator?.mediaDevices?.getUserMedia), []);
 
   const stopVideo = useCallback(() => {
     if (videoStream) {
@@ -108,7 +107,7 @@ const WebcamProvider = ({children}) => {
         resolve();
       };
     });
-  }, [hasVideo, stopVideo, videoRef, cameras])
+  }, [stopVideo, videoRef, cameras]);
 
   const discoverCameras = useCallback(async () => {
     const enumerateDevices = navigator?.mediaDevices?.enumerateDevices;
@@ -127,23 +126,23 @@ const WebcamProvider = ({children}) => {
     return foundCameras;
   }, []);
 
-  const toggleFlipX = useCallback(() => setFlipX(!flipX), [flipX]);
+  const toggleFlipX = useCallback(() => setFlipX(state => !state), []);
 
   const setAutoStartDeviceId = useCallback((deviceId) => {
-    window.localStorage.setItem(AUTOSTART_KEY, deviceId)
-    _setAutoStartDeviceId(deviceId)
-  }, [])
+    window.localStorage.setItem(AUTOSTART_KEY, deviceId);
+    _setAutoStartDeviceId(deviceId);
+  }, []);
 
   const clearAutoStartDeviceId = useCallback(() => {
-    window.localStorage.removeItem(AUTOSTART_KEY)
-    _setAutoStartDeviceId(null)
-  }, [])
+    window.localStorage.removeItem(AUTOSTART_KEY);
+    _setAutoStartDeviceId(null);
+  }, []);
 
   useEffect(() => { 
     discoverCameras()
       .then((foundCameras) => {
-        const autoStartId = window.localStorage.getItem(AUTOSTART_KEY)
-        _setAutoStartDeviceId(autoStartId)
+        const autoStartId = window.localStorage.getItem(AUTOSTART_KEY);
+        _setAutoStartDeviceId(autoStartId);
         const foundCamera = !!(foundCameras.filter(({ deviceId }) => deviceId === autoStartId).length);
 
         if (foundCamera) startVideo({ deviceId: autoStartId });
@@ -175,7 +174,6 @@ const WebcamProvider = ({children}) => {
       flipX,
       cameras,
       setFlipX,
-      hasVideo,
       stopVideo,
       startVideo,
       videoError,

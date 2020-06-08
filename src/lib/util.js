@@ -14,7 +14,6 @@ export const polygonToArray = (polygon, width, height) => {
     return new ImageData(bytes, width, height);
 }
 
-
 export const drawResult = (polygon, segmentation) => {
   const bytes = new Uint8ClampedArray(segmentation.data.length * 4);
   const {data, width, height} = segmentation; 
@@ -53,3 +52,17 @@ export const drawResultFlipped = (polygon, segmentation) => {
   return new ImageData(bytes, width, height);
 
 }
+
+export const drawPolygon = (ctx, polygon, color='rgba(255, 255, 255, 0.5)') => {
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(polygon[0][0], polygon[0][1]);
+  const vertices = polygon.slice(1);
+  vertices.forEach(([x, y]) => {
+    ctx.lineTo(x, y);
+  });
+  ctx.closePath();
+  ctx.fill();
+};
+
+export const flipPolygon = (polygon, width) => polygon.map(([x, y]) => [width - x, y]);
