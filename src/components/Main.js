@@ -42,7 +42,7 @@ const Main = (props) => {
           { loop.looping ? 'Stop' : 'Start' }
         </Button>
       </div>
-      <Webcam width={1280} styles={{ root: { width: '100%' }}}/>
+      <Webcam />
     </div>
   );
 };
