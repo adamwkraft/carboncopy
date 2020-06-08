@@ -1,8 +1,8 @@
 import { useRef, useState, useCallback, useMemo } from "react";
 
-import { useWebcam } from "../context/webcam";
-import { drawResultFlipped, flipPolygon} from '../lib/util';
 import { useBodyPix } from "./bodyPix";
+import { drawResult} from '../lib/util';
+import { useWebcam } from "../context/webcam";
 
 export const useMainLoop = () => {
   const webcam = useWebcam();
@@ -37,12 +37,10 @@ export const useMainLoop = () => {
       [0.5*width, height],
       [0.25*width, height],
     ];
-
-    const flippedTemplate = flipPolygon(template, webcam?.canvasRef?.current?.width);
     
     const ctx = webcam.canvasRef.current.getContext('2d');
-
-    const image = drawResultFlipped(flippedTemplate, segmentation);
+    
+    const image = drawResult(template, segmentation, webcam.flipX);
 
     ctx.putImageData(image, 0, 0);
 
