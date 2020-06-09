@@ -69,13 +69,24 @@ export const usePolygon = () => {
   const polygonRef = useRef(null);
   const polygonIdxRef = useRef(0);
 
-  const next = useCallback(() => {
+  const next = useCallback((cycle=false) => {
     polygonIdxRef.current++;
-    if (polygonIdxRef.current > polygons.length - 1) {
+    if (cycle && polygonIdxRef.current > polygons.length - 1) {
       polygonIdxRef.current = 0;
     }
 
-    polygonRef.current = polygons[polygonIdxRef.current];
+    const currentPoly = polygons[polygonIdxRef.current];
+
+    if (!cycle && !currentPoly) {
+      polygonRef.current = null;
+      polygonIdxRef.current = 0;
+
+      return null;
+    }
+
+    polygonRef.current = currentPoly;
+    
+    return currentPoly;
   }, [polygons]);
 
   return { polygonRef, next };
