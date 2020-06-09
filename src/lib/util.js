@@ -14,7 +14,7 @@ export const polygonToArray = (polygon, width, height) => {
     return new ImageData(bytes, width, height);
 }
 
-export const drawResult = (polygon, segmentation, flipped) => {
+export const getScoreAndOverlay = (polygon, segmentation, flipped) => {
   const bytes = new Uint8ClampedArray(segmentation.data.length * 4);
   const {data, width, height} = segmentation;
   const resolvedPolygon = (flipped ? flipPolygon(polygon, width) : polygon);
@@ -52,3 +52,5 @@ export const drawPolygon = (ctx, polygon, color='rgba(255, 255, 255, 0.5)') => {
 };
 
 export const flipPolygon = (polygon, width) => polygon.map(([x, y]) => [width - x, y]);
+
+export const inflatePolygon = (width, height) => polygon => polygon.map(([x, y]) => [x*width, y*height]);

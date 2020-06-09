@@ -1,12 +1,14 @@
 import { useRef, useState, useCallback, useMemo } from "react";
 
 import { useBodyPix } from "./bodyPix";
-import { drawResult} from '../lib/util';
+import { usePolygon } from "./polygon";
 import { useWebcam } from "../context/webcam";
+import { getScoreAndOverlay } from '../lib/util';
 
 export const useMainLoop = () => {
   const webcam = useWebcam();
   const predict = useBodyPix();
+  const { polygonRef, next } = usePolygon();
 
   const loopRef = useRef();
   const [looping, setLooping] = useState(false);
@@ -25,22 +27,10 @@ export const useMainLoop = () => {
     const segmentation = await predict();
 
     // console.log({segmentation});
-
-    const width = webcam?.canvasRef?.current?.width;
-    const height = webcam?.canvasRef?.current?.height;
-
-    const template = [
-      [0.25*width, .25*height],
-      [0.75*width, .25*height],
-      [0.75*width, .5*height],
-      [0.5*width, .5*height],
-      [0.5*width, height],
-      [0.25*width, height],
-    ];
     
     const ctx = webcam.canvasRef.current.getContext('2d');
     
-    const image = drawResult(template, segmentation, webcam.flipX);
+    const image = getScoreAndOverlay (polygonRef.current, segmentation, webcam.flipX);
 
     ctx.putImageData(image, 0, 0);
 
@@ -49,7 +39,7 @@ export const useMainLoop = () => {
     } else{
       webcam.clearCanvas();
     }
-  }, [predict, webcam]);
+  }, [predict, webcam, polygonRef]);
 
   const start = useCallback(async () => {
     if (!predict) {
@@ -73,7 +63,8 @@ export const useMainLoop = () => {
     stop,
     ready: predict && webcam.videoStarted,
     looping,
-  }), [start, stop, predict, looping, webcam]);
+    nextPolygon: next,
+  }), [start, stop, predict, looping, webcam, next]);
 
   return controller;
 };

@@ -33,6 +33,17 @@ const Main = (props) => {
     <div className={classes.root}>
       <div className={classes.options}>
         <WebcamSelect />
+        {
+          loop.ready && loop.looping && (
+            <Button
+              color="primary"
+              variant="outlined"
+              onClick={loop.nextPolygon}
+            >
+              Next
+            </Button>
+          )
+        }
         <Button
           color={ loop.looping ? 'secondary' : 'primary' }
           variant='contained'
