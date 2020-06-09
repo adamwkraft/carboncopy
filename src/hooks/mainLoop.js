@@ -12,6 +12,7 @@ export const useMainLoop = () => {
 
   const loopRef = useRef();
   const [looping, setLooping] = useState(false);
+  const [score, setScore] = useState(0);
   
   const setStartLoop = useCallback(() => {
     loopRef.current = true;
@@ -30,9 +31,10 @@ export const useMainLoop = () => {
     
     const ctx = webcam.canvasRef.current.getContext('2d');
     
-    const image = getScoreAndOverlay (polygonRef.current, segmentation, webcam.flipX);
+    const { score, overlay } = getScoreAndOverlay (polygonRef.current, segmentation, webcam.flipX);
+    setScore(score);
 
-    ctx.putImageData(image, 0, 0);
+    ctx.putImageData(overlay, 0, 0);
 
     if (loopRef.current) {
       requestAnimationFrame(predictLoop);
@@ -61,10 +63,11 @@ export const useMainLoop = () => {
   const controller = useMemo(() => ({
     start,
     stop,
+    score,
     ready: predict && webcam.videoStarted,
     looping,
     nextPolygon: next,
-  }), [start, stop, predict, looping, webcam, next]);
+  }), [start, stop, predict, looping, webcam, next, score]);
 
   return controller;
 };

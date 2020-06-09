@@ -1,10 +1,13 @@
 import React, { useCallback } from 'react'
+import { makeStyles } from '@material-ui/core';
+
 import Button from '@material-ui/core/Button';
+import Typography from '@material-ui/core/Typography';
 
 import Webcam from './Webcam';
 import WebcamSelect from './WebcamSelect';
+
 import { useMainLoop } from '../hooks/mainLoop';
-import { makeStyles } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -18,6 +21,9 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'center',
     marginBottom: theme.spacing(1),
   },
+  score: {
+
+  }
 }));
 
 const Main = (props) => {
@@ -34,7 +40,7 @@ const Main = (props) => {
       <div className={classes.options}>
         <WebcamSelect />
         {
-          loop.ready && loop.looping && (
+          loop.looping && (
             <Button
               color="primary"
               variant="outlined"
@@ -54,6 +60,11 @@ const Main = (props) => {
         </Button>
       </div>
       <Webcam />
+      { loop.looping && (
+        <Typography variant="h4">
+          Score: {loop.score}
+        </Typography>
+      )}
     </div>
   );
 };
