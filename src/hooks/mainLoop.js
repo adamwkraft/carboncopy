@@ -4,15 +4,22 @@ import { useBodyPix } from "./bodyPix";
 import { usePolygon } from "./polygon";
 import { useWebcam } from "../context/webcam";
 import { getScoreAndOverlay } from '../lib/util';
+import { useSpeech } from "./speech";
 
 export const useMainLoop = () => {
+  const { countdown } = useSpeech();
   const webcam = useWebcam();
   const predict = useBodyPix();
   const { polygonRef, next } = usePolygon();
 
   const loopRef = useRef();
+  const initializedRef = useRef();
+  const captureScoreRef = useRef();
+
   const [looping, setLooping] = useState(false);
+
   const [score, setScore] = useState(0);
+  const [scores, setScores] = useState([]);
   
   const setStartLoop = useCallback(() => {
     loopRef.current = true;
@@ -24,8 +31,20 @@ export const useMainLoop = () => {
     setLooping(false);
   }, []);
 
+  const triggerNextCountdown = useCallback(() => {
+    if (!initializedRef.current) {
+      initializedRef.current = true;
+      countdown(5, {
+        onEnd: () => {
+          captureScoreRef.current = true;
+        }
+      });
+    }
+  }, [countdown]);
+
   const predictLoop = useCallback(async () => {
     const segmentation = await predict();
+    triggerNextCountdown(); // call this after first segmentation to ensure we are ready to go
 
     // console.log({segmentation});
     
@@ -34,14 +53,30 @@ export const useMainLoop = () => {
     const { score, overlay } = getScoreAndOverlay (polygonRef.current, segmentation, webcam.flipX);
     setScore(score);
 
+    let finished = null;
+    if (captureScoreRef.current) {
+      setScores(state => [...state, score]);
+      initializedRef.current = false;
+      captureScoreRef.current = false;
+      finished = !next();
+    }
+
     ctx.putImageData(overlay, 0, 0);
 
-    if (loopRef.current) {
+    if (loopRef.current && !finished) {
       requestAnimationFrame(predictLoop);
     } else{
+      setStopLoop();
       webcam.clearCanvas();
     }
-  }, [predict, webcam, polygonRef]);
+  }, [
+    next,
+    webcam,
+    predict,
+    polygonRef,
+    setStopLoop,
+    triggerNextCountdown,
+  ]);
 
   const start = useCallback(async () => {
     if (!predict) {
@@ -64,10 +99,11 @@ export const useMainLoop = () => {
     start,
     stop,
     score,
+    scores,
     ready: predict && webcam.videoStarted,
     looping,
     nextPolygon: next,
-  }), [start, stop, predict, looping, webcam, next, score]);
+  }), [start, stop, predict, looping, webcam, next, score, scores]);
 
   return controller;
 };

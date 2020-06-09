@@ -62,9 +62,12 @@ const Main = (props) => {
       <Webcam />
       { loop.looping && (
         <Typography variant="h4">
-          Score: {loop.score}
+          Polygon Score: {loop.score}
         </Typography>
       )}
+      <Typography variant="h4">
+        Scores: {loop.scores.join(', ')}
+      </Typography>
     </div>
   );
 };
