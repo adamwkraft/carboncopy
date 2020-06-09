@@ -1,4 +1,5 @@
 import React from 'react';
+import { hot } from 'react-hot-loader';
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles'
 
 import Main from '../components/Main';
@@ -18,4 +19,4 @@ function App() {
   );
 }
 
-export default App;
+export default process.env.NODE_ENV === 'production' ? App : hot(module)(App);
