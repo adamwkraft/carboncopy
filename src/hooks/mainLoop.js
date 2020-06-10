@@ -1,10 +1,10 @@
 import { useRef, useState, useCallback, useMemo } from "react";
 
+import { useSpeech } from "./speech";
 import { useBodyPix } from "./bodyPix";
 import { usePolygon } from "./polygon";
 import { useWebcam } from "../context/webcam";
 import { getScoreAndOverlay } from '../lib/util';
-import { useSpeech } from "./speech";
 
 export const useMainLoop = () => {
   const { countdown } = useSpeech();
