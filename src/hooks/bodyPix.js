@@ -13,8 +13,19 @@ export const useBodyPix = () => {
   useEffect(() => {
     if (!loadRef.current) {
       loadRef.current = true;
-      bodyPix.load()
-        .then(setNet)
+      bodyPix.load(
+        {architecture: 'ResNet50', //'MobileNetV1',
+        outputStride: 16,
+        multiplier: 1,
+        quantBytes: 4}
+      )
+        .then(
+          (loadedNet) => {
+            // Rob will clean this up later.
+            setNet(loadedNet);
+            loadedNet.segmentPerson(webcam.videoRef.current, {internalResolution: 'medium'})
+          }
+        )
         .catch(console.error);
     }
   }, []);
@@ -25,7 +36,7 @@ export const useBodyPix = () => {
       throw new Error('Please wait for the model to load before calling "predict"');
     }
 
-    const segmentation = await net.segmentPerson(webcam.videoRef.current);
+    const segmentation = await net.segmentPerson(webcam.videoRef.current, {internalResolution: 'medium'});
 
     // console.log({segmentation});
     

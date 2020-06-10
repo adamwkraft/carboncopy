@@ -4,7 +4,7 @@ import { useSpeech } from "./speech";
 import { useBodyPix } from "./bodyPix";
 import { usePolygon } from "./polygon";
 import { useWebcam } from "../context/webcam";
-import { getScoreAndOverlay, getScoreAndOverlayForSegmentation } from '../lib/util';
+import { getScoreAndOverlay, getScoreAndOverlayForSegmentation, getSegmentationOverlay} from '../lib/util';
 
 export const useMainLoop = () => {
   const { countdown } = useSpeech();
@@ -81,6 +81,42 @@ export const useMainLoop = () => {
     triggerNextCountdown,
   ]);
 
+  const predictOnCaptureScoreLoop = useCallback(async () => {
+    triggerNextCountdown(); // call this after first segmentation to ensure we are ready to go
+    
+    const ctx = webcam.canvasRef.current.getContext('2d');
+    console.log("SEGMENTATION, polygonRef.current", polygonRef.current) 
+    const overlay = getSegmentationOverlay(polygonRef.current, webcam.flipX);
+
+    let finished = null;
+    if (captureScoreRef.current) {
+      const segmentation = await predict();
+      const { score } = getScoreAndOverlayForSegmentation(polygonRef.current, segmentation, webcam.flipX);
+      setScores(state => [...state, score]);
+      initializedRef.current = false;
+      captureScoreRef.current = false;
+      const polygon = next();
+      console.log('poly', polygon);
+      finished = !polygon;
+    }
+
+    ctx.putImageData(overlay, 0, 0);
+
+    if (loopRef.current && !finished) {
+      requestAnimationFrame(predictOnCaptureScoreLoop);
+    } else{
+      setStopLoop();
+      webcam.clearCanvas();
+    }
+  }, [
+    next,
+    webcam,
+    predict,
+    polygonRef,
+    setStopLoop,
+    triggerNextCountdown,
+  ]);
+
   const captureSegmentations = useCallback(async () => {
     triggerNextCountdown();
     
@@ -123,8 +159,10 @@ export const useMainLoop = () => {
 
     setStartLoop();
 
-    return predictLoop();
-  }, [predict, predictLoop, setStartLoop]);
+  //   return predictLoop();
+  // }, [predict, predictLoop, setStartLoop]);
+     return predictOnCaptureScoreLoop();
+  }, [predict, predictOnCaptureScoreLoop, setStartLoop]);
 
   const startCaptureSegmentations = useCallback(async () => {
     if (!predict) {

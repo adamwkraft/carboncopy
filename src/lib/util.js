@@ -14,6 +14,28 @@ export const polygonToArray = (polygon, width, height) => {
     return new ImageData(bytes, width, height);
 }
 
+export const getSegmentationOverlay = (segmentation, flipped) => {
+  const {data, width, height} = segmentation;
+  const bytes = new Uint8ClampedArray(segmentation.data.length * 4);
+
+  for (let i = 0; i < height * width; ++i) {
+    const x = i % width;
+    const y = parseInt(i / width);
+
+    const isPerson = data[i];
+    const bytes_index  = (flipped ? (width - x) + (width * y) : i);
+
+    bytes[bytes_index*4] = 0;  // red
+    bytes[bytes_index*4+1] = 0;   // green
+    bytes[bytes_index*4+2] = isPerson ? 255 : 0; // blue
+    bytes[bytes_index*4+3] = 128;                       // alpha
+  }
+
+  const overlay = new ImageData(bytes, width, height);
+
+  return overlay;
+}
+
 export const getScoreAndOverlay = (polygon, segmentation, flipped) => {
   const {data, width, height} = segmentation;
   const bytes = new Uint8ClampedArray(segmentation.data.length * 4);
