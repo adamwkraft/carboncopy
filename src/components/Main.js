@@ -35,6 +35,8 @@ const Main = (props) => {
     : loop.start()
   ), [loop]);
 
+  console.log(loop.userSegmentations);
+
   return (
     <div className={classes.root}>
       <div className={classes.options}>
@@ -57,6 +59,14 @@ const Main = (props) => {
           onClick={handleClickStartStop}
         >
           { loop.looping ? 'Stop' : 'Start' }
+        </Button>
+        <Button
+          color='primary'
+          variant='contained'
+          disabled={!loop.ready}
+          onClick={loop.startCaptureSegmentations}
+        >
+          Capture Segmentations
         </Button>
       </div>
       <Webcam />

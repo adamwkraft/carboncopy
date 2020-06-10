@@ -53,18 +53,18 @@ export const usePolygon = () => {
   const webcam = useWebcam();
   const [polygons, setPolygons] = useState([]);
 
-  useEffect(() => {
-    const width = webcam?.canvasRef?.current?.width;
-    const height = webcam?.canvasRef?.current?.height;
+  // useEffect(() => {
+  //   const width = webcam?.canvasRef?.current?.width;
+  //   const height = webcam?.canvasRef?.current?.height;
     
-    // ensures that the video is initialized, otherwise width and height will be default
-    if (!(width && height && webcam.videoStream) || polygons.length) return;
+  //   // ensures that the video is initialized, otherwise width and height will be default
+  //   if (!(width && height && webcam.videoStream) || polygons.length) return;
 
-    const inflatedPolygons = defaultPolygons.map(inflatePolygon(width, height));
+  //   const inflatedPolygons = defaultPolygons.map(inflatePolygon(width, height));
     
-    setPolygons(inflatedPolygons);
-    polygonRef.current = inflatedPolygons[0];
-  }, [webcam, polygons]);
+  //   setPolygons(inflatedPolygons);
+  //   polygonRef.current = inflatedPolygons[0];
+  // }, [webcam, polygons]);
 
   const polygonRef = useRef(null);
   const polygonIdxRef = useRef(0);
@@ -89,5 +89,5 @@ export const usePolygon = () => {
     return currentPoly;
   }, [polygons]);
 
-  return { polygonRef, next };
+  return { polygonRef, next, setPolygons };
 };

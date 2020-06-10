@@ -49,6 +49,40 @@ export const getScoreAndOverlay = (polygon, segmentation, flipped) => {
   return { score, overlay };
 };
 
+export const getScoreAndOverlayForSegmentation = (targetSegmentation, segmentation, flipped) => {
+  const {data, width, height} = segmentation;
+  const bytes = new Uint8ClampedArray(segmentation.data.length * 4);
+
+  let union = 0;
+  let intersection = 0;
+
+  for (let i = 0; i < height * width; ++i) {
+    const x = i % width;
+    const y = parseInt(i / width);
+
+    const isPerson = data[i];
+    const isInPolygon = targetSegmentation.data[i];
+    const isIntersection = isInPolygon && isPerson;
+    const isMissedPolygon = isInPolygon && !isPerson;
+    const isPersonOutOfPolygon = !isInPolygon && isPerson;
+
+    if (isIntersection) intersection++;
+    if (isPerson || isInPolygon) union++;
+    
+    const bytes_index  = (flipped ? (width - x) + (width * y) : i);
+
+    bytes[bytes_index*4] = isPersonOutOfPolygon ? 255 : 0;  // red
+    bytes[bytes_index*4+1] = isIntersection? 255 : 0;   // green
+    bytes[bytes_index*4+2] = isMissedPolygon ? 255 : 0; // blue
+    bytes[bytes_index*4+3] = 128;                       // alpha
+  }
+
+  const score = Math.round(intersection / union * 100);
+  const overlay = new ImageData(bytes, width, height);
+
+  return { score, overlay };
+};
+
 export const drawPolygon = (ctx, polygon, color='rgba(255, 255, 255, 0.5)') => {
   ctx.fillStyle = color;
   ctx.beginPath();

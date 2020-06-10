@@ -4,13 +4,13 @@ import { useSpeech } from "./speech";
 import { useBodyPix } from "./bodyPix";
 import { usePolygon } from "./polygon";
 import { useWebcam } from "../context/webcam";
-import { getScoreAndOverlay } from '../lib/util';
+import { getScoreAndOverlay, getScoreAndOverlayForSegmentation } from '../lib/util';
 
 export const useMainLoop = () => {
   const { countdown } = useSpeech();
   const webcam = useWebcam();
   const predict = useBodyPix();
-  const { polygonRef, next } = usePolygon();
+  const { polygonRef, next, setPolygons } = usePolygon();
 
   const loopRef = useRef();
   const initializedRef = useRef();
@@ -34,7 +34,7 @@ export const useMainLoop = () => {
   const triggerNextCountdown = useCallback(() => {
     if (!initializedRef.current) {
       initializedRef.current = true;
-      countdown(5, {
+      countdown(3, {
         onEnd: () => {
           captureScoreRef.current = true;
         }
@@ -50,7 +50,8 @@ export const useMainLoop = () => {
     
     const ctx = webcam.canvasRef.current.getContext('2d');
     
-    const { score, overlay } = getScoreAndOverlay (polygonRef.current, segmentation, webcam.flipX);
+    const { score, overlay } = getScoreAndOverlayForSegmentation(polygonRef.current, segmentation, webcam.flipX);
+    // const { score, overlay } = getScoreAndOverlay(polygonRef.current, segmentation, webcam.flipX);
     setScore(score);
 
     let finished = null;
@@ -58,7 +59,9 @@ export const useMainLoop = () => {
       setScores(state => [...state, score]);
       initializedRef.current = false;
       captureScoreRef.current = false;
-      finished = !next();
+      const polygon = next();
+      console.log('poly', polygon);
+      finished = !polygon;
     }
 
     ctx.putImageData(overlay, 0, 0);
@@ -78,6 +81,38 @@ export const useMainLoop = () => {
     triggerNextCountdown,
   ]);
 
+  const captureSegmentations = useCallback(async () => {
+    triggerNextCountdown();
+    
+    let finished = null;
+    if (captureScoreRef.current) {
+      console.log('capturing!')
+      const segmentation = await predict();
+      setPolygons(state => {
+        if (state.length + 1 === 3) finished = true;
+        if (!state.length) polygonRef.current = segmentation; // set to the first segmentation
+
+        console.log(state)
+        return [...state, segmentation];
+      });
+      initializedRef.current = false;
+      captureScoreRef.current = false;
+    }
+
+    if (loopRef.current && !finished) {
+      requestAnimationFrame(captureSegmentations);
+    } else{
+      console.log('stopping loop')
+      setStopLoop();
+    }
+  }, [
+    predict,
+    polygonRef,
+    setStopLoop,
+    setPolygons,
+    triggerNextCountdown,
+  ]);
+
   const start = useCallback(async () => {
     if (!predict) {
       throw new Error('Please wait for the BodyPix to load...');
@@ -91,6 +126,19 @@ export const useMainLoop = () => {
     return predictLoop();
   }, [predict, predictLoop, setStartLoop]);
 
+  const startCaptureSegmentations = useCallback(async () => {
+    if (!predict) {
+      throw new Error('Please wait for the BodyPix to load...');
+    } else if (loopRef.current) {
+      console.error('The app is already running.');
+      return;
+    }
+
+    setStartLoop();
+
+    return captureSegmentations();
+  }, [predict, captureSegmentations, setStartLoop]);
+
   const stop = useCallback(() => {
     setStopLoop();
   }, [setStopLoop]);
@@ -103,7 +151,18 @@ export const useMainLoop = () => {
     ready: predict && webcam.videoStarted,
     looping,
     nextPolygon: next,
-  }), [start, stop, predict, looping, webcam, next, score, scores]);
+    startCaptureSegmentations,
+  }), [
+    start,
+    stop,
+    predict,
+    looping,
+    webcam,
+    next,
+    score,
+    scores,
+    startCaptureSegmentations,
+    ]);
 
   return controller;
 };
