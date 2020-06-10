@@ -76,7 +76,7 @@ const Main = (props) => {
         </Typography>
       )}
       <Typography variant="h4">
-        Scores: {loop.scores.join(', ')}
+        Scores: {loop.scores.join(', ')} = {loop.scores.reduce((a,b) => a+b,0)}
       </Typography>
     </div>
   );

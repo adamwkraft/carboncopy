@@ -11,7 +11,7 @@ export const useBodyPix = () => {
 
   // load the model on the first mount
   useEffect(() => {
-    if (!loadRef.current) {
+    if (!loadRef.current && webcam.videoStarted) {
       loadRef.current = true;
       bodyPix.load(
         {architecture: 'ResNet50', //'MobileNetV1',
@@ -28,7 +28,7 @@ export const useBodyPix = () => {
         )
         .catch(console.error);
     }
-  }, []);
+  }, [webcam]);
 
   // TODO: Make it possible to tweak bodyPix settings
   const predict = useCallback(async () => {
