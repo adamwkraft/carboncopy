@@ -182,44 +182,18 @@ export const useMainLoop = () => {
 
   const captureSegmentationAsDataURI = useCallback(async () => {
     const segmentation = await predict();
-    
-    const ctx = webcam.canvasRef.current.getContext('2d');
     const overlay = getBinaryOverlay(segmentation, webcam.flipX);
 
-    ctx.putImageData(overlay, 0, 0);
-    const dataUri = webcam.canvasRef.current.toDataURL("image/png");
-    webcam.clearCanvas();
-
-    console.log(dataUri);
+    const dataUri = webcam.imageDataToDataUri(overlay);
 
     return dataUri;
   }, [predict, webcam]);
-
-  const dataUriToImageData = useCallback(async (dataUri) => {
-    const ctx = webcam.canvasRef.current.getContext('2d');
-
-    const img = new Image();
-    img.src = dataUri;
-    await new Promise((resolve) => {
-      img.onload = () => {
-        ctx.drawImage(img,0,0);
-        resolve();
-      };
-    });
-
-    const imageData = ctx.getImageData(0, 0, webcam.canvasRef.current.width, webcam.canvasRef.current.height);
-    webcam.clearCanvas();
-
-    console.log(imageData);
-
-    return imageData;
-  }, [webcam]);
 
   // debug - pass in a URI, call a prediction to get a segmentation,
   // and calculate result.
   const getImageDataFromURIAndPredict = useCallback(async () => {
     const myDataUri = await captureSegmentationAsDataURI();
-    const myImageData = await dataUriToImageData(myDataUri);
+    const myImageData = await webcam.dataUriToImageData(myDataUri);
     const segmentation = await predict();
 
     const { score, overlay } = getScoreAndOverlayForSegmentationAndImageData(myImageData, segmentation, webcam.flipX);
@@ -228,13 +202,13 @@ export const useMainLoop = () => {
     const ctx = webcam.canvasRef.current.getContext('2d');
     ctx.putImageData(overlay, 0, 0);
 
-  }, [predict,
+  }, [
+    webcam,
+    predict,
     captureSegmentationAsDataURI,
-    dataUriToImageData,
-     webcam]);
+  ]);
 
   window.cool_fn = getImageDataFromURIAndPredict;
-  window.webcam = webcam;
 
   const controller = useMemo(() => ({
     start,
