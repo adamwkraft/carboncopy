@@ -35,8 +35,6 @@ const Main = (props) => {
     : loop.start()
   ), [loop]);
 
-  console.log(loop.userSegmentations);
-
   return (
     <div className={classes.root}>
       <div className={classes.options}>
