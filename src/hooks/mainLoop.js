@@ -4,7 +4,7 @@ import { useSpeech } from "./speech";
 import { useBodyPix } from "./bodyPix";
 import { usePolygon } from "./polygon";
 import { useWebcam } from "../context/webcam";
-import { getScoreAndOverlay, getScoreAndOverlayForSegmentation, getSegmentationOverlay, getBinaryOverlay} from '../lib/util';
+import { getScoreAndOverlay, getScoreAndOverlayForSegmentation, getSegmentationOverlay, getBinaryOverlay, getScoreAndOverlayForSegmentationAndImageData} from '../lib/util';
 
 export const useMainLoop = () => {
   const { countdown } = useSpeech();
@@ -214,6 +214,27 @@ export const useMainLoop = () => {
 
     return imageData;
   }, [webcam]);
+
+  // debug - pass in a URI, call a prediction to get a segmentation,
+  // and calculate result.
+  const getImageDataFromURIAndPredict = useCallback(async () => {
+    const myDataUri = await captureSegmentationAsDataURI();
+    const myImageData = await dataUriToImageData(myDataUri);
+    const segmentation = await predict();
+
+    const { score, overlay } = getScoreAndOverlayForSegmentationAndImageData(myImageData, segmentation, webcam.flipX);
+    console.log("ADAM SCORE!", score);
+
+    const ctx = webcam.canvasRef.current.getContext('2d');
+    ctx.putImageData(overlay, 0, 0);
+
+  }, [predict,
+    captureSegmentationAsDataURI,
+    dataUriToImageData,
+     webcam]);
+
+  window.cool_fn = getImageDataFromURIAndPredict;
+  window.webcam = webcam;
 
   const controller = useMemo(() => ({
     start,
