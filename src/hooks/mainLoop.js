@@ -4,7 +4,7 @@ import { useSpeech } from "./speech";
 import { useBodyPix } from "./bodyPix";
 import { usePolygon } from "./polygon";
 import { useWebcam } from "../context/webcam";
-import { getScoreAndOverlay, getScoreAndOverlayForSegmentation, getSegmentationOverlay} from '../lib/util';
+import { getScoreAndOverlay, getScoreAndOverlayForSegmentation, getSegmentationOverlay, getBinaryOverlay} from '../lib/util';
 
 export const useMainLoop = () => {
   const { countdown } = useSpeech();
@@ -128,7 +128,6 @@ export const useMainLoop = () => {
         if (state.length + 1 === 3) finished = true;
         if (!state.length) polygonRef.current = segmentation; // set to the first segmentation
 
-        console.log(state)
         return [...state, segmentation];
       });
       initializedRef.current = false;
@@ -181,6 +180,20 @@ export const useMainLoop = () => {
     setStopLoop();
   }, [setStopLoop]);
 
+  const captureSegmentationAsDataURI = useCallback(async () => {
+    const segmentation = await predict();
+    
+    const ctx = webcam.canvasRef.current.getContext('2d');
+    const overlay = getBinaryOverlay(segmentation, webcam.flipX);
+
+    ctx.putImageData(overlay, 0, 0);
+    const dataUri = webcam.canvasRef.current.toDataURL("image/png");
+
+    console.log(dataUri);
+
+    return dataUri;
+  }, [predict, webcam.canvasRef, webcam.flipX]);
+
   const controller = useMemo(() => ({
     start,
     stop,
@@ -188,6 +201,7 @@ export const useMainLoop = () => {
     scores,
     ready: predict && webcam.videoStarted,
     looping,
+    captureSegmentationAsDataURI,
     nextPolygon: next,
     startCaptureSegmentations,
   }), [
@@ -199,6 +213,7 @@ export const useMainLoop = () => {
     next,
     score,
     scores,
+    captureSegmentationAsDataURI,
     startCaptureSegmentations,
     ]);
 
