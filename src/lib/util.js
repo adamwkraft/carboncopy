@@ -65,7 +65,7 @@ export const getScoreAndOverlay = (polygon, segmentation, flipped) => {
     bytes[bytes_index*4+3] = 128;                       // alpha
   }
 
-  const score = Math.round(intersection / union * 100);
+  const score = Math.round(intersection / (union+0.0000001) * 100);
   const overlay = new ImageData(bytes, width, height);
 
   return { score, overlay };
@@ -99,7 +99,7 @@ export const getScoreAndOverlayForSegmentation = (targetSegmentation, segmentati
     bytes[bytes_index*4+3] = 128;                       // alpha
   }
 
-  const score = Math.round(intersection / union * 100);
+  const score = Math.round(intersection / (union+0.0000001) * 100);
   const overlay = new ImageData(bytes, width, height);
 
   return { score, overlay };
@@ -154,7 +154,7 @@ export const getScoreAndOverlayForSegmentationAndImageData = (targetImageData, s
     bytes[bytes_index*4+3] = 128;                       // alpha
   }
 
-  const score = Math.round(intersection / union * 100);
+  const score = Math.round(intersection / (union+0.0000001) * 100);
   const overlay = new ImageData(bytes, width, height);
 
   return { score, overlay };
