@@ -138,6 +138,34 @@ const WebcamProvider = ({children}) => {
     _setAutoStartDeviceId(null);
   }, []);
 
+  const imageDataToDataUri = useCallback((imageData) => {
+    const ctx = canvasRef.current.getContext('2d');
+
+    ctx.putImageData(imageData, 0, 0);
+    const dataUri = canvasRef.current.toDataURL('image/png');
+    clearCanvas();
+
+    return dataUri;
+  }, [clearCanvas]);
+
+  const dataUriToImageData = useCallback(async (dataUri) => {
+    const ctx = canvasRef.current.getContext('2d');
+
+    const img = new Image();
+    img.src = dataUri;
+    await new Promise((resolve) => {
+      img.onload = () => {
+        ctx.drawImage(img,0,0);
+        resolve();
+      };
+    });
+
+    const imageData = ctx.getImageData(0, 0, canvasRef.current.width, canvasRef.current.height);
+    clearCanvas();
+
+    return imageData;
+  }, [clearCanvas]);
+
   useEffect(() => { 
     discoverCameras()
       .then((foundCameras) => {
@@ -168,6 +196,8 @@ const WebcamProvider = ({children}) => {
     discoverCameras,
     autoStartDeviceId,
     start: startVideo,
+    imageDataToDataUri,
+    dataUriToImageData,
     setAutoStartDeviceId,
     clearAutoStartDeviceId,
   }), [
@@ -184,6 +214,8 @@ const WebcamProvider = ({children}) => {
       setAutoStartDeviceId,
       currentDeviceId,
       discoverCameras,
+      imageDataToDataUri,
+      dataUriToImageData,
       clearAutoStartDeviceId,
       autoStartDeviceId,
   ]);
