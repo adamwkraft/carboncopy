@@ -188,11 +188,32 @@ export const useMainLoop = () => {
 
     ctx.putImageData(overlay, 0, 0);
     const dataUri = webcam.canvasRef.current.toDataURL("image/png");
+    webcam.clearCanvas();
 
     console.log(dataUri);
 
     return dataUri;
-  }, [predict, webcam.canvasRef, webcam.flipX]);
+  }, [predict, webcam]);
+
+  const dataUriToImageData = useCallback(async (dataUri) => {
+    const ctx = webcam.canvasRef.current.getContext('2d');
+
+    const img = new Image();
+    img.src = dataUri;
+    await new Promise((resolve) => {
+      img.onload = () => {
+        ctx.drawImage(img,0,0);
+        resolve();
+      };
+    });
+
+    const imageData = ctx.getImageData(0, 0, webcam.canvasRef.current.width, webcam.canvasRef.current.height);
+    webcam.clearCanvas();
+
+    console.log(imageData);
+
+    return imageData;
+  }, [webcam]);
 
   const controller = useMemo(() => ({
     start,
