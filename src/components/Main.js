@@ -68,6 +68,14 @@ const Main = (props) => {
         >
           Capture Segmentations
         </Button>
+        <Button
+          color='primary'
+          variant='contained'
+          disabled={!loop.ready}
+          onClick={loop.captureSegmentationAsDataURI}
+        >
+          Capture and Save Segmentation
+        </Button>
       </div>
       <Webcam />
       { loop.looping && (
