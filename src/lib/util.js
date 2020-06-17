@@ -105,6 +105,28 @@ export const getScoreAndOverlayForSegmentation = (targetSegmentation, segmentati
   return { score, overlay };
 };
 
+export const getBinaryOverlay = (segmentation, flipped) => {
+  const {data, width, height} = segmentation;
+  const bytes = new Uint8ClampedArray(segmentation.data.length * 4);
+
+  for (let i = 0; i < height * width; ++i) {
+    const x = i % width;
+    const y = parseInt(i / width);
+    
+    const isPerson = data[i];
+    const bytes_index  = (flipped ? (width - x) + (width * y) : i);
+
+    bytes[bytes_index*4] = isPerson ? 255 : 0;
+    bytes[bytes_index*4+1] = isPerson ? 255 : 0;
+    bytes[bytes_index*4+2] = isPerson ? 255 : 0;
+    bytes[bytes_index*4+3] = isPerson ? 255 : 0;
+  }
+
+  const overlay = new ImageData(bytes, width, height);
+
+  return overlay;
+};
+
 export const drawPolygon = (ctx, polygon, color='rgba(255, 255, 255, 0.5)') => {
   ctx.fillStyle = color;
   ctx.beginPath();
