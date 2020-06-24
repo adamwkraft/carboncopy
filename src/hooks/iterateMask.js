@@ -12,6 +12,7 @@ export const useIterateMask = () => {
   }, []);
 
   const next = useCallback(() => {
+    maskIdxRef.current++;
     const currentPoly = masks[maskIdxRef.current];
 
     if (!currentPoly) {
@@ -22,7 +23,6 @@ export const useIterateMask = () => {
     }
 
     maskRef.current = currentPoly;
-    maskIdxRef.current++;
     
     return currentPoly;
   }, [masks]);

@@ -84,7 +84,7 @@ export const useMainLoop = () => {
     triggerNextCountdown(); // call this after first segmentation to ensure we are ready to go
     
     const ctx = webcam.canvasRef.current.getContext('2d');
-    console.log("SEGMENTATION, maskIterator.maskRef.current", maskIterator.maskRef.current) 
+    // console.log("SEGMENTATION, maskIterator.maskRef.current", maskIterator.maskRef.current) 
     const overlay = getSegmentationOverlay(maskIterator.maskRef.current, webcam.flipX);
 
     let finished = null;
@@ -123,7 +123,7 @@ export const useMainLoop = () => {
       console.log('capturing!')
       const segmentation = await predict();
       maskIterator.setMasks(state => {
-        if (state.length + 1 === 3) finished = true;
+        if (state.length + 1 === 2) finished = true;
         if (!state.length) maskIterator.maskRef.current = segmentation; // set to the first segmentation
 
         return [...state, segmentation];
