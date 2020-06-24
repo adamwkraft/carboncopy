@@ -4,15 +4,16 @@ import { useRef, useState, useCallback } from "react";
 
 export const useIterateMask = () => {
   const [masks, setMasks] = useState([]);
-  
+
   const maskRef = useRef(null);
   const maskIdxRef = useRef(0);
+
   const reset = useCallback(() => {
     maskIdxRef.current = 0;
+    maskRef.current = null;
   }, []);
 
   const next = useCallback(() => {
-    maskIdxRef.current++;
     const currentPoly = masks[maskIdxRef.current];
 
     if (!currentPoly) {
@@ -23,6 +24,7 @@ export const useIterateMask = () => {
     }
 
     maskRef.current = currentPoly;
+    maskIdxRef.current++;
     
     return currentPoly;
   }, [masks]);
