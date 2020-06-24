@@ -84,7 +84,10 @@ export const useMainLoop = () => {
     triggerNextCountdown(); // call this after first segmentation to ensure we are ready to go
     
     const ctx = webcam.canvasRef.current.getContext('2d');
-    console.log("SEGMENTATION, maskIterator.maskRef.current", maskIterator.maskRef.current) 
+    // console.log("SEGMENTATION, maskIterator.maskRef.current", maskIterator.maskRef.current) 
+    if (!maskIterator.maskRef.current) {
+      maskIterator.next();
+    }
     const overlay = getSegmentationOverlay(maskIterator.maskRef.current, webcam.flipX);
 
     let finished = null;
@@ -123,9 +126,7 @@ export const useMainLoop = () => {
       console.log('capturing!')
       const segmentation = await predict();
       maskIterator.setMasks(state => {
-        if (state.length + 1 === 3) finished = true;
-        if (!state.length) maskIterator.maskRef.current = segmentation; // set to the first segmentation
-
+        if (state.length + 1 === 2) finished = true;
         return [...state, segmentation];
       });
       initializedRef.current = false;
@@ -135,6 +136,7 @@ export const useMainLoop = () => {
     if (loopRef.current && !finished) {
       requestAnimationFrame(captureSegmentations);
     } else{
+      maskIterator.reset();
       console.log('stopping loop')
       setStopLoop();
     }
@@ -152,13 +154,12 @@ export const useMainLoop = () => {
       console.error('The app is already running.');
       return;
     }
-
+    maskIterator.reset();
     setStartLoop();
-
   //   return predictLoop();
   // }, [predict, predictLoop, setStartLoop]);
-     return predictOnCaptureScoreLoop();
-  }, [predict, predictOnCaptureScoreLoop, setStartLoop]);
+    return predictOnCaptureScoreLoop();
+  }, [predict, predictOnCaptureScoreLoop, setStartLoop, maskIterator]);
 
   const startCaptureSegmentations = useCallback(async () => {
     if (!predict) {
