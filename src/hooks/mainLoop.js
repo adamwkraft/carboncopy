@@ -6,6 +6,8 @@ import { useIterateMask } from "./iterateMask";
 import { useWebcam } from "../context/webcam";
 import { getScoreAndOverlay, getScoreAndOverlayForSegmentation, getSegmentationOverlay, getBinaryOverlay, getScoreAndOverlayForSegmentationAndImageData} from '../lib/util';
 
+let currentGame = [];
+
 export const useMainLoop = () => {
   const { countdown } = useSpeech();
   const webcam = useWebcam();
@@ -34,7 +36,7 @@ export const useMainLoop = () => {
   const triggerNextCountdown = useCallback(() => {
     if (!initializedRef.current) {
       initializedRef.current = true;
-      countdown(3, {
+      countdown(2, {
         onEnd: () => {
           captureScoreRef.current = true;
         }
@@ -87,22 +89,29 @@ export const useMainLoop = () => {
     // console.log("SEGMENTATION, maskIterator.maskRef.current", maskIterator.maskRef.current) 
     if (!maskIterator.maskRef.current) {
       maskIterator.next();
+      console.log('ADAM, maskRef current', maskIterator.maskRef.current);
+      ctx.putImageData(maskIterator.maskRef.current, 0, 0);
     }
-    const overlay = getSegmentationOverlay(maskIterator.maskRef.current, webcam.flipX);
+    // const overlay = getSegmentationOverlay(maskIterator.maskRef.current, webcam.flipX);
 
     let finished = null;
     if (captureScoreRef.current) {
       const segmentation = await predict();
-      const { score } = getScoreAndOverlayForSegmentation(maskIterator.maskRef.current, segmentation, webcam.flipX);
+      // const myImageData = await webcam.dataUriToImageData(maskIterator.maskRef.current);
+      const { score } = getScoreAndOverlayForSegmentationAndImageData(maskIterator.maskRef.current, segmentation, webcam.flipX);
+      // const { score } = getScoreAndOverlayForSegmentation(maskIterator.maskRef.current, segmentation, webcam.flipX);
       setScores(state => [...state, score]);
       initializedRef.current = false;
       captureScoreRef.current = false;
       const polygon = maskIterator.next();
       console.log('poly', polygon);
       finished = !polygon;
+      if (!finished) {
+        ctx.putImageData(maskIterator.maskRef.current, 0, 0);
+      }
     }
 
-    ctx.putImageData(overlay, 0, 0);
+    // ctx.putImageData(maskImageData, 0, 0);
 
     if (loopRef.current && !finished) {
       requestAnimationFrame(predictOnCaptureScoreLoop);
@@ -125,10 +134,13 @@ export const useMainLoop = () => {
     if (captureScoreRef.current) {
       console.log('capturing!')
       const segmentation = await predict();
-      maskIterator.setMasks(state => {
-        if (state.length + 1 === 2) finished = true;
-        return [...state, segmentation];
-      });
+      const overlay = getSegmentationOverlay(segmentation, webcam.flipX);
+      // const overlay = getBinaryOverlay(segmentation, webcam.flipX);
+      const dataUri = webcam.imageDataToDataUri(overlay);
+      currentGame.push(dataUri);
+      if (currentGame.length === 2) {
+        finished = true;
+      }
       initializedRef.current = false;
       captureScoreRef.current = false;
     }
@@ -136,6 +148,10 @@ export const useMainLoop = () => {
     if (loopRef.current && !finished) {
       requestAnimationFrame(captureSegmentations);
     } else{
+      // "Load" and call setMasks
+      const dataImages = await Promise.all(currentGame.map(webcam.dataUriToImageData));
+      maskIterator.setMasks(dataImages);
+
       maskIterator.reset();
       console.log('stopping loop')
       setStopLoop();
@@ -145,6 +161,7 @@ export const useMainLoop = () => {
     setStopLoop,
     maskIterator,
     triggerNextCountdown,
+    webcam
   ]);
 
   const start = useCallback(async () => {
@@ -162,6 +179,7 @@ export const useMainLoop = () => {
   }, [predict, predictOnCaptureScoreLoop, setStartLoop, maskIterator]);
 
   const startCaptureSegmentations = useCallback(async () => {
+    currentGame = [];
     if (!predict) {
       throw new Error('Please wait for the BodyPix to load...');
     } else if (loopRef.current) {

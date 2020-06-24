@@ -35,6 +35,27 @@ export const getSegmentationOverlay = (segmentation, flipped) => {
 
   return overlay;
 }
+export const getBinaryOverlay = (segmentation, flipped) => {
+  const {data, width, height} = segmentation;
+  const bytes = new Uint8ClampedArray(segmentation.data.length * 4);
+
+  for (let i = 0; i < height * width; ++i) {
+    const x = i % width;
+    const y = parseInt(i / width);
+    
+    const isPerson = data[i];
+    const bytes_index  = (flipped ? (width - x) + (width * y) : i);
+
+    bytes[bytes_index*4] = isPerson ? 255 : 0;
+    bytes[bytes_index*4+1] = isPerson ? 255 : 0;
+    bytes[bytes_index*4+2] = isPerson ? 255 : 0;
+    bytes[bytes_index*4+3] = isPerson ? 255 : 0;
+  }
+
+  const overlay = new ImageData(bytes, width, height);
+
+  return overlay;
+};
 
 export const getScoreAndOverlay = (polygon, segmentation, flipped) => {
   const {data, width, height} = segmentation;
@@ -105,27 +126,6 @@ export const getScoreAndOverlayForSegmentation = (targetSegmentation, segmentati
   return { score, overlay };
 };
 
-export const getBinaryOverlay = (segmentation, flipped) => {
-  const {data, width, height} = segmentation;
-  const bytes = new Uint8ClampedArray(segmentation.data.length * 4);
-
-  for (let i = 0; i < height * width; ++i) {
-    const x = i % width;
-    const y = parseInt(i / width);
-    
-    const isPerson = data[i];
-    const bytes_index  = (flipped ? (width - x) + (width * y) : i);
-
-    bytes[bytes_index*4] = isPerson ? 255 : 0;
-    bytes[bytes_index*4+1] = isPerson ? 255 : 0;
-    bytes[bytes_index*4+2] = isPerson ? 255 : 0;
-    bytes[bytes_index*4+3] = isPerson ? 255 : 0;
-  }
-
-  const overlay = new ImageData(bytes, width, height);
-
-  return overlay;
-};
 export const getScoreAndOverlayForSegmentationAndImageData = (targetImageData, segmentation, flipped) => {
   const {data, width, height} = segmentation;
   const bytes = new Uint8ClampedArray(segmentation.data.length * 4);
@@ -140,7 +140,7 @@ export const getScoreAndOverlayForSegmentationAndImageData = (targetImageData, s
     const bytes_index  = (flipped ? (width - x) + (width * y) : i);
 
     const isPerson = data[i];
-    const isInPolygon = !!targetImageData.data[bytes_index*4+3];
+    const isInPolygon = !!targetImageData.data[bytes_index*4+2];
     const isIntersection = isInPolygon && isPerson;
     const isMissedPolygon = isInPolygon && !isPerson;
     const isPersonOutOfPolygon = !isInPolygon && isPerson;
