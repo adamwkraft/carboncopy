@@ -2,7 +2,7 @@ import { useRef, useState, useCallback, useMemo } from "react";
 
 import { useSpeech } from "./speech";
 import { useBodyPix } from "./bodyPix";
-import { usePolygon } from "./polygon";
+import { useIterateMask } from "./iterateMask";
 import { useWebcam } from "../context/webcam";
 import { getScoreAndOverlay, getScoreAndOverlayForSegmentation, getSegmentationOverlay, getBinaryOverlay, getScoreAndOverlayForSegmentationAndImageData} from '../lib/util';
 
@@ -10,7 +10,7 @@ export const useMainLoop = () => {
   const { countdown } = useSpeech();
   const webcam = useWebcam();
   const predict = useBodyPix();
-  const { polygonRef, next, setPolygons } = usePolygon();
+  const maskIterator = useIterateMask();
 
   const loopRef = useRef();
   const initializedRef = useRef();
@@ -50,8 +50,8 @@ export const useMainLoop = () => {
     
     const ctx = webcam.canvasRef.current.getContext('2d');
     
-    const { score, overlay } = getScoreAndOverlayForSegmentation(polygonRef.current, segmentation, webcam.flipX);
-    // const { score, overlay } = getScoreAndOverlay(polygonRef.current, segmentation, webcam.flipX);
+    const { score, overlay } = getScoreAndOverlayForSegmentation(maskIterator.maskRef.current, segmentation, webcam.flipX);
+    // const { score, overlay } = getScoreAndOverlay(maskIterator.maskRef.current, segmentation, webcam.flipX);
     setScore(score);
 
     let finished = null;
@@ -59,7 +59,7 @@ export const useMainLoop = () => {
       setScores(state => [...state, score]);
       initializedRef.current = false;
       captureScoreRef.current = false;
-      const polygon = next();
+      const polygon = maskIterator.next();
       console.log('poly', polygon);
       finished = !polygon;
     }
@@ -73,10 +73,9 @@ export const useMainLoop = () => {
       webcam.clearCanvas();
     }
   }, [
-    next,
+    maskIterator,
     webcam,
     predict,
-    polygonRef,
     setStopLoop,
     triggerNextCountdown,
   ]);
@@ -85,17 +84,17 @@ export const useMainLoop = () => {
     triggerNextCountdown(); // call this after first segmentation to ensure we are ready to go
     
     const ctx = webcam.canvasRef.current.getContext('2d');
-    console.log("SEGMENTATION, polygonRef.current", polygonRef.current) 
-    const overlay = getSegmentationOverlay(polygonRef.current, webcam.flipX);
+    console.log("SEGMENTATION, maskIterator.maskRef.current", maskIterator.maskRef.current) 
+    const overlay = getSegmentationOverlay(maskIterator.maskRef.current, webcam.flipX);
 
     let finished = null;
     if (captureScoreRef.current) {
       const segmentation = await predict();
-      const { score } = getScoreAndOverlayForSegmentation(polygonRef.current, segmentation, webcam.flipX);
+      const { score } = getScoreAndOverlayForSegmentation(maskIterator.maskRef.current, segmentation, webcam.flipX);
       setScores(state => [...state, score]);
       initializedRef.current = false;
       captureScoreRef.current = false;
-      const polygon = next();
+      const polygon = maskIterator.next();
       console.log('poly', polygon);
       finished = !polygon;
     }
@@ -109,10 +108,9 @@ export const useMainLoop = () => {
       webcam.clearCanvas();
     }
   }, [
-    next,
     webcam,
     predict,
-    polygonRef,
+    maskIterator,
     setStopLoop,
     triggerNextCountdown,
   ]);
@@ -124,9 +122,9 @@ export const useMainLoop = () => {
     if (captureScoreRef.current) {
       console.log('capturing!')
       const segmentation = await predict();
-      setPolygons(state => {
+      maskIterator.setMasks(state => {
         if (state.length + 1 === 3) finished = true;
-        if (!state.length) polygonRef.current = segmentation; // set to the first segmentation
+        if (!state.length) maskIterator.maskRef.current = segmentation; // set to the first segmentation
 
         return [...state, segmentation];
       });
@@ -142,9 +140,8 @@ export const useMainLoop = () => {
     }
   }, [
     predict,
-    polygonRef,
     setStopLoop,
-    setPolygons,
+    maskIterator,
     triggerNextCountdown,
   ]);
 
@@ -218,7 +215,6 @@ export const useMainLoop = () => {
     ready: predict && webcam.videoStarted,
     looping,
     captureSegmentationAsDataURI,
-    nextPolygon: next,
     startCaptureSegmentations,
   }), [
     start,
@@ -226,7 +222,6 @@ export const useMainLoop = () => {
     predict,
     looping,
     webcam,
-    next,
     score,
     scores,
     captureSegmentationAsDataURI,
