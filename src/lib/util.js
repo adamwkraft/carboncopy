@@ -28,7 +28,7 @@ export const getSegmentationOverlay = (segmentation, flipped) => {
     bytes[bytes_index*4] = 0;  // red
     bytes[bytes_index*4+1] = 0;   // green
     bytes[bytes_index*4+2] = isPerson ? 255 : 0; // blue
-    bytes[bytes_index*4+3] = 128;                       // alpha
+    bytes[bytes_index*4+3] = isPerson ? 128 : 0; // alpha
   }
 
   const overlay = new ImageData(bytes, width, height);
