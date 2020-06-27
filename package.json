@@ -13,6 +13,8 @@
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
+    "image-data-uri": "^2.0.1",
+    "jszip": "^3.5.0",
     "point-in-polygon": "^1.0.1",
     "react": "^16.13.1",
     "react-app-rewire-hot-loader": "^2.0.1",
