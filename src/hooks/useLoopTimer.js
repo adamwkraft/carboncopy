@@ -1,5 +1,4 @@
-import { useCallback, useRef, } from "react";
-import { useMemo } from "react";
+import { useCallback, useRef, useMemo } from "react";
 
 export const useLoopTimer = () => {
   const lastTimeRef = useRef();
@@ -10,10 +9,10 @@ export const useLoopTimer = () => {
 
   const reset = useCallback((timestamp=0) => {
     startTimeRef.current = timestamp;
-      lastTimeRef.current = timestamp;
-      fpsSumRef.current = 0;
-      totalFramesRef.current = 0;
-      timerRef.current = 0;
+    lastTimeRef.current = timestamp;
+    fpsSumRef.current = 0;
+    totalFramesRef.current = 0;
+    timerRef.current = 0;
   }, []);
 
   const resetTimer = useCallback(() => {
@@ -21,7 +20,9 @@ export const useLoopTimer = () => {
   }, []);
   
   const update = useCallback((timestamp) => {
+    let first = false;
     if (!startTimeRef.current) {
+      first = true;
       reset(timestamp);
     }
 
@@ -42,6 +43,7 @@ export const useLoopTimer = () => {
     lastTimeRef.current = timestamp;
 
     return {
+      first,
       timestamp,
       fps,
       avgFps,
