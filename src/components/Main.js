@@ -1,6 +1,9 @@
 import React, { useCallback } from 'react'
 import { makeStyles } from '@material-ui/core';
 
+import Paper from '@material-ui/core/Paper';
+import Typography from '@material-ui/core/Typography';
+
 import Button from '@material-ui/core/Button';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import IconButton from '@material-ui/core/IconButton';
@@ -25,6 +28,9 @@ const useStyles = makeStyles(theme => ({
     marginBottom: theme.spacing(1),
   },
   masks: {
+    padding: theme.spacing(1),
+  },
+  masksList: {
     display: 'flex',
     flexFlow: 'row wrap',
     justifyContent: 'space-around',
@@ -71,6 +77,12 @@ const useStyles = makeStyles(theme => ({
     '&:active, &:focused': {
       backgroundColor: 'rgba(255,255,255,0.9)',
     },
+  },
+  masksHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: theme.spacing(1),
   }
 }));
 
@@ -100,22 +112,37 @@ const Main = (props) => {
       </div>
       <Webcam />
       {!!captureMasks.masks.length && (
-        <ul className={classes.masks}>
-          {captureMasks.masks.map((dataUri, i) => (
-            <li className={classes.imgContainer} key={dataUri}>
-              <div className={classes.removeMask}>
-                <IconButton
-                  name={i}
-                  className={classes.iconBtn}
-                  onClick={captureMasks.removeMask}
-                >
-                  <DeleteForeverIcon fontSize="large" />
-                </IconButton>
-              </div>
-              <img src={dataUri} className={classes.img} alt={`mask #${i}`} />
-            </li>
-          ))}
-        </ul>
+        <Paper className={classes.masks}>
+          <div className={classes.masksHeader}>
+            <Typography variant="h6" component="h3">
+              Candidate Masks
+            </Typography>
+            <div>
+              <Button onClick={captureMasks.downloadMasks}>
+                Download
+              </Button>
+              <Button onClick={captureMasks.removeAllMasks}>
+                Clear All
+              </Button>
+            </div>
+          </div>
+          <ul className={classes.masksList}>
+            {captureMasks.masks.map((dataUri, i) => (
+              <li className={classes.imgContainer} key={dataUri}>
+                <div className={classes.removeMask}>
+                  <IconButton
+                    name={i}
+                    className={classes.iconBtn}
+                    onClick={captureMasks.removeMask}
+                  >
+                    <DeleteForeverIcon fontSize="large" />
+                  </IconButton>
+                </div>
+                <img src={dataUri} className={classes.img} alt={`mask #${i}`} />
+              </li>
+            ))}
+          </ul>
+        </Paper>
       )}
     </div>
   );
