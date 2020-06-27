@@ -1,8 +1,10 @@
-import { getSegmentationOverlay, getBinaryOverlay } from "../../lib/util";
+import { getSegmentationOverlay, getBinaryOverlay, saveAs } from "../../lib/util";
 import { useRef } from "react";
 import { useCallback } from "react";
 import { useSpeech } from "../speech";
 import { useState } from "react";
+import JSZip from "jszip";
+import imageDataUri from 'image-data-uri';
 
 const CAPTURE_MS = 3000;
 const CAPTURE_S = CAPTURE_MS / 1000;
@@ -18,6 +20,21 @@ export const useCaptureMasks = (numCaptures=3) => {
     // the plus coerces the idx to a number
     setMasks(state => state.filter((_, index) => index !== +idx));
   }, []);
+
+  const removeAllMasks = useCallback(() => {
+    setMasks([]);
+  }, []);
+
+  const downloadMasks = useCallback(() => {
+    const zip = new JSZip();
+    const img = zip.folder("masks");
+    masks.forEach((mask, idx) => {
+      img.file(`mask-${idx}.png`, imageDataUri.decode(mask).dataBase64, {base64: true});
+    });
+
+    zip.generateAsync({type:'blob'})
+      .then(zipFile => saveAs(zipFile, 'masks.zip'));
+  }, [masks]);
 
   const handleLoop = useCallback(async ({ predict, webcam, time, stop }) => {
     const { ctx } = webcam;
@@ -66,5 +83,5 @@ export const useCaptureMasks = (numCaptures=3) => {
     return () => promRef.current.then(webcam.clearCanvas);
   }, [speech]);
 
-  return { handleLoop, masks, removeMask };
+  return { handleLoop, masks, removeMask, removeAllMasks, downloadMasks };
 };
