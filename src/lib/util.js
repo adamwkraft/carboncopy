@@ -176,3 +176,28 @@ export const drawPolygon = (ctx, polygon, color='rgba(255, 255, 255, 0.5)') => {
 export const flipPolygon = (polygon, width) => polygon.map(([x, y]) => [width - x, y]);
 
 export const inflatePolygon = (width, height) => polygon => polygon.map(([x, y]) => [x*width, y*height]);
+
+export const saveAs = (blob, filename) => {
+  if (typeof navigator.msSaveOrOpenBlob !== 'undefined') {
+    return navigator.msSaveOrOpenBlob(blob, filename);
+  } else if (typeof navigator.msSaveBlob !== 'undefined') {
+    return navigator.msSaveBlob(blob, filename);
+  } else {
+    var elem = window.document.createElement('a');
+    elem.href = window.URL.createObjectURL(blob);
+    elem.download = filename;
+    elem.style = 'display:none;opacity:0;color:transparent;';
+    (document.body || document.documentElement).appendChild(elem);
+    if (typeof elem.click === 'function') {
+      elem.click();
+    } else {
+      elem.target = '_blank';
+      elem.dispatchEvent(new MouseEvent('click', {
+        view: window,
+        bubbles: true,
+        cancelable: true
+      }));
+    }
+    URL.revokeObjectURL(elem.href);
+  }
+}
