@@ -23,7 +23,12 @@ export const useBodyPix = () => {
           (loadedNet) => {
             // Rob will clean this up later.
             setNet(loadedNet);
-            loadedNet.segmentPerson(webcam.videoRef.current, {internalResolution: 'medium'})
+            // I think running this too quickly sometimes results in an error even though the webcam claims it is ready
+            // this doesn't fix the problem, but helps avoid it
+            // TODO: catch the error and retry later
+
+            // Unhandled Rejection (Error): The video element has not loaded data yet. Please wait for `loadeddata` event on the <video> element.
+            setTimeout(() => loadedNet.segmentPerson(webcam.videoRef.current, {internalResolution: 'medium'}), 500);
           }
         )
         .catch(console.error);
