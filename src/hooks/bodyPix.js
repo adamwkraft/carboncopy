@@ -11,7 +11,7 @@ export const useBodyPix = () => {
 
   // load the model on the first mount
   useEffect(() => {
-    if (!loadRef.current && webcam.videoStarted) {
+    if (!loadRef.current && webcam.ready) {
       loadRef.current = true;
       bodyPix.load(
         {architecture: 'ResNet50', //'MobileNetV1',

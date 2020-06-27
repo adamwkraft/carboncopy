@@ -50,8 +50,6 @@ export const useMainLoop = () => {
 
     // console.log({segmentation});
     
-    const ctx = webcam.canvasRef.current.getContext('2d');
-    
     const { score, overlay } = getScoreAndOverlayForSegmentation(maskIterator.maskRef.current, segmentation, webcam.flipX);
     // const { score, overlay } = getScoreAndOverlay(maskIterator.maskRef.current, segmentation, webcam.flipX);
     setScore(score);
@@ -66,7 +64,7 @@ export const useMainLoop = () => {
       finished = !polygon;
     }
 
-    ctx.putImageData(overlay, 0, 0);
+    webcam.ctx.putImageData(overlay, 0, 0);
 
     if (loopRef.current && !finished) {
       requestAnimationFrame(predictLoop);
@@ -85,12 +83,11 @@ export const useMainLoop = () => {
   const predictOnCaptureScoreLoop = useCallback(async () => {
     triggerNextCountdown(); // call this after first segmentation to ensure we are ready to go
     
-    const ctx = webcam.canvasRef.current.getContext('2d');
     // console.log("SEGMENTATION, maskIterator.maskRef.current", maskIterator.maskRef.current) 
     if (!maskIterator.maskRef.current) {
       maskIterator.next();
       console.log('ADAM, maskRef current', maskIterator.maskRef.current);
-      ctx.putImageData(maskIterator.maskRef.current, 0, 0);
+      webcam.ctx.putImageData(maskIterator.maskRef.current, 0, 0);
     }
     // const overlay = getSegmentationOverlay(maskIterator.maskRef.current, webcam.flipX);
 
@@ -107,11 +104,11 @@ export const useMainLoop = () => {
       console.log('poly', polygon);
       finished = !polygon;
       if (!finished) {
-        ctx.putImageData(maskIterator.maskRef.current, 0, 0);
+        webcam.ctx.putImageData(maskIterator.maskRef.current, 0, 0);
       }
     }
 
-    // ctx.putImageData(maskImageData, 0, 0);
+    // webcam.ctx.putImageData(maskImageData, 0, 0);
 
     if (loopRef.current && !finished) {
       requestAnimationFrame(predictOnCaptureScoreLoop);
@@ -215,8 +212,7 @@ export const useMainLoop = () => {
     const { score, overlay } = getScoreAndOverlayForSegmentationAndImageData(myImageData, segmentation, webcam.flipX);
     console.log("ADAM SCORE!", score);
 
-    const ctx = webcam.canvasRef.current.getContext('2d');
-    ctx.putImageData(overlay, 0, 0);
+    webcam.ctx.putImageData(overlay, 0, 0);
 
   }, [
     webcam,
@@ -231,7 +227,7 @@ export const useMainLoop = () => {
     stop,
     score,
     scores,
-    ready: predict && webcam.videoStarted,
+    ready: predict && webcam.ready,
     looping,
     captureSegmentationAsDataURI,
     startCaptureSegmentations,

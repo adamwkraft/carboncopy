@@ -1,7 +1,8 @@
-import { getSegmentationOverlay } from "../lib/util";
 import { useRef } from "react";
 import { useCallback } from "react";
-import { useSpeech } from "./speech";
+
+import { useSpeech } from "../speech";
+import { getSegmentationOverlay } from "../../lib/util";
 
 export const useTestLoopHandler = () => {
   const promRef = useRef();
@@ -10,7 +11,7 @@ export const useTestLoopHandler = () => {
   const lastSpeechRef = useRef();
 
   const handleLoop = useCallback(async ({ predict, webcam, time, stop }) => {
-    const ctx = webcam.canvasRef.current.getContext('2d');
+    const { ctx } = webcam;
     ctx.font = '40px Arial';
     ctx.fillStyle = 'white';
     ctx.clearRect(0, 0, 50, 50);

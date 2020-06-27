@@ -20,18 +20,26 @@ const hasVideo = !!(navigator?.mediaDevices?.getUserMedia);
 const WebcamProvider = ({children}) => {
   const videoRef = useRef();
   const canvasRef = useRef();
+  const [ctx, setCtx] = useState(null);
   const [flipX, setFlipX] = useState(true);
+  const [ready, setReady] = useState(false);
   const [cameras, setCameras] = useState([]);
   const [videoError, setVideoError] = useState(null);
   const [videoStream, setVideoStream] = useState(null);
-  const [videoStarted, setVideoStarted] = useState(false);
   const [currentDeviceId, setCurrentDeviceId] = useState(null);
   const [autoStartDeviceId, _setAutoStartDeviceId] = useState(null);
 
+  useEffect(() => {
+    if (canvasRef.current && !ctx) {
+      setCtx(canvasRef.current.getContext('2d'));
+    } else if (ctx && !canvasRef.current) {
+      setCtx(null);
+    }
+  }, [ctx]);
+
   const clearCanvas = useCallback(() => {
-    const context = canvasRef.current.getContext('2d');
-    context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-  }, []);
+    ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+  }, [ctx]);
 
   const stopVideo = useCallback(() => {
     if (videoStream) {
@@ -40,7 +48,7 @@ const WebcamProvider = ({children}) => {
 
     setVideoError(null);
     setVideoStream(null);
-    setVideoStarted(false);
+    setReady(false);
     setCurrentDeviceId(null);
   }, [videoStream])
 
@@ -95,18 +103,20 @@ const WebcamProvider = ({children}) => {
       console.error(message);
       console.error(e.message);
       setVideoStream(null);
-      setVideoStarted(false);
+      setReady(false);
       setVideoError(message);
 
       return;
     }
 
-    return new Promise(resolve => {
-      videoRef.current.onloadedmetadata = () => {
-        setVideoStarted(true);
-        resolve();
-      };
-    });
+    return await Promise.all([
+      new Promise(resolve => {
+        videoRef.current.onloadedmetadata = () => resolve();
+      }),
+      new Promise(resolve => {
+        videoRef.current.onloadeddata = () => resolve();
+      }),
+    ]).then(() => setReady(true));
   }, [stopVideo, videoRef, cameras]);
 
   const discoverCameras = useCallback(async () => {
@@ -139,18 +149,14 @@ const WebcamProvider = ({children}) => {
   }, []);
 
   const imageDataToDataUri = useCallback((imageData) => {
-    const ctx = canvasRef.current.getContext('2d');
-
     ctx.putImageData(imageData, 0, 0);
     const dataUri = canvasRef.current.toDataURL('image/png');
     clearCanvas();
 
     return dataUri;
-  }, [clearCanvas]);
+  }, [ctx, clearCanvas]);
 
   const dataUriToImageData = useCallback(async (dataUri) => {
-    const ctx = canvasRef.current.getContext('2d');
-
     const img = new Image();
     img.src = dataUri;
     await new Promise((resolve) => {
@@ -164,7 +170,7 @@ const WebcamProvider = ({children}) => {
     clearCanvas();
 
     return imageData;
-  }, [clearCanvas]);
+  }, [clearCanvas, ctx]);
 
   useEffect(() => { 
     discoverCameras()
@@ -178,6 +184,8 @@ const WebcamProvider = ({children}) => {
   }, []); // eslint-disable-line
 
   const context = useMemo(() => ({
+    ctx,
+    ready,
     flipX,
     cameras,
     setFlipX,
@@ -190,7 +198,6 @@ const WebcamProvider = ({children}) => {
     clearCanvas,
     toggleFlipX,
     videoStream,
-    videoStarted,
     currentDeviceId,
     stop: stopVideo,
     discoverCameras,
@@ -201,23 +208,24 @@ const WebcamProvider = ({children}) => {
     setAutoStartDeviceId,
     clearAutoStartDeviceId,
   }), [
-      flipX,
-      cameras,
-      setFlipX,
-      stopVideo,
-      startVideo,
-      videoError,
-      toggleFlipX,
-      clearCanvas,
-      videoStream,
-      videoStarted,
-      setAutoStartDeviceId,
-      currentDeviceId,
-      discoverCameras,
-      imageDataToDataUri,
-      dataUriToImageData,
-      clearAutoStartDeviceId,
-      autoStartDeviceId,
+    ctx,
+    ready,
+    flipX,
+    cameras,
+    setFlipX,
+    stopVideo,
+    startVideo,
+    videoError,
+    toggleFlipX,
+    clearCanvas,
+    videoStream,
+    setAutoStartDeviceId,
+    currentDeviceId,
+    discoverCameras,
+    imageDataToDataUri,
+    dataUriToImageData,
+    clearAutoStartDeviceId,
+    autoStartDeviceId,
   ]);
     
   return (

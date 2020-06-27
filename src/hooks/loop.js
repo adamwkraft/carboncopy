@@ -64,14 +64,14 @@ export const useLoop = (handleLoop) => {
   const controller = useMemo(() => ({
     start,
     stop: setStopLoop,
-    ready: predict && webcam.videoStarted,
+    ready: predict && webcam.ready,
     looping,
   }), [
     start,
     predict,
     looping,
     setStopLoop,
-    webcam.videoStarted,
+    webcam.ready,
     ]);
 
   return controller;
