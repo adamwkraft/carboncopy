@@ -35,6 +35,7 @@ export const getSegmentationOverlay = (segmentation, flipped) => {
 
   return overlay;
 }
+
 export const getBinaryOverlay = (segmentation, flipped) => {
   const {data, width, height} = segmentation;
   const bytes = new Uint8ClampedArray(segmentation.data.length * 4);
