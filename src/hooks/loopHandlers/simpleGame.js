@@ -8,28 +8,33 @@ import { getScoreAndOverlayForSegmentationAndImageData } from "../../lib/util";
 export const useSimpleGame = () => {
   const promRef = useRef();
   const webcam = useWebcam();
+  const [loading, setLoading] = useState(false);
 
   const maskIterator = useIterateMask();
   const [scores, setScores] = useState([]);
 
-  const handleLoadMasks = useCallback(async ([file]) => {
+  const handleLoadMasks = useCallback(([file]) => {
     if (file.type !== 'application/zip') {
       console.error('Expected a zip file but got', file.type);
       return;
     }
 
-    const data = await JSZip.loadAsync(file);
+    setLoading(true);
+    // we throw this in a setTimeout as it seems to give the setLoading a chance to change the state so our button can indicate we are loading
+    setTimeout(async () => {
+      const data = await JSZip.loadAsync(file);
+      const binaryMasks = await Promise.all(data
+        .filter((name) => name.endsWith('.png'))
+        .map(({ name }) => data.file(name).async('base64'))
+      );
 
-    const binaryMasks = await Promise.all(data
-      .filter((name) => name.endsWith('.png'))
-      .map(({ name }) => data.file(name).async('base64'))
-    );
+      const masksAsImageData = await Promise.all(binaryMasks
+        .map(b64 => webcam.dataUriToImageData(`data:image/png;base64,${b64}`))
+      );
 
-    const masksAsImageData = await Promise.all(binaryMasks
-      .map(b64 => webcam.dataUriToImageData(`data:image/png;base64,${b64}`))
-    );
-
-    maskIterator.setMasks(masksAsImageData);
+      maskIterator.setMasks(masksAsImageData);
+      setLoading(false);
+    }, 50);
   }, [maskIterator, webcam]);
 
   const handleLoop = useCallback(async (controller) => {
@@ -69,11 +74,13 @@ export const useSimpleGame = () => {
 
   return useMemo(() => ({
     scores,
+    loading,
     handleLoop,
     handleLoadMasks,
     ready: maskIterator.hasMasks,
   }), [
     scores,
+    loading,
     maskIterator,
     handleLoop,
     handleLoadMasks,

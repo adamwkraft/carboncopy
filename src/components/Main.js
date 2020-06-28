@@ -73,9 +73,9 @@ const Main = (props) => {
         <FileUpload
           variant='outlined'
           onChange={simpleGame.handleLoadMasks}
-          disabled={!loop.ready || loop.looping}
+          disabled={!loop.ready || loop.looping || simpleGame.loading}
         >
-          Load Masks
+          {simpleGame.loading ? 'Loading...' : 'Load Masks'}
         </FileUpload>
         <Button
           color="primary"
