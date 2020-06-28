@@ -1,63 +1,81 @@
 import JSZip from "jszip";
-import imageDataUri from 'image-data-uri';
-import { useRef, useCallback, useState } from "react";
+import { useMemo, useRef, useCallback, useState } from "react";
 
-import {
-  saveAs,
-  getBinaryOverlay,
-  getSegmentationOverlay,
-} from "../../lib/util";
+import { useIterateMask } from "../iterateMask";
+import { useWebcam } from "../../context/webcam";
+import { getScoreAndOverlayForSegmentationAndImageData } from "../../lib/util";
 
-export const useSimpleGame = (numCaptures=3) => {
+export const useSimpleGame = () => {
   const promRef = useRef();
-  const [masks, setMasks] = useState([]);
+  const webcam = useWebcam();
 
-  const removeMask = useCallback(({ currentTarget: { name: idx } }) => {
-    // the plus coerces the idx to a number
-    setMasks(state => state.filter((_, index) => index !== +idx));
-  }, []);
+  const maskIterator = useIterateMask();
+  const [scores, setScores] = useState([]);
 
-  const removeAllMasks = useCallback(() => {
-    setMasks([]);
-  }, []);
+  const handleLoadMasks = useCallback(async ([file]) => {
+    if (file.type !== 'application/zip') {
+      console.error('Expected a zip file but got', file.type);
+      return;
+    }
 
-  const downloadMasks = useCallback(() => {
-    const zip = new JSZip();
-    const img = zip.folder("masks");
-    masks.forEach((mask, idx) => {
-      img.file(`mask-${idx}.png`, imageDataUri.decode(mask).dataBase64, {base64: true});
-    });
+    const data = await JSZip.loadAsync(file);
 
-    zip.generateAsync({type:'blob'})
-      .then(zipFile => saveAs(zipFile, 'masks.zip'));
-  }, [masks]);
+    const binaryMasks = await Promise.all(data
+      .filter((name) => name.endsWith('.png'))
+      .map(({ name }) => data.file(name).async('base64'))
+    );
+
+    const masksAsImageData = await Promise.all(binaryMasks
+      .map(b64 => webcam.dataUriToImageData(`data:image/png;base64,${b64}`))
+    );
+
+    maskIterator.setMasks(masksAsImageData);
+  }, [maskIterator, webcam]);
 
   const handleLoop = useCallback(async (controller) => {
     if (controller.time.first) {
+      maskIterator.next();
       controller.useTimer({
         printSeconds: true,
         announceSeconds: true,
         lapDuration: 3000,
         newLapDelay: 1000,
-        onLap: ({ predict, webcam, time, stop }) => {
+        onLap: ({ predict, time, stop }) => {
+          const target = maskIterator.maskRef.current;
+
+          if (!target) return stop();
+
           promRef.current = predict(webcam.videoRef.current)
             .then(async segmentation => {
-              const overlay = getSegmentationOverlay(segmentation, webcam.flipX);
-              const binaryOverlay = getBinaryOverlay(segmentation, webcam.flipX);
-              const dataUri = webcam.imageDataToDataUri(binaryOverlay);
+              const { score, overlay } = getScoreAndOverlayForSegmentationAndImageData(target, segmentation, webcam.flipX);
+              setScores(state => [...state, score]);
 
               webcam.clearCanvas();
               webcam.ctx.putImageData(overlay, 0, 0);
-              setMasks(state => [...state, dataUri]);
+              maskIterator.next();
             });
         }
       });
+    }
+
+    if (maskIterator.maskRef.current) {
+      webcam.ctx.putImageData(maskIterator.maskRef.current, 0, 0);
     }
     
     // return a cleanup function to clear the canvas
     // use a promise ref since we are capturing asynchronously
     return () => promRef.current.then(controller.webcam.clearCanvas);
-  }, []);
+  }, [webcam, maskIterator]);
 
-  return { handleLoop, masks, removeMask, removeAllMasks, downloadMasks };
+  return useMemo(() => ({
+    scores,
+    handleLoop,
+    handleLoadMasks,
+    ready: maskIterator.hasMasks,
+  }), [
+    scores,
+    maskIterator,
+    handleLoop,
+    handleLoadMasks,
+  ]);
 };
