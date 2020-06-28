@@ -95,7 +95,7 @@ export const getScoreAndOverlay = (polygon, segmentation, flipped) => {
 
 export const getScoreAndOverlayForSegmentation = (targetSegmentation, segmentation, flipped) => {
   const {data, width, height} = segmentation;
-  const bytes = new Uint8ClampedArray(segmentation.data.length * 4);
+  const bytes = new Uint8ClampedArray(data.length * 4);
 
   let union = 0;
   let intersection = 0;
@@ -145,6 +145,7 @@ export const getScoreAndOverlayForSegmentationAndImageData = (targetImageData, s
     const isIntersection = isInPolygon && isPerson;
     const isMissedPolygon = isInPolygon && !isPerson;
     const isPersonOutOfPolygon = !isInPolygon && isPerson;
+    const isInteresting = (isPersonOutOfPolygon || isIntersection || isMissedPolygon);
 
     if (isIntersection) intersection++;
     if (isPerson || isInPolygon) union++;
@@ -152,7 +153,7 @@ export const getScoreAndOverlayForSegmentationAndImageData = (targetImageData, s
     bytes[bytes_index*4] = isPersonOutOfPolygon ? 255 : 0;  // red
     bytes[bytes_index*4+1] = isIntersection? 255 : 0;   // green
     bytes[bytes_index*4+2] = isMissedPolygon ? 255 : 0; // blue
-    bytes[bytes_index*4+3] = 128;                       // alpha
+    bytes[bytes_index*4+3] = isInteresting ? 128 : 0; // alpha
   }
 
   const score = Math.round(intersection / (union+0.0000001) * 100);
