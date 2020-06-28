@@ -1,22 +1,22 @@
 import { useCallback, useRef, useMemo } from "react";
 
-export const useLoopTimer = () => {
+export const useLoopTime = () => {
   const lastTimeRef = useRef();
   const startTimeRef = useRef();
   const totalFramesRef = useRef();
   const fpsSumRef = useRef();
-  const timerRef = useRef();
+  const lapTime = useRef();
 
   const reset = useCallback((timestamp=0) => {
     startTimeRef.current = timestamp;
     lastTimeRef.current = timestamp;
     fpsSumRef.current = 0;
     totalFramesRef.current = 0;
-    timerRef.current = 0;
+    lapTime.current = 0;
   }, []);
 
-  const resetTimer = useCallback(() => {
-    timerRef.current = 0;
+  const resetLapTime = useCallback(() => {
+    lapTime.current = 0;
   }, []);
   
   const update = useCallback((timestamp) => {
@@ -27,7 +27,7 @@ export const useLoopTimer = () => {
     }
 
     const deltaTime = timestamp - lastTimeRef.current;
-    timerRef.current += deltaTime;
+    lapTime.current += deltaTime;
 
     let fps = 0;
     let avgFps = 0;
@@ -49,10 +49,10 @@ export const useLoopTimer = () => {
       avgFps,
       elapsed,
       frames: totalFramesRef.current,
-      timer: timerRef.current,
-      resetTimer,
+      lapTime: lapTime.current,
+      resetLapTime,
     };
-  }, [reset, resetTimer]);
+  }, [reset, resetLapTime]);
 
   const controller = useMemo(() => ({ update, reset }), [update, reset]);
 

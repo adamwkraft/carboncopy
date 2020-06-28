@@ -7,9 +7,8 @@ import {
   getBinaryOverlay,
   getSegmentationOverlay,
 } from "../../lib/util";
-import { useMemo } from "react";
 
-export const useCaptureMasks = (numCaptures=3) => {
+export const useSimpleGame = (numCaptures=3) => {
   const promRef = useRef();
   const [masks, setMasks] = useState([]);
 
@@ -60,17 +59,5 @@ export const useCaptureMasks = (numCaptures=3) => {
     return () => promRef.current.then(controller.webcam.clearCanvas);
   }, []);
 
-  return useMemo(() => ({
-    masks,
-    handleLoop,
-    removeMask,
-    downloadMasks,
-    removeAllMasks,
-  }), [
-    masks,
-    handleLoop,
-    removeMask,
-    downloadMasks,
-    removeAllMasks,
-  ]);
+  return { handleLoop, masks, removeMask, removeAllMasks, downloadMasks };
 };

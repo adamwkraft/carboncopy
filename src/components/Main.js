@@ -13,6 +13,7 @@ import WebcamSelect from './WebcamSelect';
 
 import { useLoop } from '../hooks/loop';
 import { useCaptureMasks } from '../hooks/loopHandlers/captureMasks';
+// import { useSimpleGame } from '../hooks/loopHandlers/simpleGame';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -89,13 +90,14 @@ const useStyles = makeStyles(theme => ({
 const Main = (props) => {
   const classes = useStyles();
   
+  const loop = useLoop();
   const captureMasks = useCaptureMasks();
-  const loop = useLoop(captureMasks.handleLoop);
-
+  // const captureMasks = useSimpleGame();
+  
   const handleClickStartStop = useCallback(async () => (loop.looping
     ? loop.stop()
-    : loop.start()
-  ), [loop]);
+    : loop.start(captureMasks.handleLoop)
+  ), [loop, captureMasks.handleLoop]);
 
   return (
     <div className={classes.root}>
