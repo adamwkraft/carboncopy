@@ -9,7 +9,7 @@ import {
 } from "../../lib/util";
 import { useMemo } from "react";
 
-export const useCaptureMasks = (numCaptures=3) => {
+export const useCaptureMasks = () => {
   const promRef = useRef();
   const [masks, setMasks] = useState([]);
 
