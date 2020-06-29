@@ -129,7 +129,14 @@ const WebcamProvider = ({children}) => {
     }
 
     const devices = await navigator.mediaDevices.enumerateDevices();
-    const foundCameras = devices.filter(({ kind }) => kind === 'videoinput');
+    const foundCameras = devices.filter(({ kind }) => kind === 'videoinput')
+      .map(currentCamera => {
+        let label;
+        const idx = currentCamera.label.lastIndexOf(' (');
+        if (idx > -1) label = currentCamera.label.slice(0, idx);
+
+        return (label ? ({ deviceId: currentCamera.deviceId, label }) : currentCamera);
+      });
 
     setCameras(foundCameras);
 
@@ -148,6 +155,7 @@ const WebcamProvider = ({children}) => {
     _setAutoStartDeviceId(null);
   }, []);
 
+  // TODO: move this helper to an isolated canvas
   const imageDataToDataUri = useCallback((imageData) => {
     ctx.putImageData(imageData, 0, 0);
     const dataUri = canvasRef.current.toDataURL('image/png');
@@ -156,6 +164,7 @@ const WebcamProvider = ({children}) => {
     return dataUri;
   }, [ctx, clearCanvas]);
 
+  // TODO: move this helper to an isolated canvas
   const dataUriToImageData = useCallback(async (dataUri) => {
     const img = new Image();
     img.src = dataUri;
@@ -175,6 +184,7 @@ const WebcamProvider = ({children}) => {
   useEffect(() => { 
     discoverCameras()
       .then((foundCameras) => {
+        // TODO: if no autoStartId but there is a camera, use the first camera
         const autoStartId = window.localStorage.getItem(AUTOSTART_KEY);
         _setAutoStartDeviceId(autoStartId);
         const foundCamera = !!(foundCameras.filter(({ deviceId }) => deviceId === autoStartId).length);
