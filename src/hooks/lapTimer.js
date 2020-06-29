@@ -8,6 +8,8 @@ export const useLapTimer = () => {
 
   const useTimer = useCallback(({
     onLap,
+    onEnd,
+    maxLaps,
     lapDuration = 3000,
     postLapDelay = 1000,
     printSeconds = true,
@@ -16,6 +18,8 @@ export const useLapTimer = () => {
     if (onLap && !lapTimer.current) {
       lapTimer.current = {
         onLap,
+        maxLaps,
+        numLaps: 0,
         lapDuration,
         postLapDelay,
         printSeconds,
@@ -27,6 +31,15 @@ export const useLapTimer = () => {
   const handleLap = useCallback(({ time, webcam, predict, stop }) => {
     // handleLoop called useTimer
     if (lapTimer.current) {
+      if (lapTimer.current.maxLaps && (lapTimer.current.numLaps === lapTimer.current.maxLaps)) {
+        if (lapTimer.current.onEnd) {
+          lapTimer.current.onEnd({ time, webcam, predict, stop });
+        }
+
+        lapTimer.current = null;
+        return stop();
+      }
+
       const secondsPassed = Math.floor(time.lapTime / 1000);
 
       // we get a single instance of -1 so set min to 0
@@ -53,8 +66,9 @@ export const useLapTimer = () => {
       // Once we've reached the end of the lap
       // fire the provided onLap handler and set handlerCalled so we don't call it again until next lap
       if (time.lapTime >= lapTimer.current.lapDuration && !lapTimer.current.handlerCalled) {
+        lapTimer.current.numLaps++;
         lapTimer.current.handlerCalled = true;
-        lapTimer.current.onLap({ time, webcam, predict, stop });
+        lapTimer.current.onLap({ time, webcam, predict, stop, lapNum: lapTimer.current.numLaps });
       } else if (time.lapTime >= (lapTimer.current.lapDuration + lapTimer.current.postLapDelay)) {
         // we've already called the lap handler 
         // and delayed an additional amount of time
