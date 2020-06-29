@@ -128,7 +128,7 @@ const SelectAndCheck = (props) => {
     <div className={classes.root}>
       <Button
         disableRipple
-        variant="contained"
+        variant="outlined"
         aria-haspopup="true"
         className={classes.button}
         onClick={handleClickSelect}
