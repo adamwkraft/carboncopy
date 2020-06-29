@@ -39,8 +39,10 @@ export const useSimpleGame = () => {
 
   const handleLoop = useCallback(async (controller) => {
     if (controller.time.first) {
-      maskIterator.next();
+      maskIterator.next(); // load the first mask
+      setScores([]); // clear the scores
       controller.useTimer({
+        maxLaps: maskIterator.numMasks,
         printSeconds: true,
         announceSeconds: true,
         lapDuration: 3000,
@@ -48,15 +50,18 @@ export const useSimpleGame = () => {
         onLap: ({ predict, time, stop }) => {
           const target = maskIterator.maskRef.current;
 
+          // we actually shouldn't reach this,
+          // because the maxLaps should trigger a stop first
           if (!target) return stop();
 
           promRef.current = predict(webcam.videoRef.current)
             .then(async segmentation => {
               const { score, overlay } = getScoreAndOverlayForSegmentationAndImageData(target, segmentation, webcam.flipX);
-              setScores(state => [...state, score]);
+
+              const dataUri = webcam.imageDataToDataUri(overlay);
+              setScores(state => [...state, { score, dataUri }]);
 
               webcam.clearCanvas();
-              webcam.ctx.putImageData(overlay, 0, 0);
               maskIterator.next();
             });
         }
@@ -77,7 +82,7 @@ export const useSimpleGame = () => {
     loading,
     handleLoop,
     handleLoadMasks,
-    ready: maskIterator.hasMasks,
+    ready: !!maskIterator.numMasks,
   }), [
     scores,
     loading,

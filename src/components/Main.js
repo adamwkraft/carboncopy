@@ -6,6 +6,7 @@ import Button from '@material-ui/core/Button';
 import Webcam from './Webcam';
 import FileUpload from './FileUpload';
 import WebcamSelect from './WebcamSelect';
+import ScoreResults from './ScoreResults';
 import CapturedMasks from './CapturedMasks';
 
 import { useLoop } from '../hooks/loop';
@@ -89,9 +90,7 @@ const Main = (props) => {
       </div>
       <Webcam />
       <CapturedMasks captureMasks={captureMasks} />
-      {!!simpleGame.scores.length && (
-        <Typography>Scores: {simpleGame.scores.join()}</Typography>
-      )}
+      <ScoreResults results={simpleGame.scores} />
     </div>
   );
 };

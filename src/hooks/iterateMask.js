@@ -34,7 +34,7 @@ export const useIterateMask = () => {
     reset,
     maskRef,
     setMasks,
-    hasMasks: !!masks.length,
+    numMasks: masks.length,
   }), [
     next,
     reset,
