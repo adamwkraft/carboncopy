@@ -14,6 +14,35 @@ export const polygonToArray = (polygon, width, height) => {
     return new ImageData(bytes, width, height);
 }
 
+export const getSegmentationeOverlayAndBinaryImageData = (segmentation, flipped) => {
+  const {data, width, height} = segmentation;
+  const overlayBytes = new Uint8ClampedArray(segmentation.data.length * 4);
+  const binaryBytes = new Uint8ClampedArray(segmentation.data.length * 4);
+
+  for (let i = 0; i < height * width; ++i) {
+    const x = i % width;
+    const y = parseInt(i / width);
+
+    const isPerson = data[i];
+    const bytes_index  = (flipped ? (width - x) + (width * y) : i);
+
+    overlayBytes[bytes_index*4] = 0;  // red
+    overlayBytes[bytes_index*4+1] = 0;   // green
+    overlayBytes[bytes_index*4+2] = isPerson ? 255 : 0; // blue
+    overlayBytes[bytes_index*4+3] = isPerson ? 128 : 0; // alpha
+
+    binaryBytes[bytes_index*4] = isPerson ? 255 : 0;  // red
+    binaryBytes[bytes_index*4+1] = isPerson ? 255 : 0;   // green
+    binaryBytes[bytes_index*4+2] = isPerson ? 255 : 0; // blue
+    binaryBytes[bytes_index*4+3] = isPerson ? 255 : 0; // alpha
+  }
+
+  const overlayImageData = new ImageData(overlayBytes, width, height);
+  const binaryImageData = new ImageData(binaryBytes, width, height);
+
+  return {overlayImageData, binaryImageData};
+}
+
 export const getSegmentationOverlay = (segmentation, flipped) => {
   const {data, width, height} = segmentation;
   const bytes = new Uint8ClampedArray(segmentation.data.length * 4);
