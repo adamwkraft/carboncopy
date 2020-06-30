@@ -37,11 +37,11 @@ const useStyles = makeStyles(theme => ({
   },
   img: {
     width: '100%',
+    background: 'rgba(0,0,0,0)',
   },
   removeMask: {
     display: 'flex',
     transition: 'all 100ms',
-    background: 'rgba(0,0,0,0)',
     position: 'absolute',
     top: 0,
     bottom: 0,
