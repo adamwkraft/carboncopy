@@ -1,10 +1,11 @@
-import { makeStyles, Typography } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core';
 import React, { useState, useCallback } from 'react';
 
 import Button from '@material-ui/core/Button';
 
 import Webcam from './Webcam';
 import FileUpload from './FileUpload';
+import GameSelect from './GameSelect';
 import WebcamSelect from './WebcamSelect';
 import ScoreResults from './ScoreResults';
 import CapturedMasks from './CapturedMasks';
@@ -71,9 +72,10 @@ const Main = (props) => {
         >
           {(loop.looping && lastClick === clickStates.capture) ? 'Stop' : 'Capture Masks'}
         </Button>
+        <GameSelect onChange={simpleGame.handleLoadLocalMasks} disabled={!loop.ready || loop.looping} />
         <FileUpload
           variant='outlined'
-          onChange={simpleGame.handleLoadMasks}
+          onChange={simpleGame.handleLoadSavedMask}
           disabled={!loop.ready || loop.looping || simpleGame.loading}
         >
           {simpleGame.loading ? 'Loading...' : 'Load Masks'}
