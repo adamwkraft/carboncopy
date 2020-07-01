@@ -26,8 +26,10 @@ export const useBodyPix = () => {
                 webcam.videoRef.current,
                 { internalResolution: 'medium' }
               );
-              setNet(loadedNet);
-              resolve();
+              setTimeout(() => {
+                setNet(loadedNet);
+                resolve();
+              }, 3000); // TODO: play around with this timeout
             } catch (error) {
               reject(error);
             }
