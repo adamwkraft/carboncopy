@@ -1,4 +1,5 @@
 import JSZip from "jszip";
+import JSZipUtils from 'jszip-utils';
 import { useMemo, useRef, useCallback, useState } from "react";
 
 import { useIterateMask } from "../iterateMask";
@@ -13,16 +14,10 @@ export const useSimpleGame = () => {
   const maskIterator = useIterateMask();
   const [scores, setScores] = useState([]);
 
-  const handleLoadMasks = useCallback(([file]) => {
-    if (file.type !== 'application/zip') {
-      console.error('Expected a zip file but got', file.type);
-      return;
-    }
 
+  const handleZip = useCallback(async (file) => {
     setLoading(true);
-    // we throw this in a setTimeout as it seems to give the setLoading a chance to change the state so our button can indicate we are loading
-    setTimeout(async () => {
-      const data = await JSZip.loadAsync(file);
+    const data = await JSZip.loadAsync(file);
       const binaryMasks = await Promise.all(data
         .filter((name) => name.endsWith('.png'))
         .map(({ name }) => data.file(name).async('base64'))
@@ -34,8 +29,27 @@ export const useSimpleGame = () => {
 
       maskIterator.setMasks(masksAsImageData);
       setLoading(false);
-    }, 50);
   }, [maskIterator, webcam]);
+
+  const handleLoadSavedMask = useCallback(([file]) => {
+    if (file.type !== 'application/zip') {
+      console.error('Expected a zip file but got', file.type);
+      return;
+    }
+
+    handleZip(file);
+  }, [handleZip]);
+
+  const handleLoadLocalMasks = useCallback(async ({ target: { value: filename }}) => {
+    const file = await new JSZip.external.Promise((resolve, reject) => {
+      JSZipUtils.getBinaryContent(process.env.PUBLIC_URL + `/masks/${filename}`, (err, data) => {
+          if (err) reject(err);
+          else resolve(data);
+      });
+    });
+
+  handleZip(file)
+  }, [handleZip]);
 
   const handleLoop = useCallback(async (controller) => {
     if (controller.time.first) {
@@ -81,13 +95,15 @@ export const useSimpleGame = () => {
     scores,
     loading,
     handleLoop,
-    handleLoadMasks,
+    handleLoadSavedMask,
+    handleLoadLocalMasks,
     ready: !!maskIterator.numMasks,
   }), [
     scores,
     loading,
     maskIterator,
     handleLoop,
-    handleLoadMasks,
+    handleLoadSavedMask,
+    handleLoadLocalMasks,
   ]);
 };
