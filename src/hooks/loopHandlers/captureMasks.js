@@ -4,8 +4,7 @@ import { useRef, useCallback, useState } from "react";
 
 import {
   saveAs,
-  getBinaryOverlay,
-  getSegmentationOverlay,
+  getSegmentationeOverlayAndBinaryImageData
 } from "../../lib/util";
 import { useMemo } from "react";
 
@@ -25,7 +24,7 @@ export const useCaptureMasks = () => {
   const downloadMasks = useCallback(() => {
     const zip = new JSZip();
     const img = zip.folder("masks");
-    masks.forEach((mask, idx) => {
+    masks.forEach(({overlay:mask}, idx) => {
       img.file(`mask-${idx}.png`, imageDataUri.decode(mask).dataBase64, {base64: true});
     });
 
@@ -43,13 +42,13 @@ export const useCaptureMasks = () => {
         onLap: ({ predict, webcam, time, stop }) => {
           promRef.current = predict(webcam.videoRef.current)
             .then(async segmentation => {
-              const overlay = getSegmentationOverlay(segmentation, webcam.flipX);
-              const binaryOverlay = getBinaryOverlay(segmentation, webcam.flipX);
-              const dataUri = webcam.imageDataToDataUri(binaryOverlay);
+              const {overlayImageData, binaryImageData} = getSegmentationeOverlayAndBinaryImageData(segmentation, webcam.flipX);
+              const overlayDataUri = webcam.imageDataToDataUri(overlayImageData);
+              const binaryDataUri = webcam.imageDataToDataUri(binaryImageData);
 
               webcam.clearCanvas();
-              webcam.ctx.putImageData(overlay, 0, 0);
-              setMasks(state => [...state, dataUri]);
+              webcam.ctx.putImageData(overlayImageData, 0, 0);
+              setMasks(state => [...state, {overlay: overlayDataUri, binary: binaryDataUri}]);
             });
         }
       });

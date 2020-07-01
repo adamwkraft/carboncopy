@@ -90,7 +90,7 @@ const CapturedMasks = (props) => {
           </div>
         </div>
         <ul className={classes.masksList}>
-          {captureMasks.masks.map((dataUri, i) => (
+          {captureMasks.masks.map(({binary:dataUri}, i) => (
             <li className={classes.imgContainer} key={dataUri}>
               <div className={classes.removeMask}>
                 <IconButton
