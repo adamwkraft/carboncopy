@@ -7,6 +7,7 @@ export const useLapTimer = () => {
   const speech = useSpeech();
 
   const useTimer = useCallback(({
+    onBeforeStartLap,
     onLap,
     onEnd,
     maxLaps,
@@ -17,7 +18,11 @@ export const useLapTimer = () => {
   } = {}) => {
     if (onLap && !lapTimer.current) {
       lapTimer.current = {
+        onBeforeStartLap,
+        onBeforeComplete: false,
+        onBeforeStarted: false,
         onLap,
+        onEnd,
         maxLaps,
         numLaps: 0,
         lapDuration,
@@ -28,9 +33,25 @@ export const useLapTimer = () => {
     }
   }, []);
 
-  const handleLap = useCallback(({ time, webcam, predict, stop }) => {
+  const handleLap = useCallback(async ({ time, webcam, predict, stop }) => {
     // handleLoop called useTimer
     if (lapTimer.current) {
+      // if they've provided an initialization function,
+      // run it and don't start the first lap until it resolves
+      if (lapTimer.current.onBeforeStartLap && !lapTimer.current.onBeforeComplete) {
+        if (lapTimer.current.onBeforeStarted) return;
+        else {
+          console.log('Starting onBeforeStartLap');
+          lapTimer.current.onBeforeStarted = true;
+
+          await lapTimer.current.onBeforeStartLap({ time, webcam, predict, stop });
+          console.log('onBeforeStartLap complete');
+          lapTimer.current.onBeforeComplete = true;
+          time.resetLapTime();
+          return;
+        }
+      }
+
       if (lapTimer.current.maxLaps && (lapTimer.current.numLaps === lapTimer.current.maxLaps)) {
         if (lapTimer.current.onEnd) {
           lapTimer.current.onEnd({ time, webcam, predict, stop });
