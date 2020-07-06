@@ -168,6 +168,8 @@ const WebcamProvider = ({children}) => {
   const dataUriToImageData = useCallback(async (dataUri) => {
     const img = new Image();
     img.src = dataUri;
+    clearCanvas();
+
     await new Promise((resolve) => {
       img.onload = () => {
         ctx.drawImage(img,0,0);
@@ -175,6 +177,15 @@ const WebcamProvider = ({children}) => {
       };
     });
 
+    const imageData = ctx.getImageData(0, 0, canvasRef.current.width, canvasRef.current.height);
+    clearCanvas();
+
+    return imageData;
+  }, [clearCanvas, ctx]);
+
+  const getVideoAsImageData = useCallback(() => {
+    clearCanvas();
+    ctx.drawImage(videoRef.current, 0, 0);
     const imageData = ctx.getImageData(0, 0, canvasRef.current.width, canvasRef.current.height);
     clearCanvas();
 
@@ -215,6 +226,7 @@ const WebcamProvider = ({children}) => {
     start: startVideo,
     imageDataToDataUri,
     dataUriToImageData,
+    getVideoAsImageData,
     setAutoStartDeviceId,
     clearAutoStartDeviceId,
   }), [
@@ -229,13 +241,14 @@ const WebcamProvider = ({children}) => {
     toggleFlipX,
     clearCanvas,
     videoStream,
-    setAutoStartDeviceId,
     currentDeviceId,
     discoverCameras,
+    autoStartDeviceId,
     imageDataToDataUri,
     dataUriToImageData,
+    getVideoAsImageData,
+    setAutoStartDeviceId,
     clearAutoStartDeviceId,
-    autoStartDeviceId,
   ]);
     
   return (
