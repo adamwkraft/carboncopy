@@ -88,7 +88,11 @@ export const useSimpleGame = () => {
     
     // return a cleanup function to clear the canvas
     // use a promise ref since we are capturing asynchronously
-    return () => promRef.current.then(controller.webcam.clearCanvas);
+    // if first promise not initialized, clear canvas right away
+    return () => {
+      if (promRef.current) promRef.current.then(controller.webcam.clearCanvas)
+      else controller.webcam.clearCanvas();
+    };
   }, [webcam, maskIterator]);
 
   return useMemo(() => ({
