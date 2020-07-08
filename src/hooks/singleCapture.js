@@ -10,10 +10,10 @@ export const useSingleCapture = () => {
 
   const handleClick = useCallback(async () => {
     const segmentation = await predict(webcam.videoRef.current)
-    const { binaryImageData } = getSegmentationeOverlayAndBinaryImageData(segmentation, webcam.flipX);
+    const { overlayImageData } = getSegmentationeOverlayAndBinaryImageData(segmentation, webcam.flipX);
 
     webcam.clearCanvas();
-    webcam.ctx.putImageData(binaryImageData, 0, 0);
+    webcam.ctx.putImageData(overlayImageData, 0, 0);
   }, [predict, webcam]);
 
   return handleClick;
