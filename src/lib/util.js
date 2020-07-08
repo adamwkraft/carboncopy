@@ -49,13 +49,14 @@ export const getSegmentationeOverlayAndBinaryImageData = (segmentation, flipped)
   // Fill blue channel and alpha using the mask.
   rgbaPlanes.get(2).setTo([255, 0, 0, 0], mask);  // Blue
   rgbaPlanes.get(3).setTo([128, 0, 0, 0], mask);  // Alpha
-  // Get a border mask and set to solid green.
+  // Get a border mask.
   let borderSize = 10;
   let borderMask = new cv.Mat();
   let M = cv.Mat.ones(borderSize, borderSize, cv.CV_8U);
   let anchor = new cv.Point(-1, -1);
   cv.dilate(mask, borderMask, M, anchor, 1, cv.BORDER_CONSTANT, cv.morphologyDefaultBorderValue());
   cv.subtract(borderMask, mask, borderMask);
+  // Fill solid green using the border mask.
   rgbaPlanes.get(1).setTo([255, 0, 0, 0], borderMask);  // Green
   rgbaPlanes.get(3).setTo([255, 0, 0, 0], borderMask);  // Alpha
   // Merge into final result.
