@@ -2,26 +2,28 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { makeStyles } from '@material-ui/core/styles';
+
+import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
 
 const useStyles = makeStyles(theme => ({
   formControl: {
-    margin: theme.spacing(1),
     minWidth: 120,
   },
-  selectEmpty: {
-    marginTop: theme.spacing(2),
+  select: {
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
   },
 }));
 
-const GameSelect = (props) => {
+const GameSelect = ({ value, ...props }) => {
   const classes = useStyles();
 
   return (
     <FormControl className={classes.formControl}>
-      <Select {...props} value="" placeholder="Select Game" variant="outlined">
+      <Select classes={{ root: classes.select }} {...props} placeholder="Select Game" value={value || ''} displayEmpty={true} variant="outlined">
+        <MenuItem value="">Select Masks</MenuItem>
         {Array.from({ length: 3 }).map((_, idx) => (
           <MenuItem key={idx} value={`set${idx + 1}.zip`}>Game {idx + 1}</MenuItem>
         ))}
@@ -31,6 +33,7 @@ const GameSelect = (props) => {
 };
 
 GameSelect.propTypes = {
+  value: PropTypes.string,
   onChange: PropTypes.func.isRequired,
   disabled: PropTypes.bool.isRequired,
 }
