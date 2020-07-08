@@ -72,10 +72,10 @@ const Main = (props) => {
         >
           {(loop.looping && lastClick === clickStates.capture) ? 'Stop' : 'Capture Masks'}
         </Button>
-        <GameSelect onChange={simpleGame.handleLoadLocalMasks} disabled={!loop.ready || loop.looping} />
+        <GameSelect onChange={simpleGame.handleLoadShippedMasks} disabled={!loop.ready || loop.looping} value={simpleGame.selectedMasks} />
         <FileUpload
           variant='outlined'
-          onChange={simpleGame.handleLoadSavedMask}
+          onChange={simpleGame.handleLoadUserMasks}
           disabled={!loop.ready || loop.looping || simpleGame.loading}
         >
           {simpleGame.loading ? 'Loading...' : 'Load Masks'}
