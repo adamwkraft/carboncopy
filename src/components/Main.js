@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core';
 import React, { useState, useCallback } from 'react';
 
@@ -95,6 +96,10 @@ const Main = (props) => {
       <ScoreResults results={simpleGame.scores} />
     </div>
   );
+};
+
+Main.propTypes = {
+  cvReady: PropTypes.bool.isRequired,
 };
 
 export default Main;

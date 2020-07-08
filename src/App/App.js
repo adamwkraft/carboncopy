@@ -1,7 +1,7 @@
-import React from 'react';
 import { hot } from 'react-hot-loader';
 import { CssBaseline } from '@material-ui/core';
-import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles'
+import React, { useEffect, useState } from 'react';
+import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 
 import Main from '../components/Main';
 import WebcamProvider from '../context/webcam';
@@ -12,13 +12,29 @@ const theme = createMuiTheme({
 });
 
 function App() {
+  const [cvReady, setCvReady] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (window.cvReady) {
+        setCvReady(true);
+        clearInterval(interval);
+        console.log('opencv ready');
+      }
+    }, 200);
+
+    return () => {
+      clearInterval(interval);
+    }
+  }, []);
+
   return (
     <MuiThemeProvider theme={theme}>
       <WebcamProvider>
         <BodyPixProvider>
           <>
             <CssBaseline />
-            <Main />
+            <Main cvReady={cvReady} />
           </>
         </BodyPixProvider>
       </WebcamProvider>
