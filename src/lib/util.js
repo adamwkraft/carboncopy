@@ -34,13 +34,32 @@ export const getSegmentationeOverlayAndBinaryImageData = (segmentation, flipped)
   }
   let binaryImageData = new ImageData(binaryBytes, width, height);
 
-  // Load data into Mat and create a single channel mask.
+  // Load data into Mat.
   let segData = cv.matFromImageData(binaryImageData);
+
+
+  // Create a single channel mask.
   let rgbaPlanes = new cv.MatVector();
   cv.split(segData, rgbaPlanes);
-  let mask = new cv.Mat();
+  let pre_mask = new cv.Mat();
   // Threshold on one channel (doesn't matter which one)
-  cv.threshold(rgbaPlanes.get(0), mask, 128, 1, cv.THRESH_BINARY); // Mask is 0s and 1s, type CV_8UC1
+  cv.threshold(rgbaPlanes.get(0), pre_mask, 128, 1, cv.THRESH_BINARY); // Mask is 0s and 1s, type CV_8UC1
+
+  // Use findContours/drawContours to remove small blobs.
+  // See example: https://docs.opencv.org/3.4/d5/daa/tutorial_js_contours_begin.html
+  // TODO: This only updates the overlay. Also update the Mask.
+  let contours = new cv.MatVector();
+  let hierarchy = new cv.Mat();
+  cv.findContours(pre_mask, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+  let mask = cv.Mat.zeros(pre_mask.rows, pre_mask.cols, cv.CV_8UC1);
+  let area = 0;
+  let minAreaThreshold = 10000;  // Can change this, starting off with 100x100.
+  for (let i = 0; i < contours.size(); ++i) {
+    area = cv.contourArea(contours.get(i));
+    if (area > minAreaThreshold) {
+      cv.drawContours(mask, contours, i, [1, 1, 1, 1], -1/*fill*/, cv.LINE_8, hierarchy, 100);
+    }
+  }
 
   // Create a Blue opaque overlay with a solid Green border.
   // NOTE: Images are in RGBA format
