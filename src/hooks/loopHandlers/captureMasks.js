@@ -39,6 +39,10 @@ export const useCaptureMasks = () => {
         announceSeconds: true,
         lapDuration: 3000,
         newLapDelay: 1000,
+        // run a single prediction before starting the lap to ensure things roll smoothly
+        onBeforeStartLap: async ({ predict, webcam, time, stop }) => {
+          return predict();
+        },
         onLap: ({ predict, webcam, time, stop }) => {
           promRef.current = predict(webcam.videoRef.current)
             .then(async segmentation => {
@@ -56,7 +60,11 @@ export const useCaptureMasks = () => {
     
     // return a cleanup function to clear the canvas
     // use a promise ref since we are capturing asynchronously
-    return () => promRef.current.then(controller.webcam.clearCanvas);
+    // if first promise not initialized, clear canvas right away
+    return () => {
+      if (promRef.current) promRef.current.then(controller.webcam.clearCanvas)
+      else controller.webcam.clearCanvas();
+    };
   }, []);
 
   return useMemo(() => ({

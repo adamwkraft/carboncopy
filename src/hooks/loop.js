@@ -1,9 +1,9 @@
 import { useRef, useState, useCallback, useMemo } from "react";
 
-import { useBodyPix } from "./bodyPix";
 import { useLoopTime } from "./loopTime";
 import { useLapTimer } from "./lapTimer";
 import { useWebcam } from "../context/webcam";
+import { useBodyPix } from "../context/bodyPix";
 
 export const useLoop = (handleLoop) => {
   const webcam = useWebcam();

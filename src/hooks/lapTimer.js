@@ -7,6 +7,7 @@ export const useLapTimer = () => {
   const speech = useSpeech();
 
   const useTimer = useCallback(({
+    onBeforeStartLap,
     onLap,
     onEnd,
     maxLaps,
@@ -17,7 +18,11 @@ export const useLapTimer = () => {
   } = {}) => {
     if (onLap && !lapTimer.current) {
       lapTimer.current = {
+        onBeforeStartLap,
+        onBeforeComplete: false,
+        onBeforeStarted: false,
         onLap,
+        onEnd,
         maxLaps,
         numLaps: 0,
         lapDuration,
@@ -28,12 +33,26 @@ export const useLapTimer = () => {
     }
   }, []);
 
-  const handleLap = useCallback(({ time, webcam, predict, stop }) => {
+  const handleLap = useCallback(async ({ time, webcam, predict, stop }) => {
     // handleLoop called useTimer
     if (lapTimer.current) {
+      // if they've provided an initialization function,
+      // run it and don't start the first lap until it resolves
+      if (lapTimer.current.onBeforeStartLap && !lapTimer.current.onBeforeComplete) {
+        if (lapTimer.current.onBeforeStarted) return;
+        else {
+          lapTimer.current.onBeforeStarted = true;
+
+          await lapTimer.current.onBeforeStartLap({ time, webcam, predict, stop });
+          lapTimer.current.onBeforeComplete = true;
+          time.resetLapTime();
+          return;
+        }
+      }
+
       if (lapTimer.current.maxLaps && (lapTimer.current.numLaps === lapTimer.current.maxLaps)) {
         if (lapTimer.current.onEnd) {
-          lapTimer.current.onEnd({ time, webcam, predict, stop });
+          await lapTimer.current.onEnd({ time, webcam, predict, stop });
         }
 
         lapTimer.current = null;
@@ -68,13 +87,17 @@ export const useLapTimer = () => {
       if (time.lapTime >= lapTimer.current.lapDuration && !lapTimer.current.handlerCalled) {
         lapTimer.current.numLaps++;
         lapTimer.current.handlerCalled = true;
-        lapTimer.current.onLap({ time, webcam, predict, stop, lapNum: lapTimer.current.numLaps });
-      } else if (time.lapTime >= (lapTimer.current.lapDuration + lapTimer.current.postLapDelay)) {
+        lapTimer.current.handlerResolved = false;
+        await lapTimer.current.onLap({ time, webcam, predict, stop, lapNum: lapTimer.current.numLaps });
+        lapTimer.current.handlerResolved = true;
+      } else if (time.lapTime >= (lapTimer.current.lapDuration + lapTimer.current.postLapDelay) && lapTimer.current.handlerResolved) {
         // we've already called the lap handler 
+        // and the handler has resolved
         // and delayed an additional amount of time
         // so we reset the lapTime and mark the handler as ready to be called again
         time.resetLapTime();
         lapTimer.current.handlerCalled = false;
+        lapTimer.current.handlerResolved = false;
       }
     }
   }, [speech]);
