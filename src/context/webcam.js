@@ -24,6 +24,7 @@ const WebcamProvider = ({children}) => {
   const [flipX, setFlipX] = useState(true);
   const [ready, setReady] = useState(false);
   const [cameras, setCameras] = useState([]);
+  const [scratchpad, setScratchpad] = useState(null);
   const [videoError, setVideoError] = useState(null);
   const [videoStream, setVideoStream] = useState(null);
   const [currentDeviceId, setCurrentDeviceId] = useState(null);
@@ -36,6 +37,23 @@ const WebcamProvider = ({children}) => {
       setCtx(null);
     }
   }, [ctx]);
+
+  // create a scratchpad for performing image transformations
+  // without cluttering the main canvas
+  useEffect(() => {
+    if (ready && !scratchpad) {
+      const canvas = document.createElement('canvas');
+      canvas.width = canvasRef.current.width;
+      canvas.height = canvasRef.current.height;
+      const _ctx = canvas.getContext('2d');
+
+      setScratchpad({ ctx: _ctx, canvas });
+    }
+  }, [scratchpad, ready]);
+
+  const clearScratchpad = useCallback(() => {
+    scratchpad.ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+  }, [scratchpad]);
 
   const clearCanvas = useCallback(() => {
     ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
@@ -72,13 +90,9 @@ const WebcamProvider = ({children}) => {
     try {
       console.log('Getting Webcam...');
       const constraints = {
-        video: { 
-          width: { 
-            exact: userConstraints.width || VIDEO_WIDTH
-          }, 
-          height: { 
-            exact: userConstraints.height || VIDEO_HEIGHT 
-          } 
+        video: {
+          width: { exact: userConstraints.width || VIDEO_WIDTH }, 
+          height: { exact: userConstraints.height || VIDEO_HEIGHT },
         },
         audio: false,
       };
@@ -129,7 +143,9 @@ const WebcamProvider = ({children}) => {
     }
 
     const devices = await navigator.mediaDevices.enumerateDevices();
-    const foundCameras = devices.filter(({ kind }) => kind === 'videoinput')
+    const foundCameras = devices.filter(({ kind, label }) => (
+      (kind === 'videoinput') && !label.includes('CamTwist')) // filter by video elements and remove CamTwist virtual devices
+    )
       .map(currentCamera => {
         let label;
         const idx = currentCamera.label.lastIndexOf(' (');
@@ -155,42 +171,41 @@ const WebcamProvider = ({children}) => {
     _setAutoStartDeviceId(null);
   }, []);
 
-  // TODO: move this helper to an isolated canvas
   const imageDataToDataUri = useCallback((imageData) => {
-    ctx.putImageData(imageData, 0, 0);
-    const dataUri = canvasRef.current.toDataURL('image/png');
-    clearCanvas();
+    clearScratchpad();
+    scratchpad.ctx.putImageData(imageData, 0, 0);
+    const dataUri = scratchpad.canvas.toDataURL('image/png');
+    clearScratchpad();
 
     return dataUri;
-  }, [ctx, clearCanvas]);
+  }, [scratchpad, clearScratchpad]);
 
-  // TODO: move this helper to an isolated canvas
   const dataUriToImageData = useCallback(async (dataUri) => {
+    clearScratchpad();
     const img = new Image();
     img.src = dataUri;
-    clearCanvas();
 
     await new Promise((resolve) => {
       img.onload = () => {
-        ctx.drawImage(img,0,0);
+        scratchpad.ctx.drawImage(img, 0, 0);
         resolve();
       };
     });
 
-    const imageData = ctx.getImageData(0, 0, canvasRef.current.width, canvasRef.current.height);
-    clearCanvas();
+    const imageData = scratchpad.ctx.getImageData(0, 0, canvasRef.current.width, canvasRef.current.height);
+    clearScratchpad();
 
     return imageData;
-  }, [clearCanvas, ctx]);
+  }, [clearScratchpad, scratchpad]);
 
   const getVideoAsImageData = useCallback(() => {
-    clearCanvas();
-    ctx.drawImage(videoRef.current, 0, 0);
-    const imageData = ctx.getImageData(0, 0, canvasRef.current.width, canvasRef.current.height);
-    clearCanvas();
+    clearScratchpad();
+    scratchpad.ctx.drawImage(videoRef.current, 0, 0);
+    const imageData = scratchpad.ctx.getImageData(0, 0, canvasRef.current.width, canvasRef.current.height);
+    clearScratchpad();
 
     return imageData;
-  }, [clearCanvas, ctx]);
+  }, [clearScratchpad, scratchpad]);
 
   useEffect(() => { 
     discoverCameras()
@@ -216,6 +231,7 @@ const WebcamProvider = ({children}) => {
     stopVideo,
     startVideo,
     videoError,
+    scratchpad,
     clearCanvas,
     toggleFlipX,
     videoStream,
@@ -238,6 +254,7 @@ const WebcamProvider = ({children}) => {
     stopVideo,
     startVideo,
     videoError,
+    scratchpad,
     toggleFlipX,
     clearCanvas,
     videoStream,
