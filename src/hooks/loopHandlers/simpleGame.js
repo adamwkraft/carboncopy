@@ -13,6 +13,7 @@ export const useSimpleGame = () => {
 
   const maskIterator = useIterateMask();
   const [scores, setScores] = useState([]);
+  const [selectedMasks, setSelectedMasks] = useState(null);
 
 
   const handleZip = useCallback(async (file) => {
@@ -31,16 +32,22 @@ export const useSimpleGame = () => {
       setLoading(false);
   }, [maskIterator, webcam]);
 
-  const handleLoadSavedMask = useCallback(([file]) => {
+  const handleLoadUserMasks = useCallback(([file]) => {
     if (file.type !== 'application/zip') {
       console.error('Expected a zip file but got', file.type);
       return;
     }
 
     handleZip(file);
+    setSelectedMasks(null);
   }, [handleZip]);
 
-  const handleLoadLocalMasks = useCallback(async ({ target: { value: filename }}) => {
+  const handleLoadShippedMasks = useCallback(async ({ target: { value: filename }}) => {
+    if (!filename) {
+      setSelectedMasks(null);
+      return;
+    }
+
     const file = await new JSZip.external.Promise((resolve, reject) => {
       JSZipUtils.getBinaryContent(process.env.PUBLIC_URL + `/masks/${filename}`, (err, data) => {
           if (err) reject(err);
@@ -48,7 +55,8 @@ export const useSimpleGame = () => {
       });
     });
 
-  handleZip(file)
+  handleZip(file);
+  setSelectedMasks(filename);
   }, [handleZip]);
 
   const handleLoop = useCallback(async (controller) => {
@@ -99,15 +107,17 @@ export const useSimpleGame = () => {
     scores,
     loading,
     handleLoop,
-    handleLoadSavedMask,
-    handleLoadLocalMasks,
+    selectedMasks,
+    handleLoadUserMasks,
+    handleLoadShippedMasks,
     ready: !!maskIterator.numMasks,
   }), [
     scores,
     loading,
-    maskIterator,
     handleLoop,
-    handleLoadSavedMask,
-    handleLoadLocalMasks,
+    maskIterator,
+    selectedMasks,
+    handleLoadUserMasks,
+    handleLoadShippedMasks,
   ]);
 };
