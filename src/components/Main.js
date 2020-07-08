@@ -14,6 +14,7 @@ import CapturedMasks from './CapturedMasks';
 import { useLoop } from '../hooks/loop';
 import { useSimpleGame } from '../hooks/loopHandlers/simpleGame';
 import { useCaptureMasks } from '../hooks/loopHandlers/captureMasks';
+import { useSingleCapture } from '../hooks/singleCapture';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -41,6 +42,7 @@ const Main = (props) => {
   const loop = useLoop();
   const simpleGame = useSimpleGame();
   const captureMasks = useCaptureMasks();
+  const handleSingleCapture = useSingleCapture();
   const [lastClick, setLastClick] = useState(null);
   
   const handleClickGame = useCallback(async () => {
@@ -66,6 +68,13 @@ const Main = (props) => {
   return (
     <div className={classes.root}>
       <div className={classes.options}>
+        <Button
+          variant='outlined'
+          onClick={handleSingleCapture}
+          disabled={!loop.ready || loop.looping}
+        >
+          Capture
+        </Button>
         <Button
           variant='outlined'
           onClick={handleClickCapture}
