@@ -37,7 +37,6 @@ export const getSegmentationeOverlayAndBinaryImageData = (segmentation, flipped)
   // Load data into Mat.
   let segData = cv.matFromImageData(binaryImageData);
 
-
   // Create a single channel mask.
   let rgbaPlanes = new cv.MatVector();
   cv.split(segData, rgbaPlanes);
@@ -84,150 +83,9 @@ export const getSegmentationeOverlayAndBinaryImageData = (segmentation, flipped)
   // Delete Mat objects.
   segData.delete(); rgbaPlanes.delete(); mask.delete(); overlay.delete(); M.delete();
 
-  return {overlayImageData, binaryImageData};
+  // TODO: only return one image here.
+  return {overlayImageData, binaryImageData: overlayImageData};
 }
-
-export const getSegmentationeOverlayAndBinaryImageDataOld = (segmentation, flipped) => {
-  const {data, width, height} = segmentation;
-  const overlayBytes = new Uint8ClampedArray(segmentation.data.length * 4);
-  const binaryBytes = new Uint8ClampedArray(segmentation.data.length * 4);
-
-  for (let i = 0; i < height * width; ++i) {
-    const x = i % width;
-    const y = parseInt(i / width);
-
-    const isPerson = data[i];
-    const bytes_index  = (flipped ? (width - x) + (width * y) : i);
-
-    overlayBytes[bytes_index*4] = 0;  // red
-    overlayBytes[bytes_index*4+1] = 0;   // green
-    overlayBytes[bytes_index*4+2] = isPerson ? 255 : 0; // blue
-    overlayBytes[bytes_index*4+3] = isPerson ? 128 : 0; // alpha
-
-    binaryBytes[bytes_index*4] = isPerson ? 255 : 0;  // red
-    binaryBytes[bytes_index*4+1] = isPerson ? 255 : 0;   // green
-    binaryBytes[bytes_index*4+2] = isPerson ? 255 : 0; // blue
-    binaryBytes[bytes_index*4+3] = isPerson ? 255 : 0; // alpha
-  }
-
-  const overlayImageData = new ImageData(overlayBytes, width, height);
-  const binaryImageData = new ImageData(binaryBytes, width, height);
-
-  return {overlayImageData, binaryImageData};
-}
-
-export const getSegmentationOverlay = (segmentation, flipped) => {
-  const {data, width, height} = segmentation;
-  const bytes = new Uint8ClampedArray(segmentation.data.length * 4);
-
-  for (let i = 0; i < height * width; ++i) {
-    const x = i % width;
-    const y = parseInt(i / width);
-
-    const isPerson = data[i];
-    const bytes_index  = (flipped ? (width - x) + (width * y) : i);
-
-    bytes[bytes_index*4] = 0;  // red
-    bytes[bytes_index*4+1] = 0;   // green
-    bytes[bytes_index*4+2] = isPerson ? 255 : 0; // blue
-    bytes[bytes_index*4+3] = isPerson ? 128 : 0; // alpha
-  }
-
-  const overlay = new ImageData(bytes, width, height);
-
-  return overlay;
-}
-
-export const getBinaryOverlay = (segmentation, flipped) => {
-  const {data, width, height} = segmentation;
-  const bytes = new Uint8ClampedArray(segmentation.data.length * 4);
-
-  for (let i = 0; i < height * width; ++i) {
-    const x = i % width;
-    const y = parseInt(i / width);
-    
-    const isPerson = data[i];
-    const bytes_index  = (flipped ? (width - x) + (width * y) : i);
-
-    bytes[bytes_index*4] = isPerson ? 255 : 0;
-    bytes[bytes_index*4+1] = isPerson ? 255 : 0;
-    bytes[bytes_index*4+2] = isPerson ? 255 : 0;
-    bytes[bytes_index*4+3] = isPerson ? 255 : 0;
-  }
-
-  const overlay = new ImageData(bytes, width, height);
-
-  return overlay;
-};
-
-export const getScoreAndOverlay = (polygon, segmentation, flipped) => {
-  const {data, width, height} = segmentation;
-  const bytes = new Uint8ClampedArray(segmentation.data.length * 4);
-  const resolvedPolygon = (flipped ? flipPolygon(polygon, width) : polygon);
-
-  let union = 0;
-  let intersection = 0;
-
-  for (let i = 0; i < height * width; ++i) {
-    const x = i % width;
-    const y = parseInt(i / width);
-
-    const isPerson = data[i];
-    const isInPolygon = inside([x, y], resolvedPolygon)
-    const isIntersection = isInPolygon && isPerson;
-    const isMissedPolygon = isInPolygon && !isPerson;
-    const isPersonOutOfPolygon = !isInPolygon && isPerson;
-
-    if (isIntersection) intersection++;
-    if (isPerson || isInPolygon) union++;
-    
-    const bytes_index  = (flipped ? (width - x) + (width * y) : i);
-
-    bytes[bytes_index*4] = isPersonOutOfPolygon ? 255 : 0;  // red
-    bytes[bytes_index*4+1] = isIntersection? 255 : 0;   // green
-    bytes[bytes_index*4+2] = isMissedPolygon ? 255 : 0; // blue
-    bytes[bytes_index*4+3] = 128;                       // alpha
-  }
-
-  const score = Math.round(intersection / (union+0.0000001) * 100);
-  const overlay = new ImageData(bytes, width, height);
-
-  return { score, overlay };
-};
-
-export const getScoreAndOverlayForSegmentation = (targetSegmentation, segmentation, flipped) => {
-  const {data, width, height} = segmentation;
-  const bytes = new Uint8ClampedArray(data.length * 4);
-
-  let union = 0;
-  let intersection = 0;
-
-  for (let i = 0; i < height * width; ++i) {
-    const x = i % width;
-    const y = parseInt(i / width);
-
-    const isPerson = data[i];
-    const isInPolygon = targetSegmentation.data[i];
-    const isIntersection = isInPolygon && isPerson;
-    const isMissedPolygon = isInPolygon && !isPerson;
-    const isPersonOutOfPolygon = !isInPolygon && isPerson;
-
-    if (isIntersection) intersection++;
-    if (isPerson || isInPolygon) union++;
-    
-    const bytes_index  = (flipped ? (width - x) + (width * y) : i);
-
-    bytes[bytes_index*4] = isPersonOutOfPolygon ? 255 : 0;  // red
-    bytes[bytes_index*4+1] = isIntersection? 255 : 0;   // green
-    bytes[bytes_index*4+2] = isMissedPolygon ? 255 : 0; // blue
-    bytes[bytes_index*4+3] = 128;                       // alpha
-  }
-
-  const score = Math.round(intersection / (union+0.0000001) * 100);
-  const overlay = new ImageData(bytes, width, height);
-
-  return { score, overlay };
-};
 
 export const getScoreAndOverlayForSegmentationAndImageData = (targetImageData, segmentation, flipped) => {
   const {data, width, height} = segmentation;
