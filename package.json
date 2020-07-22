@@ -1,5 +1,5 @@
 {
-  "name": "adam-and-rob-code-a-thing",
+  "name": "rob_and_adam_code_a_thing",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -29,7 +29,9 @@
     "start": "react-app-rewired start",
     "build": "react-app-rewired build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -45,5 +47,10 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "devDependencies": {
+    "gh-pages": "^3.1.0"
+  },
+  "homepage": "https://adamwkraft.github.io/rob_and_adam_code_a_thing"
+
 }
