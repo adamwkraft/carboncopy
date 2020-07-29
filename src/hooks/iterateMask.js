@@ -1,5 +1,5 @@
-import { useRef, useState, useCallback } from "react";
-import { useMemo } from "react";
+import { useRef, useState, useCallback } from 'react';
+import { useMemo } from 'react';
 
 // set masks, iterate masks, retain ref to current mask
 export const useIterateMask = () => {
@@ -25,19 +25,18 @@ export const useIterateMask = () => {
 
     maskRef.current = currentPoly;
     maskIdxRef.current++;
-    
+
     return currentPoly;
   }, [masks]);
 
-  return useMemo(() => ({
-    next,
-    reset,
-    maskRef,
-    setMasks,
-    numMasks: masks.length,
-  }), [
-    next,
-    reset,
-    masks,
-  ]);
+  return useMemo(
+    () => ({
+      next,
+      reset,
+      maskRef,
+      setMasks,
+      numMasks: masks.length,
+    }),
+    [next, reset, masks],
+  );
 };

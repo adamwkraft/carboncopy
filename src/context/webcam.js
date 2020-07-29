@@ -1,4 +1,12 @@
-import React, { createContext, useState, useMemo, useCallback, useRef, useEffect, useContext } from 'react';
+import React, {
+  createContext,
+  useState,
+  useMemo,
+  useCallback,
+  useRef,
+  useEffect,
+  useContext,
+} from 'react';
 
 export const webcamContext = createContext();
 
@@ -15,9 +23,9 @@ export const useWebcam = () => {
 const VIDEO_WIDTH = 1280;
 const VIDEO_HEIGHT = 720;
 const AUTOSTART_KEY = 'AutoStartId';
-const hasVideo = !!(navigator?.mediaDevices?.getUserMedia);
+const hasVideo = !!navigator?.mediaDevices?.getUserMedia;
 
-const WebcamProvider = ({children}) => {
+const WebcamProvider = ({ children }) => {
   const videoRef = useRef();
   const canvasRef = useRef();
   const [ctx, setCtx] = useState(null);
@@ -61,77 +69,80 @@ const WebcamProvider = ({children}) => {
 
   const stopVideo = useCallback(() => {
     if (videoStream) {
-      videoStream.getTracks().forEach(track => track.stop());
+      videoStream.getTracks().forEach((track) => track.stop());
     }
 
     setVideoError(null);
     setVideoStream(null);
     setReady(false);
     setCurrentDeviceId(null);
-  }, [videoStream])
+  }, [videoStream]);
 
-  const startVideo = useCallback(async (userConstraintsOrDeviceIdx) => {
-    stopVideo();
+  const startVideo = useCallback(
+    async (userConstraintsOrDeviceIdx) => {
+      stopVideo();
 
-    if (!hasVideo) {
-      const message = 'Video not supported';
+      if (!hasVideo) {
+        const message = 'Video not supported';
 
-      console.error(message);
-      setVideoError(message);
+        console.error(message);
+        setVideoError(message);
 
-      return;
-    }
-
-    const isDeviceIdx = (typeof userConstraintsOrDeviceIdx === 'number');
-
-    const userConstraints = (isDeviceIdx ? {} : userConstraintsOrDeviceIdx || {});
-    const deviceIdx = (isDeviceIdx ? userConstraintsOrDeviceIdx : userConstraints.deviceIdx);
-
-    try {
-      console.log('Getting Webcam...');
-      const constraints = {
-        video: {
-          width: { exact: userConstraints.width || VIDEO_WIDTH }, 
-          height: { exact: userConstraints.height || VIDEO_HEIGHT },
-        },
-        audio: false,
-      };
-
-      if (deviceIdx !== undefined) {
-        userConstraints.deviceId = cameras[deviceIdx]?.deviceId
+        return;
       }
 
-      if (userConstraints.deviceId) {
-        constraints.video.deviceId = { exact: userConstraints.deviceId }
+      const isDeviceIdx = typeof userConstraintsOrDeviceIdx === 'number';
+
+      const userConstraints = isDeviceIdx ? {} : userConstraintsOrDeviceIdx || {};
+      const deviceIdx = isDeviceIdx ? userConstraintsOrDeviceIdx : userConstraints.deviceIdx;
+
+      try {
+        console.log('Getting Webcam...');
+        const constraints = {
+          video: {
+            width: { exact: userConstraints.width || VIDEO_WIDTH },
+            height: { exact: userConstraints.height || VIDEO_HEIGHT },
+          },
+          audio: false,
+        };
+
+        if (deviceIdx !== undefined) {
+          userConstraints.deviceId = cameras[deviceIdx]?.deviceId;
+        }
+
+        if (userConstraints.deviceId) {
+          constraints.video.deviceId = { exact: userConstraints.deviceId };
+        }
+
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        const deviceId = stream.getTracks()[0]?.getCapabilities()?.deviceId;
+
+        console.log('Got Webcam!');
+        setVideoStream(stream);
+        setCurrentDeviceId(deviceId);
+        videoRef.current.srcObject = stream;
+      } catch (e) {
+        const message = 'Error starting video.';
+        console.error(message);
+        console.error(e.message);
+        setVideoStream(null);
+        setReady(false);
+        setVideoError(message);
+
+        return;
       }
 
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
-      const deviceId = stream.getTracks()[0]?.getCapabilities()?.deviceId
-
-      console.log('Got Webcam!');
-      setVideoStream(stream);
-      setCurrentDeviceId(deviceId);
-      videoRef.current.srcObject = stream;
-    } catch (e) {
-      const message = 'Error starting video.';
-      console.error(message);
-      console.error(e.message);
-      setVideoStream(null);
-      setReady(false);
-      setVideoError(message);
-
-      return;
-    }
-
-    return await Promise.all([
-      new Promise(resolve => {
-        videoRef.current.onloadedmetadata = () => resolve();
-      }),
-      new Promise(resolve => {
-        videoRef.current.onloadeddata = () => resolve();
-      }),
-    ]).then(() => setReady(true));
-  }, [stopVideo, videoRef, cameras]);
+      return await Promise.all([
+        new Promise((resolve) => {
+          videoRef.current.onloadedmetadata = () => resolve();
+        }),
+        new Promise((resolve) => {
+          videoRef.current.onloadeddata = () => resolve();
+        }),
+      ]).then(() => setReady(true));
+    },
+    [stopVideo, videoRef, cameras],
+  );
 
   const discoverCameras = useCallback(async () => {
     const enumerateDevices = navigator?.mediaDevices?.enumerateDevices;
@@ -143,15 +154,16 @@ const WebcamProvider = ({children}) => {
     }
 
     const devices = await navigator.mediaDevices.enumerateDevices();
-    const foundCameras = devices.filter(({ kind, label }) => (
-      (kind === 'videoinput') && !label.includes('CamTwist')) // filter by video elements and remove CamTwist virtual devices
-    )
-      .map(currentCamera => {
+    const foundCameras = devices
+      .filter(
+        ({ kind, label }) => kind === 'videoinput' && !label.includes('CamTwist'), // filter by video elements and remove CamTwist virtual devices
+      )
+      .map((currentCamera) => {
         let label;
         const idx = currentCamera.label.lastIndexOf(' (');
         if (idx > -1) label = currentCamera.label.slice(0, idx);
 
-        return (label ? ({ deviceId: currentCamera.deviceId, label }) : currentCamera);
+        return label ? { deviceId: currentCamera.deviceId, label } : currentCamera;
       });
 
     setCameras(foundCameras);
@@ -159,7 +171,7 @@ const WebcamProvider = ({children}) => {
     return foundCameras;
   }, []);
 
-  const toggleFlipX = useCallback(() => setFlipX(state => !state), []);
+  const toggleFlipX = useCallback(() => setFlipX((state) => !state), []);
 
   const setAutoStartDeviceId = useCallback((deviceId) => {
     window.localStorage.setItem(AUTOSTART_KEY, deviceId);
@@ -171,108 +183,122 @@ const WebcamProvider = ({children}) => {
     _setAutoStartDeviceId(null);
   }, []);
 
-  const imageDataToDataUri = useCallback((imageData) => {
-    clearScratchpad();
-    scratchpad.ctx.putImageData(imageData, 0, 0);
-    const dataUri = scratchpad.canvas.toDataURL('image/png');
-    clearScratchpad();
+  const imageDataToDataUri = useCallback(
+    (imageData) => {
+      clearScratchpad();
+      scratchpad.ctx.putImageData(imageData, 0, 0);
+      const dataUri = scratchpad.canvas.toDataURL('image/png');
+      clearScratchpad();
 
-    return dataUri;
-  }, [scratchpad, clearScratchpad]);
+      return dataUri;
+    },
+    [scratchpad, clearScratchpad],
+  );
 
-  const dataUriToImageData = useCallback(async (dataUri) => {
-    clearScratchpad();
-    const img = new Image();
-    img.src = dataUri;
+  const dataUriToImageData = useCallback(
+    async (dataUri) => {
+      clearScratchpad();
+      const img = new Image();
+      img.src = dataUri;
 
-    await new Promise((resolve) => {
-      img.onload = () => {
-        scratchpad.ctx.drawImage(img, 0, 0);
-        resolve();
-      };
-    });
+      await new Promise((resolve) => {
+        img.onload = () => {
+          scratchpad.ctx.drawImage(img, 0, 0);
+          resolve();
+        };
+      });
 
-    const imageData = scratchpad.ctx.getImageData(0, 0, canvasRef.current.width, canvasRef.current.height);
-    clearScratchpad();
+      const imageData = scratchpad.ctx.getImageData(
+        0,
+        0,
+        canvasRef.current.width,
+        canvasRef.current.height,
+      );
+      clearScratchpad();
 
-    return imageData;
-  }, [clearScratchpad, scratchpad]);
+      return imageData;
+    },
+    [clearScratchpad, scratchpad],
+  );
 
   const getVideoAsImageData = useCallback(() => {
     clearScratchpad();
     scratchpad.ctx.drawImage(videoRef.current, 0, 0);
-    const imageData = scratchpad.ctx.getImageData(0, 0, canvasRef.current.width, canvasRef.current.height);
+    const imageData = scratchpad.ctx.getImageData(
+      0,
+      0,
+      canvasRef.current.width,
+      canvasRef.current.height,
+    );
     clearScratchpad();
 
     return imageData;
   }, [clearScratchpad, scratchpad]);
 
-  useEffect(() => { 
-    discoverCameras()
-      .then((foundCameras) => {
-        // TODO: if no autoStartId but there is a camera, use the first camera
-        const autoStartId = window.localStorage.getItem(AUTOSTART_KEY);
-        _setAutoStartDeviceId(autoStartId);
-        const foundCamera = !!(foundCameras.filter(({ deviceId }) => deviceId === autoStartId).length);
+  useEffect(() => {
+    discoverCameras().then((foundCameras) => {
+      // TODO: if no autoStartId but there is a camera, use the first camera
+      const autoStartId = window.localStorage.getItem(AUTOSTART_KEY);
+      _setAutoStartDeviceId(autoStartId);
+      const foundCamera = !!foundCameras.filter(({ deviceId }) => deviceId === autoStartId).length;
 
-        if (foundCamera) startVideo({ deviceId: autoStartId });
-      })
+      if (foundCamera) startVideo({ deviceId: autoStartId });
+    });
   }, []); // eslint-disable-line
 
-  const context = useMemo(() => ({
-    ctx,
-    ready,
-    flipX,
-    cameras,
-    setFlipX,
-    videoRef,
-    hasVideo,
-    canvasRef,
-    stopVideo,
-    startVideo,
-    videoError,
-    scratchpad,
-    clearCanvas,
-    toggleFlipX,
-    videoStream,
-    currentDeviceId,
-    stop: stopVideo,
-    discoverCameras,
-    autoStartDeviceId,
-    start: startVideo,
-    imageDataToDataUri,
-    dataUriToImageData,
-    getVideoAsImageData,
-    setAutoStartDeviceId,
-    clearAutoStartDeviceId,
-  }), [
-    ctx,
-    ready,
-    flipX,
-    cameras,
-    setFlipX,
-    stopVideo,
-    startVideo,
-    videoError,
-    scratchpad,
-    toggleFlipX,
-    clearCanvas,
-    videoStream,
-    currentDeviceId,
-    discoverCameras,
-    autoStartDeviceId,
-    imageDataToDataUri,
-    dataUriToImageData,
-    getVideoAsImageData,
-    setAutoStartDeviceId,
-    clearAutoStartDeviceId,
-  ]);
-    
-  return (
-    <webcamContext.Provider value={context}>
-      {children}
-    </webcamContext.Provider>
-  )
-}
+  const context = useMemo(
+    () => ({
+      ctx,
+      ready,
+      flipX,
+      cameras,
+      setFlipX,
+      videoRef,
+      hasVideo,
+      canvasRef,
+      stopVideo,
+      startVideo,
+      videoError,
+      scratchpad,
+      clearCanvas,
+      toggleFlipX,
+      videoStream,
+      currentDeviceId,
+      stop: stopVideo,
+      discoverCameras,
+      autoStartDeviceId,
+      start: startVideo,
+      imageDataToDataUri,
+      dataUriToImageData,
+      getVideoAsImageData,
+      setAutoStartDeviceId,
+      clearAutoStartDeviceId,
+    }),
+    [
+      ctx,
+      ready,
+      flipX,
+      cameras,
+      setFlipX,
+      stopVideo,
+      startVideo,
+      videoError,
+      scratchpad,
+      toggleFlipX,
+      clearCanvas,
+      videoStream,
+      currentDeviceId,
+      discoverCameras,
+      autoStartDeviceId,
+      imageDataToDataUri,
+      dataUriToImageData,
+      getVideoAsImageData,
+      setAutoStartDeviceId,
+      clearAutoStartDeviceId,
+    ],
+  );
+
+  return <webcamContext.Provider value={context}>{children}</webcamContext.Provider>;
+};
 
 export default WebcamProvider;

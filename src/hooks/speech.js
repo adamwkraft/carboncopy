@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from 'react';
 
 const synth = window.speechSynthesis;
 
@@ -14,23 +14,28 @@ export const useSpeech = () => {
     }
   }, [voices]);
 
-  const say = useCallback((text) => {
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.voice = voice;
-    synth.speak(utterance);
-  }, [voice]);
+  const say = useCallback(
+    (text) => {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.voice = voice;
+      synth.speak(utterance);
+    },
+    [voice],
+  );
 
-  const countdown = useCallback((from, { onEnd, onEach }={}) => {
-    if (onEnd) setTimeout(onEnd, from * 1000);
-    Array.from({ length: from })
-      .forEach((_, idx) => {
+  const countdown = useCallback(
+    (from, { onEnd, onEach } = {}) => {
+      if (onEnd) setTimeout(onEnd, from * 1000);
+      Array.from({ length: from }).forEach((_, idx) => {
         const num = from - idx;
         setTimeout(() => {
           say(num);
           if (onEach) onEach(num);
         }, idx * 1000);
-      })
-  }, [say]);
+      });
+    },
+    [say],
+  );
 
   return { say, countdown };
 };

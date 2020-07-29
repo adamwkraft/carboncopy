@@ -5,12 +5,11 @@ import { makeStyles } from '@material-ui/core';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   masks: {
     padding: theme.spacing(1),
   },
-  masksHeader: {
-  },
+  masksHeader: {},
   masksList: {
     display: 'flex',
     flexFlow: 'row wrap',
@@ -33,32 +32,34 @@ const ScoreResults = (props) => {
 
   const { results } = props;
 
-  return (!!results.length && (
-    <>
-      <Paper className={classes.masks}>
-        <div className={classes.masksHeader}>
-          <Typography variant="h6" component="h3">
-            Results
-          </Typography>
-          <Typography component="p">
-            Average: {results.reduce((acc, {score}) => (acc + score), 0) / results.length}
-          </Typography>
-        </div>
-        <ul className={classes.masksList}>
-          {results.map(({ score, dataUri }, i) => (
-            <li className={classes.imgContainer} key={dataUri}>
-              <Typography>{score}</Typography>
-              <img src={dataUri} className={classes.img} alt={`mask #${i}`} />
-            </li>
-          ))}
-        </ul>
-      </Paper>
-    </>
-  ));
+  return (
+    !!results.length && (
+      <>
+        <Paper className={classes.masks}>
+          <div className={classes.masksHeader}>
+            <Typography variant="h6" component="h3">
+              Results
+            </Typography>
+            <Typography component="p">
+              Average: {results.reduce((acc, { score }) => acc + score, 0) / results.length}
+            </Typography>
+          </div>
+          <ul className={classes.masksList}>
+            {results.map(({ score, dataUri }, i) => (
+              <li className={classes.imgContainer} key={dataUri}>
+                <Typography>{score}</Typography>
+                <img src={dataUri} className={classes.img} alt={`mask #${i}`} />
+              </li>
+            ))}
+          </ul>
+        </Paper>
+      </>
+    )
+  );
 };
 
 ScoreResults.propTypes = {
   results: PropTypes.array.isRequired,
-}
+};
 
 export default ScoreResults;

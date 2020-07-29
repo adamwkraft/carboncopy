@@ -83,7 +83,7 @@ const useStyles = makeStyles((theme) => ({
       },
     },
   }),
-}))
+}));
 
 const SelectAndCheck = (props) => {
   const classes = useStyles(props);
@@ -96,33 +96,41 @@ const SelectAndCheck = (props) => {
     setAnchorEl(event.currentTarget);
   }, []);
 
-  const closeSelect = useCallback(() => { setAnchorEl(null) }, []);
+  const closeSelect = useCallback(() => {
+    setAnchorEl(null);
+  }, []);
 
   const handleCloseSelect = useCallback(async () => {
-    const keepOpen = await ((props.onClose || noop)());
-    
+    const keepOpen = await (props.onClose || noop)();
+
     if (keepOpen !== true) {
       closeSelect();
     }
   }, [closeSelect, props.onClose]);
 
-  const handleClickCheckbox = useCallback((event) => {
-    (props.onClickCheckbox || noop)(event.target.value, handleCloseSelect);
-  }, [props.onClickCheckbox, handleCloseSelect]);
+  const handleClickCheckbox = useCallback(
+    (event) => {
+      (props.onClickCheckbox || noop)(event.target.value, handleCloseSelect);
+    },
+    [props.onClickCheckbox, handleCloseSelect],
+  );
 
-  const handleClickSelectItem = useCallback((value) => async (event) => {
-    if (event.target.type === 'checkbox') {
-      return;
-    }
+  const handleClickSelectItem = useCallback(
+    (value) => async (event) => {
+      if (event.target.type === 'checkbox') {
+        return;
+      }
 
-    const keepOpen = await ((props.onSelect || noop)(value));
+      const keepOpen = await (props.onSelect || noop)(value);
 
-    if (keepOpen !== true) {
-      handleCloseSelect();
-    }
-  }, [handleCloseSelect, props.onSelect]);
+      if (keepOpen !== true) {
+        handleCloseSelect();
+      }
+    },
+    [handleCloseSelect, props.onSelect],
+  );
 
-  const open = (!!anchorEl);
+  const open = !!anchorEl;
 
   return (
     <div className={classes.root}>
@@ -133,13 +141,14 @@ const SelectAndCheck = (props) => {
         className={classes.button}
         onClick={handleClickSelect}
         aria-controls={`select-and-check-${id}`}
-        { ...props.SelectProps }
+        {...props.SelectProps}
       >
-        { open ? (props.activeTitle || props.title) : props.title }
-        { open
-          ? <ArrowDropUpIcon className={classes.arrowIcon} /> 
-          : <ArrowDropDownIcon className={classes.arrowIcon} />
-        }
+        {open ? props.activeTitle || props.title : props.title}
+        {open ? (
+          <ArrowDropUpIcon className={classes.arrowIcon} />
+        ) : (
+          <ArrowDropDownIcon className={classes.arrowIcon} />
+        )}
       </Button>
       <Menu
         keepMounted
@@ -150,62 +159,72 @@ const SelectAndCheck = (props) => {
         onClose={handleCloseSelect}
         id={`select-and-check-${id}`}
         classes={{ paper: classes.paper }}
-        anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}
-        transformOrigin={{vertical: 'top', horizontal: 'center'}}
-        { ...props.MenuProps }    
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'center' }}
+        {...props.MenuProps}
       >
-        {props.options?.map(({ key, value, text, selected, tooltipTitle, checked, checkboxValue }, i) => {
-          let TooltipAndCheckbox = null;
+        {props.options?.map(
+          ({ key, value, text, selected, tooltipTitle, checked, checkboxValue }, i) => {
+            let TooltipAndCheckbox = null;
 
-          if (typeof checked === 'boolean') {
-            const _Checkbox = <Checkbox checked={checked} onClick={handleClickCheckbox} value={checkboxValue === undefined ? value : checkboxValue} />
-            const tooltipText = (tooltipTitle || props.tooltipTitle);
+            if (typeof checked === 'boolean') {
+              const _Checkbox = (
+                <Checkbox
+                  checked={checked}
+                  onClick={handleClickCheckbox}
+                  value={checkboxValue === undefined ? value : checkboxValue}
+                />
+              );
+              const tooltipText = tooltipTitle || props.tooltipTitle;
 
-            TooltipAndCheckbox = tooltipText ? (
-              <Tooltip
-                classes={{ tooltip: classes.tooltip, popper: classes.popper }}
-                PopperProps={{
-                  popperOptions: {
-                    modifiers: {
-                      arrow: {
-                        enabled: !!arrowRef,
-                        element: arrowRef,
+              TooltipAndCheckbox = tooltipText ? (
+                <Tooltip
+                  classes={{ tooltip: classes.tooltip, popper: classes.popper }}
+                  PopperProps={{
+                    popperOptions: {
+                      modifiers: {
+                        arrow: {
+                          enabled: !!arrowRef,
+                          element: arrowRef,
+                        },
                       },
                     },
-                  },
-                }}
-                title={
-                  <React.Fragment>
-                    {tooltipText}
-                    <span className={classes.arrow} ref={setArrowRef} />
-                  </React.Fragment>
-                }
-                enterDelay={props.tooltipEnterDelay === undefined ? 750 : props.tooltipEnterDelay}
-                leaveDelay={props.tooltipLeaveDelay || 0}
-                aria-label="checkbox"
-                placement={props.tooltipPlacement || "top"}
-              >
-                {_Checkbox}
-              </Tooltip>
-            ) : _Checkbox
-          }
+                  }}
+                  title={
+                    <React.Fragment>
+                      {tooltipText}
+                      <span className={classes.arrow} ref={setArrowRef} />
+                    </React.Fragment>
+                  }
+                  enterDelay={props.tooltipEnterDelay === undefined ? 750 : props.tooltipEnterDelay}
+                  leaveDelay={props.tooltipLeaveDelay || 0}
+                  aria-label="checkbox"
+                  placement={props.tooltipPlacement || 'top'}
+                >
+                  {_Checkbox}
+                </Tooltip>
+              ) : (
+                _Checkbox
+              );
+            }
 
-          return (
-            <MenuItem 
-              key={key || i}
-              onClick={handleClickSelectItem(value)}
-              selected={selected}
-              {...props.MenuItemProps}
-            >
-              {TooltipAndCheckbox}
-              <ListItemText primary={text || value?.toString()} />
-            </MenuItem>
-          )}
+            return (
+              <MenuItem
+                key={key || i}
+                onClick={handleClickSelectItem(value)}
+                selected={selected}
+                {...props.MenuItemProps}
+              >
+                {TooltipAndCheckbox}
+                <ListItemText primary={text || value?.toString()} />
+              </MenuItem>
+            );
+          },
         )}
       </Menu>
     </div>
-  )
-}
+  );
+};
 
 SelectAndCheck.propTypes = {
   styles: PropTypes.object,
@@ -222,6 +241,6 @@ SelectAndCheck.propTypes = {
   tooltipLeaveDelay: PropTypes.number,
   tooltipPlacement: PropTypes.string,
   options: PropTypes.arrayOf(PropTypes.object).isRequired,
-}
+};
 
-export default SelectAndCheck
+export default SelectAndCheck;

@@ -11,10 +11,12 @@ const useStyles = makeStyles((theme) => ({
   video: (props) => ({
     width: '100%',
     height: '100%',
-    ...(props.flipX ? {
-      'p-webkit-transform': 'scaleX(- 1)',
-      transform: 'scaleX(-1)',
-    } : {}),
+    ...(props.flipX
+      ? {
+          'p-webkit-transform': 'scaleX(- 1)',
+          transform: 'scaleX(-1)',
+        }
+      : {}),
   }),
   canvas: (props) => ({
     position: 'absolute',
@@ -44,11 +46,11 @@ const Webcam = (props) => {
         height={webcam.videoRef?.current?.videoHeight}
       />
     </div>
-  )
-}
+  );
+};
 
 Webcam.propTypes = {
   styles: PropTypes.object,
-}
+};
 
 export default Webcam;

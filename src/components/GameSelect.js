@@ -7,7 +7,7 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   formControl: {
     minWidth: 120,
   },
@@ -22,10 +22,19 @@ const GameSelect = ({ value, ...props }) => {
 
   return (
     <FormControl className={classes.formControl}>
-      <Select classes={{ root: classes.select }} {...props} placeholder="Select Game" value={value || ''} displayEmpty={true} variant="outlined">
+      <Select
+        classes={{ root: classes.select }}
+        {...props}
+        placeholder="Select Game"
+        value={value || ''}
+        displayEmpty={true}
+        variant="outlined"
+      >
         <MenuItem value="">Select Masks</MenuItem>
         {Array.from({ length: 3 }).map((_, idx) => (
-          <MenuItem key={idx} value={`set${idx + 1}.zip`}>Game {idx + 1}</MenuItem>
+          <MenuItem key={idx} value={`set${idx + 1}.zip`}>
+            Game {idx + 1}
+          </MenuItem>
         ))}
       </Select>
     </FormControl>
@@ -36,6 +45,6 @@ GameSelect.propTypes = {
   value: PropTypes.string,
   onChange: PropTypes.func.isRequired,
   disabled: PropTypes.bool.isRequired,
-}
+};
 
 export default GameSelect;
