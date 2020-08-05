@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import classnames from 'classnames';
 import { makeStyles } from '@material-ui/styles';
 
 import { useWebcam } from '../context/webcam';
@@ -18,12 +19,15 @@ const useStyles = makeStyles((theme) => ({
         }
       : {}),
   }),
-  canvas: (props) => ({
+  canvas: {
     position: 'absolute',
     top: 0,
     left: 0,
     width: '100%',
-  }),
+  },
+  hidden: {
+    display: 'none',
+  },
 }));
 
 const Webcam = (props) => {
@@ -31,7 +35,7 @@ const Webcam = (props) => {
   const classes = useStyles({ ...props, ...webcam });
 
   return (
-    <div className={classes.root}>
+    <div className={classnames(classes.root, { [classes.hidden]: webcam.hidden })}>
       <video
         autoPlay={true}
         ref={webcam.videoRef}
