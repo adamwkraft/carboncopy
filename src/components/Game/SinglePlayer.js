@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
-import { Typography, Button } from '@material-ui/core';
+import { Typography } from '@material-ui/core';
 import { useWebcam } from '../../context/webcam';
 import { useEffect } from 'react';
 
