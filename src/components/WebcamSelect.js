@@ -36,7 +36,7 @@ const WebcamSelect = (props) => {
   const handleSelectCamera = useCallback(
     (deviceId) => {
       if (webcam.currentDeviceId !== deviceId) {
-        webcam.start({ deviceId });
+        webcam.startVideo({ deviceId });
       }
     },
     [webcam],
