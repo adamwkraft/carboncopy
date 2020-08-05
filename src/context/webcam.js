@@ -32,11 +32,12 @@ const WebcamProvider = ({ children }) => {
   const [flipX, setFlipX] = useState(true);
   const [ready, setReady] = useState(false);
   const [cameras, setCameras] = useState([]);
+  const [hidden, _setHidden] = useState(true);
   const [scratchpad, setScratchpad] = useState(null);
   const [videoError, setVideoError] = useState(null);
   const [videoStream, setVideoStream] = useState(null);
-  const [currentDeviceId, setCurrentDeviceId] = useState(null);
-  const [autoStartDeviceId, _setAutoStartDeviceId] = useState(null);
+  const [currentDeviceId, setCurrentDeviceId] = useState(undefined);
+  const [autoStartDeviceId, _setAutoStartDeviceId] = useState(undefined);
 
   useEffect(() => {
     if (canvasRef.current && !ctx) {
@@ -59,6 +60,14 @@ const WebcamProvider = ({ children }) => {
     }
   }, [scratchpad, ready]);
 
+  const setVisible = useCallback(() => {
+    _setHidden(false);
+  }, []);
+
+  const setHidden = useCallback(() => {
+    _setHidden(true);
+  }, []);
+
   const clearScratchpad = useCallback(() => {
     scratchpad.ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
   }, [scratchpad]);
@@ -75,7 +84,7 @@ const WebcamProvider = ({ children }) => {
     setVideoError(null);
     setVideoStream(null);
     setReady(false);
-    setCurrentDeviceId(null);
+    setCurrentDeviceId(undefined);
   }, [videoStream]);
 
   const startVideo = useCallback(
@@ -143,6 +152,11 @@ const WebcamProvider = ({ children }) => {
     },
     [stopVideo, videoRef, cameras],
   );
+
+  const start = useCallback(async () => startVideo({ deviceId: autoStartDeviceId }), [
+    autoStartDeviceId,
+    startVideo,
+  ]);
 
   const discoverCameras = useCallback(async () => {
     const enumerateDevices = navigator?.mediaDevices?.enumerateDevices;
@@ -237,12 +251,22 @@ const WebcamProvider = ({ children }) => {
 
   useEffect(() => {
     discoverCameras().then((foundCameras) => {
-      // TODO: if no autoStartId but there is a camera, use the first camera
       const autoStartId = window.localStorage.getItem(AUTOSTART_KEY);
-      _setAutoStartDeviceId(autoStartId);
-      const foundCamera = !!foundCameras.filter(({ deviceId }) => deviceId === autoStartId).length;
 
-      if (foundCamera) startVideo({ deviceId: autoStartId });
+      const foundDeviceId = foundCameras.reduce(
+        (acc, { deviceId, label }, idx) =>
+          acc ||
+          (deviceId === autoStartId ||
+          (!autoStartId && foundCameras.length === 1 && idx === 0) ||
+          (!autoStartId && label.includes('Built-in'))
+            ? deviceId
+            : null),
+        null,
+      );
+
+      if (foundDeviceId) {
+        setAutoStartDeviceId(foundDeviceId);
+      } else if (!foundDeviceId && autoStartId) clearAutoStartDeviceId();
     });
   }, []); // eslint-disable-line
 
@@ -251,12 +275,16 @@ const WebcamProvider = ({ children }) => {
       ctx,
       ready,
       flipX,
+      start,
+      hidden,
       cameras,
       setFlipX,
       videoRef,
       hasVideo,
+      setHidden,
       canvasRef,
       stopVideo,
+      setVisible,
       startVideo,
       videoError,
       scratchpad,
@@ -267,7 +295,6 @@ const WebcamProvider = ({ children }) => {
       stop: stopVideo,
       discoverCameras,
       autoStartDeviceId,
-      start: startVideo,
       imageDataToDataUri,
       dataUriToImageData,
       getVideoAsImageData,
@@ -278,9 +305,13 @@ const WebcamProvider = ({ children }) => {
       ctx,
       ready,
       flipX,
+      start,
+      hidden,
       cameras,
       setFlipX,
+      setHidden,
       stopVideo,
+      setVisible,
       startVideo,
       videoError,
       scratchpad,
