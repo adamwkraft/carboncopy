@@ -38,6 +38,7 @@ const Main = (props) => {
 
   const classes = useStyles();
 
+  // TODO: this is problematic. We need to put the video element on screen in order to prompt the user for permission to use the camera, otherwise we never progress past the WebcamIsLoading screen
   return (
     <main className={classes.root}>
       {!hasVideo ? (
