@@ -1,6 +1,7 @@
+import Particles from 'particlesjs';
 import { hot } from 'react-hot-loader';
 import { CssBaseline } from '@material-ui/core';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 
 import Main from '../components/Main';
@@ -13,13 +14,13 @@ const theme = createMuiTheme({
 
 function App() {
   const [cvReady, setCvReady] = useState(false);
+  const particlesRef = useRef();
 
   useEffect(() => {
     const interval = setInterval(() => {
       if (window.cvReady) {
         setCvReady(true);
         clearInterval(interval);
-        console.log('opencv ready');
       }
     }, 200);
 
@@ -27,6 +28,15 @@ function App() {
       clearInterval(interval);
     };
   }, []);
+
+  useEffect(() => {
+    if (!particlesRef.current) {
+      particlesRef.current = true;
+      Particles.init({
+        selector: '.background',
+      });
+    }
+  });
 
   return (
     <MuiThemeProvider theme={theme}>
