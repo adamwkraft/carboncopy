@@ -1,5 +1,7 @@
-import React from 'react';
+const WebcamIsLoading = () => {
+  console.log('Searching for camera...');
 
-const WebcamIsLoading = () => <div>Searching for camera...</div>;
+  return null;
+};
 
 export default WebcamIsLoading;

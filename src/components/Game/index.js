@@ -1,5 +1,6 @@
-import React from 'react';
 import PropTypes from 'prop-types';
+import React, { useState } from 'react';
+import { useSpring, animated, config } from 'react-spring';
 
 import Webcam from '../Webcam';
 import StartScreen from './StartScreen';
@@ -10,6 +11,7 @@ import { gameStates } from '../../lib/constants';
 
 const Game = ({ webcam }) => {
   const [gameState, handlers] = useGameState();
+  const [transition, setTransition] = useState(false);
 
   let Screen = React.Fragment;
 
@@ -19,15 +21,20 @@ const Game = ({ webcam }) => {
       break;
     case gameStates.screen.SINGLE_PLAYER:
       Screen = SinglePlayer;
+      if (!transition) setTransition(true);
       break;
     default:
       break;
   }
 
+  const props = useSpring({ to: { opacity: transition ? 1 : 0 }, config: config.gentle });
+
   return (
     <>
       <Screen handlers={handlers} gameState={gameState} />
-      <Webcam />
+      <animated.div style={props}>
+        <Webcam />
+      </animated.div>
     </>
   );
 };

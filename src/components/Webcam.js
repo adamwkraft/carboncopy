@@ -8,10 +8,13 @@ import { useWebcam } from '../context/webcam';
 const useStyles = makeStyles((theme) => ({
   root: (props) => ({
     position: 'relative',
+    margin: '0 auto',
+    maxWidth: '80vw',
   }),
   video: (props) => ({
     width: '100%',
     height: '100%',
+    borderRadius: theme.spacing(1),
     ...(props.flipX
       ? {
           'p-webkit-transform': 'scaleX(- 1)',
@@ -20,6 +23,7 @@ const useStyles = makeStyles((theme) => ({
       : {}),
   }),
   canvas: {
+    borderRadius: theme.spacing(1),
     position: 'absolute',
     top: 0,
     left: 0,
