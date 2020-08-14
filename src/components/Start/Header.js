@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const StartScreen = (props) => {
+const StartScreenHeader = (props) => {
   const classes = useStyles();
 
   const handleSetScreen = useCallback(
@@ -39,7 +39,7 @@ const StartScreen = (props) => {
   });
 
   return (
-    <div className={classes.root}>
+    <header className={classes.root}>
       {transitions.map(({ item, props, key }) => (
         <animated.div key={key} style={props} className={classes.transition}>
           <Typography component="h1" variant="h4">
@@ -54,13 +54,13 @@ const StartScreen = (props) => {
           </Button>
         </animated.div>
       ))}
-    </div>
+    </header>
   );
 };
 
-StartScreen.propTypes = {
+StartScreenHeader.propTypes = {
   handlers: PropTypes.object.isRequired,
   gameState: PropTypes.object.isRequired,
 };
 
-export default StartScreen;
+export default StartScreenHeader;

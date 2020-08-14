@@ -7,6 +7,6 @@ export const types = {
 export const gameStates = {
   screen: {
     START: 'start',
-    SINGLE_PLAYER: 'single',
+    SINGLE_PLAYER: 'Single Player',
   },
 };

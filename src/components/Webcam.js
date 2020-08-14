@@ -32,6 +32,16 @@ const useStyles = makeStyles((theme) => ({
   hidden: {
     display: 'none',
   },
+  children: {
+    borderRadius: theme.spacing(1),
+    overflow: 'hidden',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: 'calc(100% - 0.1px)',
+    bottom: 5,
+    zIndex: 1,
+  },
 }));
 
 const Webcam = (props) => {
@@ -53,6 +63,7 @@ const Webcam = (props) => {
         width={webcam.videoRef?.current?.videoWidth}
         height={webcam.videoRef?.current?.videoHeight}
       />
+      {props.children && <div className={classes.children}>{props.children}</div>}
     </div>
   );
 };
