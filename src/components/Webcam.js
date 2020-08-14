@@ -6,11 +6,15 @@ import { makeStyles } from '@material-ui/styles';
 import { useWebcam } from '../context/webcam';
 
 const useStyles = makeStyles((theme) => ({
-  root: (props) => ({
-    position: 'relative',
+  root: {
     margin: '0 auto',
-    maxWidth: '80vw',
-  }),
+    maxWidth: 1200,
+  },
+  container: {
+    position: 'relative',
+    marginLeft: theme.spacing(2),
+    marginRight: theme.spacing(2),
+  },
   video: (props) => ({
     width: '100%',
     height: '100%',
@@ -38,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
     position: 'absolute',
     top: 0,
     left: 0,
-    width: 'calc(100% - 0.1px)',
+    width: '100%',
     bottom: 5,
     zIndex: 1,
   },
@@ -50,20 +54,22 @@ const Webcam = (props) => {
 
   return (
     <div className={classnames(classes.root, { [classes.hidden]: webcam.hidden })}>
-      <video
-        autoPlay={true}
-        ref={webcam.videoRef}
-        className={classes.video}
-        width={webcam.videoRef?.current?.videoWidth}
-        height={webcam.videoRef?.current?.videoHeight}
-      />
-      <canvas
-        ref={webcam.canvasRef}
-        className={classes.canvas}
-        width={webcam.videoRef?.current?.videoWidth}
-        height={webcam.videoRef?.current?.videoHeight}
-      />
-      {props.children && <div className={classes.children}>{props.children}</div>}
+      <div className={classes.container}>
+        <video
+          autoPlay={true}
+          ref={webcam.videoRef}
+          className={classes.video}
+          width={webcam.videoRef?.current?.videoWidth}
+          height={webcam.videoRef?.current?.videoHeight}
+        />
+        <canvas
+          ref={webcam.canvasRef}
+          className={classes.canvas}
+          width={webcam.videoRef?.current?.videoWidth}
+          height={webcam.videoRef?.current?.videoHeight}
+        />
+        {props.children && <div className={classes.children}>{props.children}</div>}
+      </div>
     </div>
   );
 };
