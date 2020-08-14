@@ -26,6 +26,7 @@ const AUTOSTART_KEY = 'AutoStartId';
 const hasVideo = !!navigator?.mediaDevices?.getUserMedia;
 
 const WebcamProvider = ({ children }) => {
+  const rootRef = useRef();
   const videoRef = useRef();
   const canvasRef = useRef();
   const [ctx, setCtx] = useState(null);
@@ -270,6 +271,75 @@ const WebcamProvider = ({ children }) => {
     });
   }, []); // eslint-disable-line
 
+  const hasFullScreen = !!(
+    rootRef.current?.requestFullscreen ||
+    rootRef.current?.mozRequestFullScreen ||
+    rootRef.current?.webkitRequestFullscreen ||
+    rootRef.current?.msRequestFullscreen
+  );
+
+  const [fullScreen, setFullScreen] = useState(false);
+
+  useEffect(() => {
+    const onTransition = () => {
+      const isFullScreen = !!document.fullscreenElement;
+      setFullScreen(isFullScreen);
+    };
+
+    document.addEventListener('fullscreenchange', onTransition);
+
+    return () => document.removeEventListener('fullscreenchange', onTransition);
+  }, []);
+
+  const enterFullScreen = useCallback(() => {
+    if (!hasFullScreen) return;
+
+    if (rootRef.current.requestFullscreen) {
+      rootRef.current.requestFullscreen();
+    } else if (rootRef.current.mozRequestFullScreen) {
+      /* Firefox */
+      rootRef.current.mozRequestFullScreen();
+    } else if (rootRef.current.webkitRequestFullscreen) {
+      /* Chrome, Safari and Opera */
+      rootRef.current.webkitRequestFullscreen();
+    } else if (rootRef.current.msRequestFullscreen) {
+      /* IE/Edge */
+      rootRef.current.msRequestFullscreen();
+    }
+  }, [hasFullScreen]);
+
+  const exitFullScreen = useCallback(() => {
+    if (!hasFullScreen) return;
+
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (document.mozCancelFullScreen) {
+      /* Firefox */
+      document.mozCancelFullScreen();
+    } else if (document.webkitExitFullscreen) {
+      /* Chrome, Safari and Opera */
+      document.webkitExitFullscreen();
+    } else if (document.msExitFullscreen) {
+      /* IE/Edge */
+      document.msExitFullscreen();
+    }
+  }, [hasFullScreen]);
+
+  const toggleFullScreen = useCallback(() => {
+    if (fullScreen) exitFullScreen();
+    else enterFullScreen();
+  }, [fullScreen, enterFullScreen, exitFullScreen]);
+
+  window.fs = {
+    enter: enterFullScreen,
+    exit: exitFullScreen,
+    toggle: toggleFullScreen,
+    has: hasFullScreen,
+    is: fullScreen,
+  };
+
+  console.log(window.fs);
+
   const context = useMemo(
     () => ({
       ctx,
@@ -277,6 +347,7 @@ const WebcamProvider = ({ children }) => {
       flipX,
       start,
       hidden,
+      rootRef,
       cameras,
       setFlipX,
       videoRef,
@@ -291,15 +362,20 @@ const WebcamProvider = ({ children }) => {
       clearCanvas,
       toggleFlipX,
       videoStream,
+      hasFullScreen,
+      exitFullScreen,
       currentDeviceId,
+      enterFullScreen,
       stop: stopVideo,
       discoverCameras,
+      toggleFullScreen,
       autoStartDeviceId,
       imageDataToDataUri,
       dataUriToImageData,
       getVideoAsImageData,
       setAutoStartDeviceId,
       clearAutoStartDeviceId,
+      isFullScreen: fullScreen,
     }),
     [
       ctx,
@@ -311,6 +387,7 @@ const WebcamProvider = ({ children }) => {
       setFlipX,
       setHidden,
       stopVideo,
+      fullScreen,
       setVisible,
       startVideo,
       videoError,
@@ -318,8 +395,12 @@ const WebcamProvider = ({ children }) => {
       toggleFlipX,
       clearCanvas,
       videoStream,
+      hasFullScreen,
+      exitFullScreen,
       currentDeviceId,
+      enterFullScreen,
       discoverCameras,
+      toggleFullScreen,
       autoStartDeviceId,
       imageDataToDataUri,
       dataUriToImageData,

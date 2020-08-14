@@ -2,6 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { makeStyles } from '@material-ui/styles';
+import IconButton from '@material-ui/core/IconButton';
+import EnterFullScreen from '@material-ui/icons/Fullscreen';
+import ExitFullScreen from '@material-ui/icons/FullscreenExit';
 
 import { useWebcam } from '../context/webcam';
 
@@ -10,11 +13,11 @@ const useStyles = makeStyles((theme) => ({
     margin: '0 auto',
     maxWidth: 1200,
   },
-  container: {
+  container: ({ isFullScreen: fs }) => ({
     position: 'relative',
-    marginLeft: theme.spacing(2),
-    marginRight: theme.spacing(2),
-  },
+    marginLeft: fs ? 0 : theme.spacing(2),
+    marginRight: fs ? 0 : theme.spacing(2),
+  }),
   video: (props) => ({
     width: '100%',
     height: '100%',
@@ -46,6 +49,13 @@ const useStyles = makeStyles((theme) => ({
     bottom: 5,
     zIndex: 1,
   },
+  fullScreen: {
+    position: 'absolute',
+    bottom: theme.spacing(1),
+    right: theme.spacing(1),
+    color: 'white',
+    zIndex: 2,
+  },
 }));
 
 const Webcam = (props) => {
@@ -53,7 +63,12 @@ const Webcam = (props) => {
   const classes = useStyles({ ...props, ...webcam });
 
   return (
-    <div className={classnames(classes.root, { [classes.hidden]: webcam.hidden })}>
+    <div
+      ref={webcam.rootRef}
+      className={classnames(classes.root, {
+        [classes.hidden]: webcam.hidden,
+      })}
+    >
       <div className={classes.container}>
         <video
           autoPlay={true}
@@ -69,6 +84,11 @@ const Webcam = (props) => {
           height={webcam.videoRef?.current?.videoHeight}
         />
         {props.children && <div className={classes.children}>{props.children}</div>}
+        {webcam.hasFullScreen && (
+          <IconButton className={classes.fullScreen} onClick={webcam.toggleFullScreen}>
+            {webcam.isFullScreen ? <ExitFullScreen /> : <EnterFullScreen />}
+          </IconButton>
+        )}
       </div>
     </div>
   );
