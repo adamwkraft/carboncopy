@@ -330,16 +330,6 @@ const WebcamProvider = ({ children }) => {
     else enterFullScreen();
   }, [fullScreen, enterFullScreen, exitFullScreen]);
 
-  window.fs = {
-    enter: enterFullScreen,
-    exit: exitFullScreen,
-    toggle: toggleFullScreen,
-    has: hasFullScreen,
-    is: fullScreen,
-  };
-
-  console.log(window.fs);
-
   const context = useMemo(
     () => ({
       ctx,

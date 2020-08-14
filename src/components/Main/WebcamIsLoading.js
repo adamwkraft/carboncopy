@@ -1,6 +1,4 @@
 const WebcamIsLoading = () => {
-  console.log('Searching for camera...');
-
   return null;
 };
 

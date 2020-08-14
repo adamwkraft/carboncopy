@@ -9,20 +9,28 @@ import ExitFullScreen from '@material-ui/icons/FullscreenExit';
 import { useWebcam } from '../context/webcam';
 
 const useStyles = makeStyles((theme) => ({
-  root: {
+  root: ({ isFullScreen: fs }) => ({
     margin: '0 auto',
     maxWidth: 1200,
-  },
+    ...(fs
+      ? {
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }
+      : {}),
+  }),
   container: ({ isFullScreen: fs }) => ({
+    width: '100%',
     position: 'relative',
     marginLeft: fs ? 0 : theme.spacing(2),
     marginRight: fs ? 0 : theme.spacing(2),
   }),
-  video: (props) => ({
+  video: ({ flipX, isFullScreen: fs }) => ({
     width: '100%',
     height: '100%',
-    borderRadius: theme.spacing(1),
-    ...(props.flipX
+    borderRadius: fs ? 0 : theme.spacing(1),
+    ...(flipX
       ? {
           'p-webkit-transform': 'scaleX(- 1)',
           transform: 'scaleX(-1)',
@@ -30,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
       : {}),
   }),
   canvas: {
-    borderRadius: theme.spacing(1),
+    borderRadius: ({ isFullScreen: fs }) => (fs ? 0 : theme.spacing(1)),
     position: 'absolute',
     top: 0,
     left: 0,
@@ -40,7 +48,7 @@ const useStyles = makeStyles((theme) => ({
     display: 'none',
   },
   children: {
-    borderRadius: theme.spacing(1),
+    borderRadius: ({ isFullScreen: fs }) => (fs ? 0 : theme.spacing(1)),
     overflow: 'hidden',
     position: 'absolute',
     top: 0,
