@@ -10,6 +10,8 @@ import Checkbox from '@material-ui/core/Checkbox';
 import ListItemText from '@material-ui/core/ListItemText';
 import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
+import { useRef } from 'react';
+import { useEffect } from 'react';
 
 const noop = () => {};
 
@@ -89,15 +91,24 @@ const SelectAndCheck = (props) => {
   const classes = useStyles(props);
   const id = useMemo(Math.random, []);
 
+  const isMountedRef = useRef();
   const [anchorEl, setAnchorEl] = useState(null);
   const [arrowRef, setArrowRef] = useState(null);
 
+  useEffect(() => {
+    isMountedRef.current = true;
+
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
   const handleClickSelect = useCallback((event) => {
-    setAnchorEl(event.currentTarget);
+    if (isMountedRef.current) setAnchorEl(event.currentTarget);
   }, []);
 
   const closeSelect = useCallback(() => {
-    setAnchorEl(null);
+    if (isMountedRef.current) setAnchorEl(null);
   }, []);
 
   const handleCloseSelect = useCallback(async () => {

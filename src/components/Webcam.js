@@ -23,8 +23,8 @@ const useStyles = makeStyles((theme) => ({
   container: ({ isFullScreen: fs }) => ({
     width: '100%',
     position: 'relative',
-    marginLeft: fs ? 0 : theme.spacing(2),
-    marginRight: fs ? 0 : theme.spacing(2),
+    paddingLeft: fs ? 0 : theme.spacing(2),
+    paddingRight: fs ? 0 : theme.spacing(2),
   }),
   video: ({ flipX, isFullScreen: fs }) => ({
     width: '100%',
@@ -37,18 +37,20 @@ const useStyles = makeStyles((theme) => ({
         }
       : {}),
   }),
-  canvas: {
-    borderRadius: ({ isFullScreen: fs }) => (fs ? 0 : theme.spacing(1)),
+  canvas: ({ isFullScreen: fs }) => ({
+    borderRadius: fs ? 0 : theme.spacing(1),
     position: 'absolute',
     top: 0,
     left: 0,
     width: '100%',
-  },
+    paddingLeft: fs ? 0 : theme.spacing(2),
+    paddingRight: fs ? 0 : theme.spacing(2),
+  }),
   hidden: {
     display: 'none',
   },
-  children: {
-    borderRadius: ({ isFullScreen: fs }) => (fs ? 0 : theme.spacing(1)),
+  children: ({ isFullScreen: fs }) => ({
+    borderRadius: fs ? 0 : theme.spacing(1),
     overflow: 'hidden',
     position: 'absolute',
     top: 0,
@@ -56,13 +58,18 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
     bottom: 5,
     zIndex: 1,
-  },
+    paddingLeft: fs ? 0 : theme.spacing(2),
+    paddingRight: fs ? 0 : theme.spacing(2),
+  }),
   fullScreen: {
     position: 'absolute',
-    bottom: theme.spacing(1),
-    right: theme.spacing(1),
+    bottom: theme.spacing(1.5),
+    right: ({ isFullScreen: fs }) => theme.spacing(fs ? 1.5 : 3),
     color: 'white',
     zIndex: 2,
+    '&:hover': {
+      background: 'rgba(255,255,255,0.25)',
+    },
   },
 }));
 

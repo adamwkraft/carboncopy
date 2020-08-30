@@ -1,10 +1,11 @@
-import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
+import React, { useCallback } from 'react';
+import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/styles';
-import { Typography, Button } from '@material-ui/core';
+import Typography from '@material-ui/core/Typography';
 import { useTransition, animated } from 'react-spring';
 
-import { gameStates } from '../../lib/constants';
+import { gameStatesArrays, wip } from '../lib/constants';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -20,14 +21,17 @@ const useStyles = makeStyles((theme) => ({
   transition: {
     textAlign: 'center',
   },
+  header: {
+    marginBottom: theme.spacing(2),
+  },
 }));
 
-const StartScreenHeader = (props) => {
+const ChoosePlayers = (props) => {
   const classes = useStyles();
 
-  const handleSetScreen = useCallback(
+  const handleSetPlayerMode = useCallback(
     ({ currentTarget: { name } }) => {
-      props.handlers.setScreen(name);
+      props.handlers.setPlayerMode(name);
     },
     [props.handlers],
   );
@@ -39,28 +43,35 @@ const StartScreenHeader = (props) => {
   });
 
   return (
-    <header className={classes.root}>
+    <div className={classes.root}>
       {transitions.map(({ item, props, key }) => (
         <animated.div key={key} style={props} className={classes.transition}>
-          <Typography component="h1" variant="h4">
-            Select a game mode!
+          <Typography component="h1" variant="h4" className={classes.header}>
+            Please Choose One
           </Typography>
-          <Button
-            variant="outlined"
-            onClick={handleSetScreen}
-            name={gameStates.screen.SINGLE_PLAYER}
-          >
-            Single Player
-          </Button>
+          <ul className={classes.playerMode}>
+            {gameStatesArrays.players.map((playerMode) => (
+              <li className={classes.playerModeItem} key={playerMode}>
+                <Button
+                  disabled={!!wip[playerMode]}
+                  variant="outlined"
+                  onClick={handleSetPlayerMode}
+                  name={playerMode}
+                >
+                  {playerMode}
+                </Button>
+              </li>
+            ))}
+          </ul>
         </animated.div>
       ))}
-    </header>
+    </div>
   );
 };
 
-StartScreenHeader.propTypes = {
+ChoosePlayers.propTypes = {
   handlers: PropTypes.object.isRequired,
   gameState: PropTypes.object.isRequired,
 };
 
-export default StartScreenHeader;
+export default ChoosePlayers;

@@ -1,13 +1,12 @@
-import React, { useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
+import React, { useRef, useEffect, memo } from 'react';
 
 import { useWebcam } from '../../context/webcam';
+import { useGameState } from '../../hooks/game';
 
 import Game from '../Game';
 import NoWebcam from './NoWebcam';
-import ChooseWebcam from './ChooseWebcam';
-import WebcamIsLoading from './WebcamIsLoading';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -19,6 +18,8 @@ const useStyles = makeStyles((theme) => ({
 const Main = (props) => {
   const webcam = useWebcam();
   const { currentDeviceId, hasVideo, cameras, autoStartDeviceId } = webcam;
+
+  const [gameState, handlers] = useGameState();
 
   const startedRef = useRef();
 
@@ -38,17 +39,22 @@ const Main = (props) => {
 
   const classes = useStyles();
 
-  // TODO: this is problematic. We need to put the video element on screen in order to prompt the user for permission to use the camera, otherwise we never progress past the WebcamIsLoading screen
+  // console.log(
+  //   !hasVideo
+  //     ? 'no webcam'
+  //     : !cameras.length || currentDeviceId === undefined
+  //     ? 'webcams is loading'
+  //     : !currentDeviceId
+  //     ? 'no webcam chosen'
+  //     : 'rendering game',
+  // );
+
   return (
     <main className={classes.root}>
       {!hasVideo ? (
         <NoWebcam />
-      ) : !cameras.length || currentDeviceId === undefined ? (
-        <WebcamIsLoading />
-      ) : !currentDeviceId ? (
-        <ChooseWebcam />
       ) : (
-        <Game webcam={webcam} />
+        <Game webcam={webcam} gameState={gameState} gameHandlers={handlers} />
       )}
     </main>
   );
@@ -58,4 +64,4 @@ Main.propTypes = {
   cvReady: PropTypes.bool.isRequired,
 };
 
-export default Main;
+export default memo(Main);
