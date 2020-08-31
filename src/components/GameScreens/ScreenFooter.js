@@ -1,38 +1,44 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { gameStates } from '../../lib/constants';
+import { screenStates } from '../../lib/screenConstants';
 
 import Null from '../Null';
 import ChoosePlayers from '../ChoosePlayers';
+import PracticeFooter from './SinglePlayer/PracticeFooter';
 
 const Footers = {
-  [gameStates.screen.PLAY]: {
-    [gameStates.players.SINGLE_PLAYER]: {
-      [gameStates.mode[gameStates.players.SINGLE_PLAYER].PRACTICE]: () => 'PRACTICE',
-      [gameStates.mode[gameStates.players.SINGLE_PLAYER].SURVIVAL]: () => 'SURVIVAL',
-      [gameStates.mode[gameStates.players.SINGLE_PLAYER].TIME_ATTACK]: () => 'TIME_ATTACK',
+  [screenStates.screen.PLAY]: {
+    [screenStates.players.SINGLE_PLAYER]: {
+      [screenStates.mode[screenStates.players.SINGLE_PLAYER].PRACTICE]: PracticeFooter,
+      [screenStates.mode[screenStates.players.SINGLE_PLAYER].SURVIVAL]: () => 'SURVIVAL footer',
+      [screenStates.mode[screenStates.players.SINGLE_PLAYER].TIME_ATTACK]: () =>
+        'TIME_ATTACK footer',
     },
-    [gameStates.players.MULTIPLAYER]: {
-      [gameStates.mode[gameStates.players.MULTIPLAYER].LOCAL]: () => 'LOCAL',
-      [gameStates.mode[gameStates.players.MULTIPLAYER].REMOTE]: () => 'REMOTE',
+    [screenStates.players.MULTIPLAYER]: {
+      [screenStates.mode[screenStates.players.MULTIPLAYER].LOCAL]: () => 'LOCAL footer',
+      [screenStates.mode[screenStates.players.MULTIPLAYER].REMOTE]: () => 'REMOTE footer',
     },
   },
 };
 
 const ScreenFooter = (props) => {
-  const { gameState } = props;
+  const {
+    game: {
+      screen: { state },
+    },
+  } = props;
 
-  if (gameState.screen === gameStates.screen.DEFAULT) return <ChoosePlayers {...props} />;
+  if (state.screen === screenStates.screen.DEFAULT) return <ChoosePlayers {...props} />;
 
-  const Footer = Footers[gameState.screen]?.[gameState.players]?.[gameState.mode] || Null;
+  const Footer = Footers[state.screen]?.[state.players]?.[state.mode] || Null;
 
   return <Footer {...props} />;
 };
 
 ScreenFooter.propTypes = {
-  handlers: PropTypes.object.isRequired,
-  gameState: PropTypes.object.isRequired,
+  game: PropTypes.object.isRequired,
+  webcam: PropTypes.object.isRequired,
 };
 
 export default ScreenFooter;

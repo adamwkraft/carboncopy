@@ -5,7 +5,7 @@ import { makeStyles } from '@material-ui/styles';
 import Typography from '@material-ui/core/Typography';
 import { useTransition, animated } from 'react-spring';
 
-import { gameStatesArrays, wip } from '../lib/constants';
+import { screenStatesArrays, wipScreens } from '../lib/screenConstants';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -16,6 +16,7 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(10),
     '& button': {
       marginTop: theme.spacing(2),
+      minWidth: 150,
     },
   },
   transition: {
@@ -31,9 +32,9 @@ const ChoosePlayers = (props) => {
 
   const handleSetPlayerMode = useCallback(
     ({ currentTarget: { name } }) => {
-      props.handlers.setPlayerMode(name);
+      props.game.screen.handlers.setPlayerMode(name);
     },
-    [props.handlers],
+    [props.game.screen.handlers],
   );
 
   const transitions = useTransition(true, null, {
@@ -50,10 +51,10 @@ const ChoosePlayers = (props) => {
             Please Choose One
           </Typography>
           <ul className={classes.playerMode}>
-            {gameStatesArrays.players.map((playerMode) => (
+            {screenStatesArrays.players.map((playerMode) => (
               <li className={classes.playerModeItem} key={playerMode}>
                 <Button
-                  disabled={!!wip[playerMode]}
+                  disabled={!!wipScreens[playerMode]}
                   variant="outlined"
                   onClick={handleSetPlayerMode}
                   name={playerMode}
@@ -70,8 +71,7 @@ const ChoosePlayers = (props) => {
 };
 
 ChoosePlayers.propTypes = {
-  handlers: PropTypes.object.isRequired,
-  gameState: PropTypes.object.isRequired,
+  game: PropTypes.object.isRequired,
 };
 
 export default ChoosePlayers;

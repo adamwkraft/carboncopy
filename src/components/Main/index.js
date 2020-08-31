@@ -3,7 +3,6 @@ import { makeStyles } from '@material-ui/styles';
 import React, { useRef, useEffect, memo } from 'react';
 
 import { useWebcam } from '../../context/webcam';
-import { useGameState } from '../../hooks/game';
 
 import Game from '../Game';
 import NoWebcam from './NoWebcam';
@@ -18,8 +17,6 @@ const useStyles = makeStyles((theme) => ({
 const Main = (props) => {
   const webcam = useWebcam();
   const { currentDeviceId, hasVideo, cameras, autoStartDeviceId } = webcam;
-
-  const [gameState, handlers] = useGameState();
 
   const startedRef = useRef();
 
@@ -50,13 +47,7 @@ const Main = (props) => {
   // );
 
   return (
-    <main className={classes.root}>
-      {!hasVideo ? (
-        <NoWebcam />
-      ) : (
-        <Game webcam={webcam} gameState={gameState} gameHandlers={handlers} />
-      )}
-    </main>
+    <main className={classes.root}>{!hasVideo ? <NoWebcam /> : <Game webcam={webcam} />}</main>
   );
 };
 

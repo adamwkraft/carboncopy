@@ -2,38 +2,24 @@ import PropTypes from 'prop-types';
 import React, { useEffect, memo } from 'react';
 import { useSpring, animated, config } from 'react-spring';
 
-import BackIcon from '@material-ui/icons/ArrowLeft';
-import IconButton from '@material-ui/core/IconButton';
-
 import Webcam from './Webcam';
 
-import { gameStates } from '../lib/constants';
+import { screenStates } from '../lib/screenConstants';
 import { makeStyles } from '@material-ui/styles';
 
-import WebcamSelect from './WebcamSelect';
 import classnames from 'classnames';
 
 import ScreenHeader from './GameScreens/ScreenHeader';
 import ScreenContent from './GameScreens/ScreenContent';
 import ScreenFooter from './GameScreens/ScreenFooter';
 
+import { useGame } from '../hooks/game';
+import GlobalHeader from './GlobalHeader';
+import { useMemo } from 'react';
+
 const useStyles = makeStyles((theme) => ({
-  back: {
-    border: '2px solid grey',
-  },
   header: {
     marginTop: theme.spacing(2),
-  },
-  options: {
-    marginTop: theme.spacing(2),
-    paddingLeft: theme.spacing(2),
-    paddingRight: theme.spacing(2),
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '100%',
-    maxWidth: 1600,
-    margin: '0 auto',
   },
   overlay: {
     background: 'rgba(255,255,255,0.5)',
@@ -52,51 +38,54 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Game = ({ webcam, gameState, gameHandlers }) => {
+const Game = ({ webcam }) => {
   const classes = useStyles();
 
-  console.log(gameState);
+  const game = useGame();
+
+  console.log(game);
 
   useEffect(() => {
-    if (gameState.screen !== gameStates.screen.DEFAULT && webcam.hidden) {
+    if (game.screen.state.screen !== screenStates.screen.DEFAULT && webcam.hidden) {
       webcam.setVisible();
-    } else if (gameState.screen === gameStates.screen.DEFAULT && !webcam.hidden) {
+    } else if (game.screen.state.screen === screenStates.screen.DEFAULT && !webcam.hidden) {
       webcam.setHidden();
     }
-  }, [webcam, gameState.screen]);
+  }, [webcam, game.screen.state.screen]);
 
   const styleProps = useSpring({ to: { opacity: !webcam.hidden ? 1 : 0 }, config: config.gentle });
 
+  const screenProps = useMemo(
+    () => ({
+      game,
+      webcam,
+    }),
+    [game, webcam],
+  );
+
   return (
     <>
-      {gameState.screen !== gameStates.screen.DEFAULT && (
-        <div className={classes.options}>
-          <IconButton className={classes.back} size="small" onClick={gameHandlers.resetState}>
-            <BackIcon />
-          </IconButton>
-          <WebcamSelect />
-        </div>
-      )}
+      <GlobalHeader {...screenProps} />
       <div className={classes.header}>
-        <ScreenHeader handlers={gameHandlers} gameState={gameState} />
+        <ScreenHeader {...screenProps} />
       </div>
       <animated.div style={styleProps}>
         <Webcam>
           {/* TODO: need to check if webcam is loading here */}
           <>
-            {!gameState.mode && (
+            {!game.screen.state.mode && (
               <div
                 className={classnames({
-                  [classes.overlay]: !gameState.mode,
+                  [classes.overlay]: !game.screen.state.mode,
                   [classes.fsOverlay]: webcam.isFullScreen,
                 })}
               />
             )}
-            <ScreenContent handlers={gameHandlers} gameState={gameState} />
+            <ScreenContent {...screenProps} />
           </>
         </Webcam>
       </animated.div>
-      <ScreenFooter handlers={gameHandlers} gameState={gameState} />
+      <ScreenFooter {...screenProps} />
     </>
   );
 };

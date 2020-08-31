@@ -4,16 +4,18 @@ import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/styles';
 import Typography from '@material-ui/core/Typography';
 
-import { gameStatesArrays, wip } from '../lib/constants';
+import { screenStatesArrays, wipScreens } from '../lib/screenConstants';
 
 const useStyles = makeStyles((theme) => ({
   root: {
     height: '100%',
     display: 'flex',
     alignItems: 'center',
+    justifyContent: 'center',
     flexDirection: 'column',
     '& button': {
       marginTop: theme.spacing(2),
+      minWidth: 150,
     },
     '& ul': {
       textAlign: 'center',
@@ -30,9 +32,9 @@ const SelectGameMode = (props) => {
 
   const handleSetGameMode = useCallback(
     ({ currentTarget: { name } }) => {
-      props.handlers.setGameMode(name);
+      props.game.screen.handlers.setGameMode(name);
     },
-    [props.handlers],
+    [props.game.screen.handlers],
   );
 
   return (
@@ -41,11 +43,11 @@ const SelectGameMode = (props) => {
         Select Game Mode
       </Typography>
       <ul className={classes.gameMode}>
-        {gameStatesArrays.mode[props.gameState.players]?.map((gameMode) => (
+        {screenStatesArrays.mode[props.game.screen.state.players]?.map((gameMode) => (
           <li className={classes.gameModeItem} key={gameMode}>
             <Button
               color="primary"
-              disabled={!!wip[gameMode]}
+              disabled={!!wipScreens[gameMode]}
               variant="contained"
               onClick={handleSetGameMode}
               name={gameMode}
@@ -60,8 +62,7 @@ const SelectGameMode = (props) => {
 };
 
 SelectGameMode.propTypes = {
-  handlers: PropTypes.object.isRequired,
-  gameState: PropTypes.object.isRequired,
+  game: PropTypes.object.isRequired,
 };
 
 export default SelectGameMode;

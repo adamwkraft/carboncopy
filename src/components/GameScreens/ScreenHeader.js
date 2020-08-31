@@ -4,27 +4,31 @@ import { makeStyles } from '@material-ui/styles';
 
 import Null from '../Null';
 import DefaultHeader from '../DefaultHeader';
-import { gameStates } from '../../lib/constants';
+import { screenStates } from '../../lib/screenConstants';
 
 const useStyles = makeStyles((theme) => ({
   root: {},
 }));
 
 const Headers = {
-  [gameStates.screen.DEFAULT]: {
-    [gameStates.players.DEFAULT]: Null,
+  [screenStates.screen.DEFAULT]: {
+    [screenStates.players.DEFAULT]: Null,
   },
-  [gameStates.screen.PLAY]: {
-    [gameStates.players.SINGLE_PLAYER]: Null,
-    [gameStates.players.MULTIPLAYER]: Null,
+  [screenStates.screen.PLAY]: {
+    [screenStates.players.SINGLE_PLAYER]: Null,
+    [screenStates.players.MULTIPLAYER]: Null,
   },
 };
 
 const ScreenHeader = (props) => {
   const classes = useStyles();
-  const { gameState } = props;
+  const {
+    game: {
+      screen: { state },
+    },
+  } = props;
 
-  const HeaderContent = Headers[gameState.screen]?.[gameState.players] || DefaultHeader;
+  const HeaderContent = Headers[state.screen]?.[state.players] || DefaultHeader;
 
   return (
     <header className={classes.root}>
@@ -34,8 +38,8 @@ const ScreenHeader = (props) => {
 };
 
 ScreenHeader.propTypes = {
-  handlers: PropTypes.object.isRequired,
-  gameState: PropTypes.object.isRequired,
+  game: PropTypes.object.isRequired,
+  webcam: PropTypes.object.isRequired,
 };
 
 export default ScreenHeader;

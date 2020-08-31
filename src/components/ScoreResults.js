@@ -4,12 +4,18 @@ import { makeStyles } from '@material-ui/core';
 
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
+import CloseIcon from '@material-ui/icons/Close';
+import IconButton from '@material-ui/core/IconButton';
 
 const useStyles = makeStyles((theme) => ({
   masks: {
     padding: theme.spacing(1),
+    background: 'rgba(255,255,255,0.5)',
   },
-  masksHeader: {},
+  masksHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+  },
   masksList: {
     display: 'flex',
     flexFlow: 'row wrap',
@@ -35,14 +41,23 @@ const ScoreResults = (props) => {
   return (
     !!results.length && (
       <>
-        <Paper className={classes.masks}>
+        <Paper className={classes.masks} elevation={2}>
           <div className={classes.masksHeader}>
-            <Typography variant="h6" component="h3">
-              Results
-            </Typography>
-            <Typography component="p">
-              Average: {results.reduce((acc, { score }) => acc + score, 0) / results.length}
-            </Typography>
+            <div>
+              <Typography variant="h6" component="h3">
+                Results
+              </Typography>
+              <Typography component="p">
+                Average: {results.reduce((acc, { score }) => acc + score, 0) / results.length}
+              </Typography>
+            </div>
+            {props.handleClose && (
+              <div>
+                <IconButton size="small" onClick={props.handleClose}>
+                  <CloseIcon />
+                </IconButton>
+              </div>
+            )}
           </div>
           <ul className={classes.masksList}>
             {results.map(({ score, dataUri }, i) => (
@@ -60,6 +75,7 @@ const ScoreResults = (props) => {
 
 ScoreResults.propTypes = {
   results: PropTypes.array.isRequired,
+  handleClose: PropTypes.func,
 };
 
 export default ScoreResults;

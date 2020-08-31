@@ -19,15 +19,15 @@ const DefaultHeader = (props) => {
   return (
     <header className={classes.root}>
       <Typography component="h1" variant="h5" className={classes.heading}>
-        {props.gameState.screen}
+        {props.game.screen.state.screen}
       </Typography>
     </header>
   );
 };
 
 DefaultHeader.propTypes = {
-  handlers: PropTypes.object.isRequired,
-  gameState: PropTypes.object.isRequired,
+  game: PropTypes.object.isRequired,
+  webcam: PropTypes.object.isRequired,
 };
 
 export default DefaultHeader;
