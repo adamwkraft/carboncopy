@@ -15,6 +15,10 @@ export const useSimpleGame = () => {
   const [scores, setScores] = useState([]);
   const [selectedMasks, setSelectedMasks] = useState(null);
 
+  const clearScores = useCallback(() => {
+    setScores([]);
+  }, []);
+
   const handleZip = useCallback(
     async (file) => {
       setLoading(true);
@@ -49,7 +53,7 @@ export const useSimpleGame = () => {
   );
 
   const handleLoadShippedMasks = useCallback(
-    async ({ target: { value: filename } }) => {
+    async (filename) => {
       if (!filename) {
         setSelectedMasks(null);
         return;
@@ -72,7 +76,7 @@ export const useSimpleGame = () => {
     async (controller) => {
       if (controller.time.first) {
         maskIterator.next(); // load the first mask
-        setScores([]); // clear the scores
+        clearScores();
         controller.useTimer({
           maxLaps: maskIterator.numMasks,
           printSeconds: true,
@@ -115,7 +119,7 @@ export const useSimpleGame = () => {
         else controller.webcam.clearCanvas();
       };
     },
-    [webcam, maskIterator],
+    [webcam, maskIterator, clearScores],
   );
 
   return useMemo(
@@ -123,6 +127,7 @@ export const useSimpleGame = () => {
       scores,
       loading,
       handleLoop,
+      clearScores,
       selectedMasks,
       handleLoadUserMasks,
       handleLoadShippedMasks,
@@ -132,6 +137,7 @@ export const useSimpleGame = () => {
       scores,
       loading,
       handleLoop,
+      clearScores,
       maskIterator,
       selectedMasks,
       handleLoadUserMasks,
