@@ -2,7 +2,11 @@ import { useState, useEffect, useCallback } from 'react';
 
 const synth = window.speechSynthesis;
 
-export const useSpeech = () => {
+export const useSpeech = (audioRef) => {
+  if (!audioRef) {
+    throw new Error('audioRef is required when calling useSpeech');
+  }
+
   const [voices, setVoices] = useState(null);
   const [voice, setVoice] = useState(null);
 
@@ -16,11 +20,13 @@ export const useSpeech = () => {
 
   const say = useCallback(
     (text) => {
+      if (!audioRef.current) return;
+
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.voice = voice;
       synth.speak(utterance);
     },
-    [voice],
+    [voice, audioRef],
   );
 
   const countdown = useCallback(

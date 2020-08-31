@@ -1,10 +1,11 @@
 import { useCallback, useRef, useMemo } from 'react';
-
-import { useSpeech } from './speech';
+import { useAudio } from '../context/audio';
 
 export const useLapTimer = () => {
   const lapTimer = useRef();
-  const speech = useSpeech();
+  const {
+    handlers: { speech },
+  } = useAudio();
 
   const useTimer = useCallback(
     ({

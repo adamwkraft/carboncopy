@@ -1,11 +1,10 @@
 import { useRef, useState, useCallback, useMemo } from 'react';
 
-import { useSpeech } from './speech';
 import { useBodyPix } from './bodyPix';
-import { useIterateMask } from './iterateMask';
+import { useAudio } from '../context/audio';
 import { useWebcam } from '../context/webcam';
+import { useIterateMask } from './iterateMask';
 import {
-  getScoreAndOverlay,
   getScoreAndOverlayForSegmentation,
   getSegmentationOverlay,
   getBinaryOverlay,
@@ -15,7 +14,11 @@ import {
 let currentGame = [];
 
 export const useMainLoop = () => {
-  const { countdown } = useSpeech();
+  const {
+    handlers: {
+      speech: { countdown },
+    },
+  } = useAudio();
   const webcam = useWebcam();
   const predict = useBodyPix();
   const maskIterator = useIterateMask();
