@@ -66,7 +66,7 @@ const useStyles = makeStyles((theme) => ({
     bottom: theme.spacing(1.5),
     right: ({ isFullScreen: fs }) => theme.spacing(fs ? 1.5 : 3),
     color: 'white',
-    zIndex: 2,
+    zIndex: 20,
     '&:hover': {
       background: 'rgba(255,255,255,0.25)',
     },
