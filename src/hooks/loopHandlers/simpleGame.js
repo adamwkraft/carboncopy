@@ -13,6 +13,7 @@ export const useSimpleGame = () => {
 
   const maskIterator = useIterateMask();
   const [scores, setScores] = useState([]);
+  const [progressPercent, setProgressPercent] = useState(0.0);
   const [selectedMasks, setSelectedMasks] = useState(null);
 
   const clearScores = useCallback(() => {
@@ -74,14 +75,16 @@ export const useSimpleGame = () => {
 
   const handleLoop = useCallback(
     async (controller) => {
+      const lapDuration = 3000;
       if (controller.time.first) {
         maskIterator.next(); // load the first mask
+        setProgressPercent(0.0);
         clearScores();
         controller.useTimer({
           maxLaps: maskIterator.numMasks,
           printSeconds: true,
           announceSeconds: true,
-          lapDuration: 3000,
+          lapDuration,
           newLapDelay: 1000,
           onLap: ({ predict, time, stop }) => {
             const target = maskIterator.maskRef.current;
@@ -91,13 +94,20 @@ export const useSimpleGame = () => {
             if (!target) return stop();
 
             promRef.current = predict(webcam.videoRef.current).then(async (segmentation) => {
-              const { score, overlay } = getScoreAndOverlayForSegmentationAndImageData(
-                target,
-                segmentation,
-                webcam.flipX,
-              );
+              const {
+                score,
+                targetOverlay,
+                segOverlay,
+              } = getScoreAndOverlayForSegmentationAndImageData(target, segmentation, webcam.flipX);
 
-              const dataUri = webcam.imageDataToDataUri(overlay);
+              const dataUri = webcam.imageDataToDataUri(targetOverlay);
+              // // Blend and create a new DataUri
+              // webcam.clearScratchpad();
+              // webcam.scratchpad.ctx.putImageData(segOverlay, 0, 0);
+              // webcam.scratchpad.ctx.putImageData(targetOverlay, 0, 0);
+              // const dataUri = webcam.scratchpad.canvas.toDataURL('image/png');
+              // webcam.clearScratchpad();
+
               setScores((state) => [...state, { score, dataUri }]);
 
               webcam.clearCanvas();
@@ -105,6 +115,10 @@ export const useSimpleGame = () => {
             });
           },
         });
+      } else {
+        // Set the progress
+        const progress_percent = Math.min(controller.time.lapTime / lapDuration, 1.0);
+        setProgressPercent(Math.round(progress_percent * 100));
       }
 
       if (maskIterator.maskRef.current) {
@@ -125,6 +139,7 @@ export const useSimpleGame = () => {
   return useMemo(
     () => ({
       scores,
+      progressPercent,
       loading,
       handleLoop,
       clearScores,
@@ -135,6 +150,7 @@ export const useSimpleGame = () => {
     }),
     [
       scores,
+      progressPercent,
       loading,
       handleLoop,
       clearScores,
