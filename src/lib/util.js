@@ -15,7 +15,7 @@ export const polygonToArray = (polygon, width, height) => {
   return new ImageData(bytes, width, height);
 };
 
-export const getSegmentationeOverlayAndBinaryImageData = (segmentation, flipped) => {
+export const getOpenCvMaskFromSegmentation = (segmentation, flipped) => {
   const { data, width, height } = segmentation;
   const binaryBytes = new Uint8ClampedArray(segmentation.data.length * 4);
   // TODO: See if we can directly create CVMat from segmentation.data.
@@ -60,9 +60,20 @@ export const getSegmentationeOverlayAndBinaryImageData = (segmentation, flipped)
     }
   }
 
+  // Cleanup
+  segData.delete();
+  rgbaPlanes.delete();
+
+  return mask;
+};
+
+export const getSegmentationeOverlayAndBinaryImageData = (segmentation, flipped) => {
+  const mask = getOpenCvMaskFromSegmentation(segmentation, flipped);
+
   // Create a Blue opaque overlay with a solid Green border.
   // NOTE: Images are in RGBA format
-  let overlay = cv.Mat.zeros(segData.rows, segData.cols, cv.CV_8UC4);
+  let rgbaPlanes = new cv.MatVector();
+  let overlay = cv.Mat.zeros(mask.rows, mask.cols, cv.CV_8UC4);
   cv.split(overlay, rgbaPlanes);
   // Fill blue channel and alpha using the mask.
   rgbaPlanes.get(2).setTo([255, 0, 0, 0], mask); // Blue
@@ -75,6 +86,8 @@ export const getSegmentationeOverlayAndBinaryImageData = (segmentation, flipped)
   cv.dilate(mask, borderMask, M, anchor, 1, cv.BORDER_CONSTANT, cv.morphologyDefaultBorderValue());
   cv.subtract(borderMask, mask, borderMask);
   // Fill solid green using the border mask.
+  rgbaPlanes.get(2).setTo([255, 0, 0, 0], borderMask); // Blue
+  // rgbaPlanes.get(1).setTo([255, 0, 0, 0], borderMask); // Green
   rgbaPlanes.get(1).setTo([255, 0, 0, 0], borderMask); // Green
   rgbaPlanes.get(3).setTo([255, 0, 0, 0], borderMask); // Alpha
   // Merge into final result.
@@ -84,12 +97,12 @@ export const getSegmentationeOverlayAndBinaryImageData = (segmentation, flipped)
     overlay.cols,
     overlay.rows,
   );
-  // Delete Mat objects.
-  segData.delete();
+  // Cleanup
   rgbaPlanes.delete();
   mask.delete();
   overlay.delete();
   M.delete();
+  borderMask.delete();
 
   // TODO: only return one image here.
   return { overlayImageData, binaryImageData: overlayImageData };
@@ -100,6 +113,54 @@ export const getScoreAndOverlayForSegmentationAndImageData = (
   segmentation,
   flipped,
 ) => {
+  // Create a visualization of the new segmentation.
+  const segmentationMask = getOpenCvMaskFromSegmentation(segmentation, flipped);
+  let rgbaPlanes = new cv.MatVector();
+  let segOverlay = cv.Mat.zeros(segmentationMask.rows, segmentationMask.cols, cv.CV_8UC4);
+  cv.split(segOverlay, rgbaPlanes);
+  // Fill green channel and alpha using the mask.
+  rgbaPlanes.get(1).setTo([255, 0, 0, 0], segmentationMask); // Green
+  rgbaPlanes.get(3).setTo([128, 0, 0, 0], segmentationMask); // Alpha
+  // Get a border mask.
+  let borderSize = 10;
+  let borderMask = new cv.Mat();
+  let M = cv.Mat.ones(borderSize, borderSize, cv.CV_8U);
+  let anchor = new cv.Point(-1, -1);
+  cv.dilate(
+    segmentationMask,
+    borderMask,
+    M,
+    anchor,
+    1,
+    cv.BORDER_CONSTANT,
+    cv.morphologyDefaultBorderValue(),
+  );
+  cv.subtract(borderMask, segmentationMask, borderMask);
+  // Fill solid green using the border mask.
+  rgbaPlanes.get(1).setTo([255, 0, 0, 0], borderMask); // Green
+  rgbaPlanes.get(3).setTo([255, 0, 0, 0], borderMask); // Alpha
+  // Merge into final result.
+  cv.merge(rgbaPlanes, segOverlay);
+  const segOverlayImageData = new ImageData(
+    new Uint8ClampedArray(segOverlay.data),
+    segOverlay.cols,
+    segOverlay.rows,
+  );
+
+  // Create a mask from the targetImageData.
+  let targetData = cv.matFromImageData(targetImageData);
+  let targetRgbaPlanes = new cv.MatVector();
+  cv.split(targetData, targetRgbaPlanes);
+
+  // Merge the two images.
+  let mergedImage = new cv.Mat();
+  cv.addWeighted(segOverlay, 0.5, targetData, 0.5, 0.0, mergedImage);
+  const mergedOverlayImageData = new ImageData(
+    new Uint8ClampedArray(mergedImage.data),
+    mergedImage.cols,
+    mergedImage.rows,
+  );
+
   const { data, width, height } = segmentation;
   const bytes = new Uint8ClampedArray(segmentation.data.length * 4);
 
@@ -131,7 +192,15 @@ export const getScoreAndOverlayForSegmentationAndImageData = (
   const score = Math.round((intersection / (union + 0.0000001)) * 100);
   const overlay = new ImageData(bytes, width, height);
 
-  return { score, overlay };
+  // Cleanup
+  rgbaPlanes.delete();
+  segmentationMask.delete();
+  segOverlay.delete();
+  M.delete();
+  borderMask.delete();
+  mergedImage.delete();
+
+  return { score, targetOverlay: mergedOverlayImageData, segOverlay: segOverlayImageData };
 };
 
 export const drawPolygon = (ctx, polygon, color = 'rgba(255, 255, 255, 0.5)') => {

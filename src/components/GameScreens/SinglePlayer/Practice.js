@@ -7,6 +7,7 @@ import { makeStyles } from '@material-ui/core';
 import FileUpload from '../../FileUpload';
 import GameSelect from '../../GameSelect';
 import CapturedMasks from '../../CapturedMasks';
+import ProgressBar from '../../ProgressBar';
 import ScoreResults from '../../ScoreResults';
 
 const useStyles = makeStyles((theme) => ({
@@ -87,7 +88,7 @@ const Practice = (props) => {
         >
           {loop.looping ? 'Stop' : 'Play'}
         </Button>
-        {!loop.looping && (
+        {!loop.looping ? (
           <>
             <GameSelect
               value={simpleGame.selectedMasks}
@@ -109,6 +110,10 @@ const Practice = (props) => {
               Capture Masks
             </Button>
           </>
+        ) : (
+          <div>
+            <ProgressBar bgcolor="#00695c" completed={100 - simpleGame.progressPercent} />
+          </div>
         )}
       </div>
       {props.webcam.isFullScreen && !loop.looping && (
