@@ -1,41 +1,95 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
-import { makeStyles } from '@material-ui/core/styles';
-
-import Select from '@material-ui/core/Select';
+import Menu from '@material-ui/core/Menu';
+import Button from '@material-ui/core/Button';
 import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
+import { makeStyles } from '@material-ui/core/styles';
+import { useRef } from 'react';
+import { useCallback } from 'react';
+import { useEffect } from 'react';
+import { useState } from 'react';
 
-const useStyles = makeStyles(theme => ({
-  formControl: {
-    minWidth: 120,
-  },
-  select: {
-    paddingTop: theme.spacing(1),
-    paddingBottom: theme.spacing(1),
-  },
+const useStyles = makeStyles((theme) => ({
+  item: (width) => ({
+    minWidth: width - theme.spacing(4),
+    textAlign: 'center',
+  }),
 }));
 
 const GameSelect = ({ value, ...props }) => {
-  const classes = useStyles();
+  const [width, setWidth] = useState(0);
+  const classes = useStyles(width);
+
+  const ref = useRef();
+  useEffect(() => {
+    if (ref.current) {
+      setWidth(ref.current.clientWidth);
+    }
+  }, []);
+
+  const [anchorEl, setAnchorEl] = React.useState(null);
+
+  const handleOpen = useCallback((event) => {
+    setAnchorEl(event.currentTarget);
+  }, []);
+
+  const handleClose = useCallback(() => {
+    setAnchorEl(null);
+  }, []);
+
+  const handleClick = useCallback(
+    (name) => () => {
+      props.handleClick(name);
+      handleClose();
+    },
+    [props, handleClose],
+  );
 
   return (
-    <FormControl className={classes.formControl}>
-      <Select classes={{ root: classes.select }} {...props} placeholder="Select Game" value={value || ''} displayEmpty={true} variant="outlined">
-        <MenuItem value="">Select Masks</MenuItem>
+    <>
+      <div ref={ref}>
+        <Button
+          aria-controls="mask-menu"
+          aria-haspopup="true"
+          onClick={handleOpen}
+          variant="contained"
+          disabled={props.disabled}
+          fullWidth={true}
+        >
+          Select Masks
+        </Button>
+      </div>
+      <Menu
+        id="mask-menu"
+        keepMounted={true}
+        anchorEl={anchorEl}
+        getContentAnchorEl={null}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'center',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'center',
+        }}
+        onClose={handleClose}
+        container={ref.current}
+        open={Boolean(anchorEl)}
+      >
         {Array.from({ length: 3 }).map((_, idx) => (
-          <MenuItem key={idx} value={`set${idx + 1}.zip`}>Game {idx + 1}</MenuItem>
+          <MenuItem key={idx} button={true} onClick={handleClick(`set${idx + 1}.zip`)}>
+            <span className={classes.item}>Game {idx + 1}</span>
+          </MenuItem>
         ))}
-      </Select>
-    </FormControl>
+      </Menu>
+    </>
   );
 };
 
 GameSelect.propTypes = {
   value: PropTypes.string,
-  onChange: PropTypes.func.isRequired,
   disabled: PropTypes.bool.isRequired,
-}
+  handleClick: PropTypes.func.isRequired,
+};
 
 export default GameSelect;

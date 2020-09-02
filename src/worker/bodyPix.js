@@ -11,7 +11,7 @@ export async function load() {
   });
 
   return true;
-};
+}
 
 export async function predict(videoSource) {
   if (!net) {
@@ -21,6 +21,6 @@ export async function predict(videoSource) {
   const segmentation = await net.segmentPerson(videoSource, {
     internalResolution: 'medium',
   });
-  
+
   return segmentation;
-};
+}

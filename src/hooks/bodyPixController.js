@@ -1,6 +1,6 @@
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useRef, useState, useEffect, useCallback } from 'react';
 
-import { useWebcam } from "../context/webcam";
+import { useWebcam } from '../context/webcam';
 
 // eslint-disable-next-line import/no-webpack-loader-syntax
 import BodyPixWorker from 'workerize-loader!../worker/bodyPix';
@@ -19,7 +19,8 @@ export const useBodyPixController = () => {
   useEffect(() => {
     if (!loadRef.current && webcam.ready) {
       loadRef.current = true;
-      bodyPixWorker.load()
+      bodyPixWorker
+        .load()
         .then(() => {
           console.log('BodyPix loaded');
           setNetReady(true);
@@ -37,7 +38,7 @@ export const useBodyPixController = () => {
     const segmentation = await bodyPixWorker.predict(webcam.getVideoAsImageData());
 
     // console.log({segmentation});
-    
+
     return segmentation;
   }, [netReady, webcam]);
 
@@ -45,10 +46,9 @@ export const useBodyPixController = () => {
   useEffect(() => {
     if (netReady && !preloadRef.current && !netPreloaded) {
       preloadRef.current = true;
-      predict()
-        .then(() => {
-          setNetPreloaded(true);
-        });
+      predict().then(() => {
+        setNetPreloaded(true);
+      });
     }
   }, [predict, netReady, netPreloaded]);
 

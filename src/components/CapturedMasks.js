@@ -3,14 +3,16 @@ import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core';
 
 import Paper from '@material-ui/core/Paper';
-import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
+import CloseIcon from '@material-ui/icons/Close';
+import DownloadIcon from '@material-ui/icons/CloudDownload';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   masks: {
     padding: theme.spacing(1),
+    background: 'rgba(255,255,255,0.5)',
   },
   masksHeader: {
     display: 'flex',
@@ -32,8 +34,8 @@ const useStyles = makeStyles(theme => ({
     '&:hover': {
       '& > div': {
         background: 'rgba(255,0,0,0.65)',
-      }
-    }
+      },
+    },
   },
   img: {
     width: '100%',
@@ -52,8 +54,8 @@ const useStyles = makeStyles(theme => ({
     '&:hover': {
       '& > button': {
         display: 'inherit',
-      }
-    }
+      },
+    },
   },
   iconBtn: {
     display: 'none',
@@ -73,45 +75,47 @@ const CapturedMasks = (props) => {
 
   const { captureMasks } = props;
 
-  return (!!captureMasks.masks.length && (
-    <>
-      <Paper className={classes.masks}>
-        <div className={classes.masksHeader}>
-          <Typography variant="h6" component="h3">
-            Candidate Masks
-          </Typography>
-          <div>
-            <Button onClick={captureMasks.downloadMasks}>
-              Download
-            </Button>
-            <Button onClick={captureMasks.removeAllMasks}>
-              Clear All
-            </Button>
+  return (
+    !!captureMasks.masks.length && (
+      <>
+        <Paper className={classes.masks} elevation={2}>
+          <div className={classes.masksHeader}>
+            <Typography variant="h6" component="h3">
+              Candidate Masks
+            </Typography>
+            <div>
+              <IconButton size="small" onClick={captureMasks.downloadMasks}>
+                <DownloadIcon />
+              </IconButton>
+              <IconButton size="small" onClick={captureMasks.removeAllMasks}>
+                <CloseIcon />
+              </IconButton>
+            </div>
           </div>
-        </div>
-        <ul className={classes.masksList}>
-          {captureMasks.masks.map(({binary:dataUri}, i) => (
-            <li className={classes.imgContainer} key={dataUri}>
-              <div className={classes.removeMask}>
-                <IconButton
-                  name={i}
-                  className={classes.iconBtn}
-                  onClick={captureMasks.removeMask}
-                >
-                  <DeleteForeverIcon fontSize="large" />
-                </IconButton>
-              </div>
-              <img src={dataUri} className={classes.img} alt={`mask #${i}`} />
-            </li>
-          ))}
-        </ul>
-      </Paper>
-    </>
-  ));
+          <ul className={classes.masksList}>
+            {captureMasks.masks.map(({ binary: dataUri }, i) => (
+              <li className={classes.imgContainer} key={dataUri}>
+                <div className={classes.removeMask}>
+                  <IconButton
+                    name={i}
+                    className={classes.iconBtn}
+                    onClick={captureMasks.removeMask}
+                  >
+                    <DeleteForeverIcon fontSize="large" />
+                  </IconButton>
+                </div>
+                <img src={dataUri} className={classes.img} alt={`mask #${i}`} />
+              </li>
+            ))}
+          </ul>
+        </Paper>
+      </>
+    )
+  );
 };
 
 CapturedMasks.propTypes = {
   captureMasks: PropTypes.object.isRequired,
-}
+};
 
 export default CapturedMasks;

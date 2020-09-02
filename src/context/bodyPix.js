@@ -16,14 +16,10 @@ export const useBodyPix = () => {
   return state;
 };
 
-const BodyPixProvider = ({children}) => {
+const BodyPixProvider = ({ children }) => {
   const context = useBodyPixController();
 
-  return (
-    <bodyPixContext.Provider value={context}>
-      {children}
-    </bodyPixContext.Provider>
-  )
-}
+  return <bodyPixContext.Provider value={context}>{children}</bodyPixContext.Provider>;
+};
 
 export default BodyPixProvider;
