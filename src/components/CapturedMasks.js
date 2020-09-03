@@ -7,6 +7,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import CloseIcon from '@material-ui/icons/Close';
+import PublishIcon from '@material-ui/icons/Publish';
 import DownloadIcon from '@material-ui/icons/CloudDownload';
 
 const useStyles = makeStyles((theme) => ({
@@ -68,12 +69,20 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: 'rgba(255,255,255,0.9)',
     },
   },
+  icons: {
+    '& > button': {
+      marginRight: theme.spacing(1),
+      '& :last-of-type': {
+        marginRight: 0,
+      },
+    },
+  },
 }));
 
 const CapturedMasks = (props) => {
   const classes = useStyles();
 
-  const { captureMasks } = props;
+  const { captureMasks, setMasks } = props;
 
   return (
     !!captureMasks.masks.length && (
@@ -83,7 +92,10 @@ const CapturedMasks = (props) => {
             <Typography variant="h6" component="h3">
               Candidate Masks
             </Typography>
-            <div>
+            <div className={classes.icons}>
+              <IconButton size="small" onClick={setMasks}>
+                <PublishIcon />
+              </IconButton>
               <IconButton size="small" onClick={captureMasks.downloadMasks}>
                 <DownloadIcon />
               </IconButton>

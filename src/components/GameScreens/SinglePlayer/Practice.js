@@ -63,6 +63,7 @@ const Practice = (props) => {
     simpleGame,
     captureMasks,
     handleClickGame,
+    setCapturedMasks,
     handleClickCaptureMasks,
   } = props.game.mode.practice;
 
@@ -91,7 +92,6 @@ const Practice = (props) => {
         {!loop.looping ? (
           <>
             <GameSelect
-              value={simpleGame.selectedMasks}
               disabled={!loop.ready || loop.looping}
               handleClick={simpleGame.handleLoadShippedMasks}
             />
@@ -119,7 +119,7 @@ const Practice = (props) => {
       {props.webcam.isFullScreen && !loop.looping && (
         <div className={classes.captures}>
           <ScoreResults results={simpleGame.scores} handleClose={simpleGame.clearScores} />
-          <CapturedMasks captureMasks={captureMasks} />
+          <CapturedMasks captureMasks={captureMasks} setMasks={setCapturedMasks} />
         </div>
       )}
     </div>
