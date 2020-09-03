@@ -85,7 +85,6 @@ const Main = (props) => {
         <GameSelect
           onChange={simpleGame.handleLoadShippedMasks}
           disabled={!loop.ready || loop.looping}
-          value={simpleGame.selectedMasks}
         />
         <FileUpload
           variant="outlined"
