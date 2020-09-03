@@ -16,7 +16,7 @@ const useStyles = makeStyles((theme) => ({
   }),
 }));
 
-const GameSelect = ({ value, ...props }) => {
+const GameSelect = (props) => {
   const [width, setWidth] = useState(0);
   const classes = useStyles(width);
 
