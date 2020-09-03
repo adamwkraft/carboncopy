@@ -16,12 +16,12 @@ const useStyles = makeStyles((theme) => ({
 
 const Practice = (props) => {
   const classes = useStyles();
-  const { captureMasks, simpleGame } = props.game.mode.practice;
+  const { captureMasks, simpleGame, setCapturedMasks } = props.game.mode.practice;
 
   return (
     <div className={classes.root}>
       <ScoreResults results={simpleGame.scores} handleClose={simpleGame.clearScores} />
-      <CapturedMasks captureMasks={captureMasks} />
+      <CapturedMasks captureMasks={captureMasks} setMasks={setCapturedMasks} />
     </div>
   );
 };

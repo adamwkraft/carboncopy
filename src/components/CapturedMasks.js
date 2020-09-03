@@ -127,6 +127,7 @@ const CapturedMasks = (props) => {
 };
 
 CapturedMasks.propTypes = {
+  setMasks: PropTypes.func.isRequired,
   captureMasks: PropTypes.object.isRequired,
 };
 
