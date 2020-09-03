@@ -6,6 +6,16 @@ import { screenStates } from '../../lib/screenConstants';
 import Null from '../Null';
 import ChoosePlayers from '../ChoosePlayers';
 import PracticeFooter from './SinglePlayer/PracticeFooter';
+import { makeStyles } from '@material-ui/styles';
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    maxWidth: 1200,
+    margin: '0 auto',
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+  },
+}));
 
 const Footers = {
   [screenStates.screen.PLAY]: {
@@ -23,6 +33,7 @@ const Footers = {
 };
 
 const ScreenFooter = (props) => {
+  const classes = useStyles();
   const {
     game: {
       screen: { state },
@@ -33,7 +44,11 @@ const ScreenFooter = (props) => {
 
   const Footer = Footers[state.screen]?.[state.players]?.[state.mode] || Null;
 
-  return <Footer {...props} />;
+  return (
+    <div className={classes.root}>
+      <Footer {...props} />
+    </div>
+  );
 };
 
 ScreenFooter.propTypes = {
