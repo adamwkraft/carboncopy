@@ -14,7 +14,6 @@ export const useSimpleGame = () => {
   const maskIterator = useIterateMask();
   const [scores, setScores] = useState([]);
   const [progressPercent, setProgressPercent] = useState(0.0);
-  const [selectedMasks, setSelectedMasks] = useState(null);
 
   const clearScores = useCallback(() => {
     setScores([]);
@@ -48,17 +47,13 @@ export const useSimpleGame = () => {
       }
 
       handleZip(file);
-      setSelectedMasks(null);
     },
     [handleZip],
   );
 
   const handleLoadShippedMasks = useCallback(
     async (filename) => {
-      if (!filename) {
-        setSelectedMasks(null);
-        return;
-      }
+      if (!filename) return;
 
       const file = await new JSZip.external.Promise((resolve, reject) => {
         JSZipUtils.getBinaryContent(process.env.PUBLIC_URL + `/masks/${filename}`, (err, data) => {
@@ -68,7 +63,6 @@ export const useSimpleGame = () => {
       });
 
       handleZip(file);
-      setSelectedMasks(filename);
     },
     [handleZip],
   );
@@ -97,7 +91,7 @@ export const useSimpleGame = () => {
               const {
                 score,
                 targetOverlay,
-                segOverlay,
+                // segOverlay,
               } = getScoreAndOverlayForSegmentationAndImageData(target, segmentation, webcam.flipX);
 
               const dataUri = webcam.imageDataToDataUri(targetOverlay);
@@ -143,10 +137,10 @@ export const useSimpleGame = () => {
       loading,
       handleLoop,
       clearScores,
-      selectedMasks,
       handleLoadUserMasks,
       handleLoadShippedMasks,
       ready: !!maskIterator.numMasks,
+      setMasks: maskIterator.setMasks,
     }),
     [
       scores,
@@ -155,7 +149,6 @@ export const useSimpleGame = () => {
       handleLoop,
       clearScores,
       maskIterator,
-      selectedMasks,
       handleLoadUserMasks,
       handleLoadShippedMasks,
     ],
