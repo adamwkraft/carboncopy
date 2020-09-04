@@ -21,6 +21,7 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'column',
+    overflow: 'scroll',
   },
   overlay: {
     background: 'rgba(255,255,255,0.5)',
