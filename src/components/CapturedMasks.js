@@ -2,48 +2,16 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core';
 
-import Paper from '@material-ui/core/Paper';
 import IconButton from '@material-ui/core/IconButton';
-import Typography from '@material-ui/core/Typography';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import CloseIcon from '@material-ui/icons/Close';
 import PublishIcon from '@material-ui/icons/Publish';
 import DownloadIcon from '@material-ui/icons/CloudDownload';
+import MasksGrid from './MasksGrid';
+import { useMemo } from 'react';
+import { useCallback } from 'react';
 
 const useStyles = makeStyles((theme) => ({
-  masks: {
-    padding: theme.spacing(2),
-    background: 'rgba(255,255,255,0.5)',
-  },
-  masksHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  masksList: {
-    display: 'flex',
-    flexFlow: 'row wrap',
-    justifyContent: 'space-around',
-  },
-  maskContainer: {
-    marginTop: theme.spacing(2),
-  },
-  imgContainer: {
-    width: 200,
-    position: 'relative',
-    border: '1px solid grey',
-    padding: theme.spacing(0.5),
-    borderRadius: theme.spacing(1),
-    '&:hover': {
-      '& > div': {
-        background: 'rgba(255,0,0,0.65)',
-      },
-    },
-  },
-  img: {
-    width: '100%',
-    background: 'rgba(0,0,0,0)',
-  },
   removeMask: {
     top: 0,
     left: 0,
@@ -71,66 +39,58 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: 'rgba(255,255,255,0.9)',
     },
   },
-  icons: {
-    '& > button': {
-      marginRight: theme.spacing(1),
-      '& :last-of-type': {
-        marginRight: 0,
-      },
-    },
-  },
 }));
 
-const CapturedMasks = (props) => {
+const CandidateMasks = (props) => {
   const classes = useStyles();
 
   const { captureMasks, setMasks } = props;
 
+  const actionButtons = useMemo(
+    () => [
+      {
+        onClick: setMasks,
+        Icon: PublishIcon,
+      },
+      {
+        onClick: captureMasks.downloadMasks,
+        Icon: DownloadIcon,
+      },
+      {
+        onClick: captureMasks.removeAllMasks,
+        Icon: CloseIcon,
+      },
+    ],
+    [captureMasks.downloadMasks, captureMasks.removeAllMasks, setMasks],
+  );
+
+  const getDataUri = useCallback(({ binary: dataUri }) => dataUri, []);
+
+  const getImageChild = useCallback(
+    (maskItem, i) => (
+      <div className={classes.removeMask}>
+        <IconButton name={i} className={classes.iconBtn} onClick={captureMasks.removeMask}>
+          <DeleteForeverIcon fontSize="large" />
+        </IconButton>
+      </div>
+    ),
+    [captureMasks.removeMask, classes.removeMask, classes.iconBtn],
+  );
+
   return (
-    !!captureMasks.masks.length && (
-      <Paper className={classes.masks} elevation={4}>
-        <div className={classes.masksHeader}>
-          <Typography variant="h6" component="h3">
-            Candidate Masks
-          </Typography>
-          <div className={classes.icons}>
-            <IconButton size="small" onClick={setMasks}>
-              <PublishIcon />
-            </IconButton>
-            <IconButton size="small" onClick={captureMasks.downloadMasks}>
-              <DownloadIcon />
-            </IconButton>
-            <IconButton size="small" onClick={captureMasks.removeAllMasks}>
-              <CloseIcon />
-            </IconButton>
-          </div>
-        </div>
-        <ul className={classes.masksList}>
-          {captureMasks.masks.map(({ binary: dataUri }, i) => (
-            <li key={dataUri} className={classes.maskContainer}>
-              <Paper elevation={4} className={classes.imgContainer}>
-                <div className={classes.removeMask}>
-                  <IconButton
-                    name={i}
-                    className={classes.iconBtn}
-                    onClick={captureMasks.removeMask}
-                  >
-                    <DeleteForeverIcon fontSize="large" />
-                  </IconButton>
-                </div>
-                <img src={dataUri} className={classes.img} alt={`mask #${i}`} />
-              </Paper>
-            </li>
-          ))}
-        </ul>
-      </Paper>
-    )
+    <MasksGrid
+      masks={captureMasks.masks}
+      title="Candidate Masks"
+      actionButtons={actionButtons}
+      getDataUri={getDataUri}
+      getImageChild={getImageChild}
+    />
   );
 };
 
-CapturedMasks.propTypes = {
+CandidateMasks.propTypes = {
   setMasks: PropTypes.func.isRequired,
   captureMasks: PropTypes.object.isRequired,
 };
 
-export default CapturedMasks;
+export default CandidateMasks;

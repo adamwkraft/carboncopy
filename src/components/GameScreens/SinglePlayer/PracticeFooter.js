@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 
 import { makeStyles } from '@material-ui/core';
 
-import CapturedMasks from '../../CapturedMasks';
 import ScoreResults from '../../ScoreResults';
+import CapturedMasks from '../../CapturedMasks';
 
 const useStyles = makeStyles((theme) => ({
   root: {

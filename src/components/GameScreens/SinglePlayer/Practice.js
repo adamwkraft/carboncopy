@@ -1,17 +1,17 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
+import React, { useEffect } from 'react';
 import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/core';
 
 import FileUpload from '../../FileUpload';
 import GameSelect from '../../GameSelect';
-import CapturedMasks from '../../CapturedMasks';
 import ProgressBar from '../../ProgressBar';
 import ScoreResults from '../../ScoreResults';
-import { usePractice } from '../../../hooks/screenHooks/practice';
-import { useEffect } from 'react';
+import CapturedMasks from '../../CapturedMasks';
+
 import { scoreToColor } from '../../../lib/score';
+import { usePractice } from '../../../hooks/screenHooks/practice';
 
 const useStyles = makeStyles((theme) => ({
   root: {
