@@ -43,8 +43,6 @@ const Game = ({ webcam }) => {
 
   const game = useGame();
 
-  console.log(game);
-
   useEffect(() => {
     if (game.screen.state.screen !== screenStates.screen.DEFAULT && webcam.hidden) {
       webcam.setVisible();
@@ -71,7 +69,6 @@ const Game = ({ webcam }) => {
       </div>
       <animated.div style={styleProps}>
         <Webcam>
-          {/* TODO: need to check if webcam is loading here */}
           <>
             {!game.screen.state.mode && (
               <div
