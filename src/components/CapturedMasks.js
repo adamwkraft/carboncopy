@@ -28,10 +28,11 @@ const useStyles = makeStyles((theme) => ({
   },
   imgContainer: {
     width: 200,
-    background: 'black',
+    position: 'relative',
+    border: '1px solid grey',
     padding: theme.spacing(0.5),
     marginTop: theme.spacing(0.5),
-    position: 'relative',
+    borderRadius: theme.spacing(1),
     '&:hover': {
       '& > div': {
         background: 'rgba(255,0,0,0.65)',
@@ -87,7 +88,7 @@ const CapturedMasks = (props) => {
   return (
     !!captureMasks.masks.length && (
       <>
-        <Paper className={classes.masks} elevation={2}>
+        <Paper className={classes.masks} elevation={4}>
           <div className={classes.masksHeader}>
             <Typography variant="h6" component="h3">
               Candidate Masks
@@ -106,17 +107,19 @@ const CapturedMasks = (props) => {
           </div>
           <ul className={classes.masksList}>
             {captureMasks.masks.map(({ binary: dataUri }, i) => (
-              <li className={classes.imgContainer} key={dataUri}>
-                <div className={classes.removeMask}>
-                  <IconButton
-                    name={i}
-                    className={classes.iconBtn}
-                    onClick={captureMasks.removeMask}
-                  >
-                    <DeleteForeverIcon fontSize="large" />
-                  </IconButton>
-                </div>
-                <img src={dataUri} className={classes.img} alt={`mask #${i}`} />
+              <li key={dataUri}>
+                <Paper elevation={4} className={classes.imgContainer}>
+                  <div className={classes.removeMask}>
+                    <IconButton
+                      name={i}
+                      className={classes.iconBtn}
+                      onClick={captureMasks.removeMask}
+                    >
+                      <DeleteForeverIcon fontSize="large" />
+                    </IconButton>
+                  </div>
+                  <img src={dataUri} className={classes.img} alt={`mask #${i}`} />
+                </Paper>
               </li>
             ))}
           </ul>
