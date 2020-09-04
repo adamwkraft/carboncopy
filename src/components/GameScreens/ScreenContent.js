@@ -6,12 +6,13 @@ import { screenStates } from '../../lib/screenConstants';
 import Null from '../Null';
 import SelectGameMode from '../SelectGameMode';
 import Practice from '../GameScreens/SinglePlayer/Practice';
+import Survival from '../GameScreens/SinglePlayer/Survival';
 
 const Screens = {
   [screenStates.screen.PLAY]: {
     [screenStates.players.SINGLE_PLAYER]: {
       [screenStates.mode[screenStates.players.SINGLE_PLAYER].PRACTICE]: Practice,
-      [screenStates.mode[screenStates.players.SINGLE_PLAYER].SURVIVAL]: () => 'SURVIVAL Content',
+      [screenStates.mode[screenStates.players.SINGLE_PLAYER].SURVIVAL]: Survival,
       [screenStates.mode[screenStates.players.SINGLE_PLAYER].TIME_ATTACK]: () =>
         'TIME_ATTACK Content',
     },

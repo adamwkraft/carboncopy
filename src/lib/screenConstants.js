@@ -36,7 +36,7 @@ export const screenStates = {
 // identifies these values as works in progress, ie disabled buttons
 export const wipScreens = [
   screenStates.players.MULTIPLAYER,
-  screenStates.mode[SINGLE_PLAYER].SURVIVAL,
+  // screenStates.mode[SINGLE_PLAYER].SURVIVAL,
   screenStates.mode[SINGLE_PLAYER].TIME_ATTACK,
   screenStates.mode[MULTIPLAYER].LOCAL,
   screenStates.mode[MULTIPLAYER].REMOTE,

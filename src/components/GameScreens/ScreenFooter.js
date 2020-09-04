@@ -6,12 +6,13 @@ import { screenStates } from '../../lib/screenConstants';
 import Null from '../Null';
 import ChoosePlayers from '../ChoosePlayers';
 import PracticeFooter from './SinglePlayer/PracticeFooter';
+import SurvivalFooter from './SinglePlayer/SurvivalFooter';
 
 const Footers = {
   [screenStates.screen.PLAY]: {
     [screenStates.players.SINGLE_PLAYER]: {
       [screenStates.mode[screenStates.players.SINGLE_PLAYER].PRACTICE]: PracticeFooter,
-      [screenStates.mode[screenStates.players.SINGLE_PLAYER].SURVIVAL]: () => 'SURVIVAL footer',
+      [screenStates.mode[screenStates.players.SINGLE_PLAYER].SURVIVAL]: SurvivalFooter,
       [screenStates.mode[screenStates.players.SINGLE_PLAYER].TIME_ATTACK]: () =>
         'TIME_ATTACK footer',
     },

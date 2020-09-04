@@ -1,11 +1,13 @@
 import { useMemo } from 'react';
 
 import { usePractice } from './screenHooks/practice';
+import { useSurvival } from './screenHooks/survival';
 import { useScreenController } from './screenController';
 
 export const useGame = () => {
   const [screenState, screenHandlers] = useScreenController();
   const practice = usePractice();
+  const survival = useSurvival();
 
   const game = useMemo(
     () => ({
@@ -15,9 +17,10 @@ export const useGame = () => {
       },
       mode: {
         practice,
+        survival,
       },
     }),
-    [screenState, screenHandlers, practice],
+    [screenState, screenHandlers, practice, survival],
   );
 
   return game;

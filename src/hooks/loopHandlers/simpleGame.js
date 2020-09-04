@@ -94,11 +94,11 @@ export const useSimpleGame = () => {
             if (!target) return stop();
 
             promRef.current = predict(webcam.videoRef.current).then(async (segmentation) => {
-              const {
-                score,
-                targetOverlay,
-                segOverlay,
-              } = getScoreAndOverlayForSegmentationAndImageData(target, segmentation, webcam.flipX);
+              const { score, targetOverlay } = getScoreAndOverlayForSegmentationAndImageData(
+                target,
+                segmentation,
+                webcam.flipX,
+              );
 
               const dataUri = webcam.imageDataToDataUri(targetOverlay);
               // // Blend and create a new DataUri
@@ -136,12 +136,89 @@ export const useSimpleGame = () => {
     [webcam, maskIterator, clearScores],
   );
 
+  const handleSurvivalLoop = useCallback(
+    async (controller) => {
+      const lapDuration = 3000;
+      if (controller.time.first) {
+        maskIterator.random();
+        setProgressPercent(0.0);
+        clearScores();
+        controller.useTimer({
+          maxLaps: 99999999999999,
+          printSeconds: true,
+          announceSeconds: true,
+          lapDuration,
+          newLapDelay: 1000,
+          onLap: ({ predict, time, stop }) => {
+            const target = maskIterator.maskRef.current;
+
+            // we actually shouldn't reach this,
+            // because the maxLaps should trigger a stop first
+            if (!target) return stop();
+
+            promRef.current = predict(webcam.videoRef.current).then(async (segmentation) => {
+              const { score, targetOverlay } = getScoreAndOverlayForSegmentationAndImageData(
+                target,
+                segmentation,
+                webcam.flipX,
+              );
+
+              const dataUri = webcam.imageDataToDataUri(targetOverlay);
+              // // Blend and create a new DataUri
+              // webcam.clearScratchpad();
+              // webcam.scratchpad.ctx.putImageData(segOverlay, 0, 0);
+              // webcam.scratchpad.ctx.putImageData(targetOverlay, 0, 0);
+              // const dataUri = webcam.scratchpad.canvas.toDataURL('image/png');
+              // webcam.clearScratchpad();
+
+              setScores((state) => [...state, { score, dataUri }]);
+
+              webcam.clearCanvas();
+
+              // Some Notes:
+              // -I think one more countdown is still enabled.
+              // -It is a big laggy, is there something weird about the logic?
+              // -Obviously, we need a larger set of masks to randomly iterate through.
+
+              // TODO: Create score utils to re-use scoring logic.
+              if (score > 100) {
+                // Game Over
+                maskIterator.reset();
+                return stop;
+              } else {
+                maskIterator.random();
+              }
+            });
+          },
+        });
+      } else {
+        // Set the progress
+        const progress_percent = Math.min(controller.time.lapTime / lapDuration, 1.0);
+        setProgressPercent(Math.round(progress_percent * 100));
+      }
+
+      if (maskIterator.maskRef.current) {
+        webcam.ctx.putImageData(maskIterator.maskRef.current, 0, 0);
+      }
+
+      // return a cleanup function to clear the canvas
+      // use a promise ref since we are capturing asynchronously
+      // if first promise not initialized, clear canvas right away
+      return () => {
+        if (promRef.current) promRef.current.then(controller.webcam.clearCanvas);
+        else controller.webcam.clearCanvas();
+      };
+    },
+    [webcam, maskIterator, clearScores],
+  );
+
   return useMemo(
     () => ({
       scores,
       progressPercent,
       loading,
       handleLoop,
+      handleSurvivalLoop,
       clearScores,
       selectedMasks,
       handleLoadUserMasks,
@@ -153,6 +230,7 @@ export const useSimpleGame = () => {
       progressPercent,
       loading,
       handleLoop,
+      handleSurvivalLoop,
       clearScores,
       maskIterator,
       selectedMasks,

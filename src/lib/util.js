@@ -190,7 +190,6 @@ export const getScoreAndOverlayForSegmentationAndImageData = (
   }
 
   const score = Math.round((intersection / (union + 0.0000001)) * 100);
-  const overlay = new ImageData(bytes, width, height);
 
   // Cleanup
   rgbaPlanes.delete();
