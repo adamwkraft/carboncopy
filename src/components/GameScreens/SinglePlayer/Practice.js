@@ -59,8 +59,8 @@ const useStyles = makeStyles((theme) => ({
   progress: {
     position: 'absolute',
     top: -theme.spacing(1),
-    left: theme.spacing(5),
-    right: theme.spacing(5),
+    left: theme.spacing(8),
+    right: theme.spacing(8),
   },
 }));
 
