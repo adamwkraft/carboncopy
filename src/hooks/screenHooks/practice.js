@@ -1,20 +1,31 @@
 import { useMemo, useCallback } from 'react';
+
 import { useLoop } from '../loop';
+import { useWebcam } from '../../context/webcam';
 import { useSimpleGame } from '../loopHandlers/simpleGame';
 import { useCaptureMasks } from '../loopHandlers/captureMasks';
-import { useWebcam } from '../../context/webcam';
+import { useState } from 'react';
+import { useEffect } from 'react';
 
 export const usePractice = () => {
   const loop = useLoop();
   const webcam = useWebcam();
   const simpleGame = useSimpleGame();
   const captureMasks = useCaptureMasks();
+  const [loopType, setLoopType] = useState(null);
+
+  useEffect(() => {
+    if (!loop.looping && loopType) {
+      setLoopType(null);
+    }
+  }, [loop.looping, loopType]);
 
   const handleClickGame = useCallback(async () => {
     if (loop.looping) {
       loop.stop();
     } else {
       loop.start(simpleGame.handleLoop);
+      setLoopType('play');
     }
   }, [loop, simpleGame]);
 
@@ -23,6 +34,7 @@ export const usePractice = () => {
       loop.stop();
     } else {
       loop.start(captureMasks.handleLoop);
+      setLoopType('capture');
     }
   }, [loop, captureMasks]);
 
@@ -36,13 +48,22 @@ export const usePractice = () => {
   const practice = useMemo(
     () => ({
       loop,
+      loopType,
       simpleGame,
       captureMasks,
       handleClickGame,
       setCapturedMasks,
       handleClickCaptureMasks,
     }),
-    [handleClickCaptureMasks, setCapturedMasks, handleClickGame, loop, simpleGame, captureMasks],
+    [
+      loop,
+      loopType,
+      simpleGame,
+      captureMasks,
+      handleClickGame,
+      setCapturedMasks,
+      handleClickCaptureMasks,
+    ],
   );
 
   return practice;

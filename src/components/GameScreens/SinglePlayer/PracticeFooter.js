@@ -14,9 +14,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Practice = (props) => {
+const PracticeFooter = (props) => {
   const classes = useStyles();
-  const { captureMasks, simpleGame, setCapturedMasks } = props.game.mode.practice;
+
+  if (!props.game.mode) return null;
+
+  const { captureMasks, simpleGame, setCapturedMasks } = props.game.mode;
 
   return (
     <div className={classes.root}>
@@ -26,9 +29,9 @@ const Practice = (props) => {
   );
 };
 
-Practice.propTypes = {
+PracticeFooter.propTypes = {
   game: PropTypes.object.isRequired,
   webcam: PropTypes.object.isRequired,
 };
 
-export default Practice;
+export default PracticeFooter;

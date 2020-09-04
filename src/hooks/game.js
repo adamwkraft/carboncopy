@@ -1,11 +1,22 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
-import { usePractice } from './screenHooks/practice';
 import { useScreenController } from './screenController';
+import { useEffect } from 'react';
+import { screenStates } from '../lib/screenConstants';
 
 export const useGame = () => {
+  const [mode, setMode] = useState(null);
   const [screenState, screenHandlers] = useScreenController();
-  const practice = usePractice();
+
+  useEffect(() => {
+    if (
+      (screenState.screen === screenStates.screen.DEFAULT ||
+        screenState.mode === screenStates.mode.DEFAULT) &&
+      mode
+    ) {
+      setMode(null);
+    }
+  }, [screenState, mode]);
 
   const game = useMemo(
     () => ({
@@ -13,11 +24,10 @@ export const useGame = () => {
         state: screenState,
         handlers: screenHandlers,
       },
-      mode: {
-        practice,
-      },
+      mode,
+      setMode,
     }),
-    [screenState, screenHandlers, practice],
+    [screenState, screenHandlers, mode],
   );
 
   return game;

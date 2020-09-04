@@ -9,6 +9,9 @@ import GameSelect from '../../GameSelect';
 import CapturedMasks from '../../CapturedMasks';
 import ProgressBar from '../../ProgressBar';
 import ScoreResults from '../../ScoreResults';
+import { usePractice } from '../../../hooks/screenHooks/practice';
+import { useEffect } from 'react';
+import { scoreToColor } from '../../../lib/score';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -53,19 +56,34 @@ const useStyles = makeStyles((theme) => ({
       marginTop: theme.spacing(1),
     },
   },
+  progress: {
+    position: 'absolute',
+    top: -theme.spacing(1),
+    left: theme.spacing(5),
+    right: theme.spacing(5),
+  },
 }));
 
 const Practice = (props) => {
   const classes = useStyles();
 
+  const practice = usePractice();
+
+  useEffect(() => {
+    props.game.setMode(practice);
+  }, [practice, props.game]);
+
   const {
     loop,
+    loopType,
     simpleGame,
     captureMasks,
     handleClickGame,
     setCapturedMasks,
     handleClickCaptureMasks,
-  } = props.game.mode.practice;
+  } = practice;
+
+  const timerColor = scoreToColor(100 - simpleGame.progressPercent);
 
   return (
     <div
@@ -111,9 +129,11 @@ const Practice = (props) => {
             </Button>
           </>
         ) : (
-          <div>
-            <ProgressBar bgcolor="#00695c" completed={100 - simpleGame.progressPercent} />
-          </div>
+          loopType === 'play' && (
+            <div className={classes.progress}>
+              <ProgressBar color={timerColor} completed={100 - simpleGame.progressPercent} />
+            </div>
+          )
         )}
       </div>
       {props.webcam.isFullScreen && !loop.looping && (
