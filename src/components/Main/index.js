@@ -10,7 +10,7 @@ import NoWebcam from './NoWebcam';
 const useStyles = makeStyles((theme) => ({
   root: {
     maxWidth: 1600,
-    margin: '0 auto',
+    margin: `0 auto ${theme.spacing(2)}px`,
   },
 }));
 
@@ -29,7 +29,6 @@ const Main = (props) => {
     ) {
       startedRef.current = true;
 
-      console.log('starting');
       webcam.start().catch(console.error);
     }
   }, [hasVideo, cameras, currentDeviceId, autoStartDeviceId]); // eslint-disable-line
