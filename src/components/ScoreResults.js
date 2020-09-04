@@ -6,6 +6,12 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import CloseIcon from '@material-ui/icons/Close';
 import IconButton from '@material-ui/core/IconButton';
+import {
+  tenBinScoreToPercent,
+  rawScoreToColor,
+  rawScoreToTenBinScore,
+  scoreToColor,
+} from '../lib/score';
 
 const useStyles = makeStyles((theme) => ({
   masks: {
@@ -23,9 +29,10 @@ const useStyles = makeStyles((theme) => ({
   },
   imgContainer: {
     width: 200,
+    textAlign: 'right',
     padding: theme.spacing(0.5),
     marginTop: theme.spacing(0.5),
-    textAlign: 'right',
+    borderRadius: theme.spacing(1),
   },
   img: {
     width: '100%',
@@ -33,66 +40,24 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const ScoreResults = (props) => {
+  const { results } = props;
   const classes = useStyles();
 
-  const { results } = props;
-
-  const rawScoreToTenBinScore = (score) => {
-    // Takes in score from [0-100] and returns score [1-10]
-    const lowThresh = 25;
-    const highThresh = 88;
-    const p = (score - lowThresh) / (highThresh - lowThresh);
-    return Math.max(1, Math.min(10, Math.round(p * 10)));
-  };
-
-  const tenBinScoreToPercent = (score) => {
-    return (score / 10) * 100;
-  };
-
-  const scoreToColor = (score) => {
-    // Returns a hex color value from reg to green based on score from 0-100
-    // Using from: https://gist.github.com/mlocati/7210513
-    var r,
-      g,
-      b = 0;
-    if (score < 50) {
-      r = 255;
-      g = Math.round(5.1 * score);
-    } else {
-      g = 255;
-      r = Math.round(510 - 5.1 * score);
-    }
-    var h = r * 0x10000 + g * 0x100 + b * 0x1;
-    return '#' + ('000000' + h.toString(16)).slice(-6);
-  };
-
-  const rawScoreToBinScoreFn = rawScoreToTenBinScore;
-  const rawScoreToColor = (score) => {
-    return scoreToColor(tenBinScoreToPercent(rawScoreToTenBinScore(score)));
-  };
-
-  let gameScoreAverage =
-    results.reduce((acc, { score }) => acc + rawScoreToBinScoreFn(score), 0) / results.length;
-  let binPercentScore = tenBinScoreToPercent(gameScoreAverage);
+  const gameScoreAverage =
+    results.reduce((acc, { score }) => acc + rawScoreToTenBinScore(score), 0) / results.length;
+  const binPercentScore = tenBinScoreToPercent(gameScoreAverage);
 
   return (
     !!results.length && (
       <>
-        <Paper className={classes.masks} elevation={2}>
+        <Paper className={classes.masks} elevation={4}>
           <div className={classes.masksHeader}>
             <div>
               <Typography variant="h6" component="h3">
-                Results
-              </Typography>
-              Game Score:
-              <Typography
-                component="p"
-                style={{
-                  backgroundColor: scoreToColor(binPercentScore),
-                  display: 'inline-block',
-                }}
-              >
-                {gameScoreAverage.toFixed(1)}
+                Round Score:{' '}
+                <span style={{ color: scoreToColor(binPercentScore) }}>
+                  {gameScoreAverage.toFixed(1)}
+                </span>
               </Typography>
             </div>
             {props.handleClose && (
@@ -105,16 +70,15 @@ const ScoreResults = (props) => {
           </div>
           <ul className={classes.masksList}>
             {results.map(({ score, dataUri }, i) => (
-              <li className={classes.imgContainer} key={dataUri}>
-                <Typography
-                  style={{
-                    backgroundColor: rawScoreToColor(score),
-                    display: 'inline-block',
-                  }}
+              <li key={dataUri}>
+                <Paper
+                  elevation={4}
+                  className={classes.imgContainer}
+                  style={{ background: rawScoreToColor(score, 0.4) }}
                 >
-                  {rawScoreToTenBinScore(score)}
-                </Typography>
-                <img src={dataUri} className={classes.img} alt={`mask #${i}`} />
+                  <Typography>{rawScoreToTenBinScore(score)}</Typography>
+                  <img src={dataUri} className={classes.img} alt={`mask #${i}`} />
+                </Paper>
               </li>
             ))}
           </ul>
