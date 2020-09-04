@@ -12,26 +12,27 @@ import DownloadIcon from '@material-ui/icons/CloudDownload';
 
 const useStyles = makeStyles((theme) => ({
   masks: {
-    padding: theme.spacing(1),
+    padding: theme.spacing(2),
     background: 'rgba(255,255,255,0.5)',
   },
   masksHeader: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: theme.spacing(1),
   },
   masksList: {
     display: 'flex',
     flexFlow: 'row wrap',
     justifyContent: 'space-around',
   },
+  maskContainer: {
+    marginTop: theme.spacing(2),
+  },
   imgContainer: {
     width: 200,
     position: 'relative',
     border: '1px solid grey',
     padding: theme.spacing(0.5),
-    marginTop: theme.spacing(0.5),
     borderRadius: theme.spacing(1),
     '&:hover': {
       '& > div': {
@@ -44,15 +45,15 @@ const useStyles = makeStyles((theme) => ({
     background: 'rgba(0,0,0,0)',
   },
   removeMask: {
-    display: 'flex',
-    transition: 'all 100ms',
-    position: 'absolute',
     top: 0,
+    left: 0,
     bottom: 0,
     width: '100%',
-    left: 0,
-    justifyContent: 'center',
+    display: 'flex',
     alignItems: 'center',
+    position: 'absolute',
+    transition: 'all 100ms',
+    justifyContent: 'center',
     '&:hover': {
       '& > button': {
         display: 'inherit',
@@ -87,44 +88,42 @@ const CapturedMasks = (props) => {
 
   return (
     !!captureMasks.masks.length && (
-      <>
-        <Paper className={classes.masks} elevation={4}>
-          <div className={classes.masksHeader}>
-            <Typography variant="h6" component="h3">
-              Candidate Masks
-            </Typography>
-            <div className={classes.icons}>
-              <IconButton size="small" onClick={setMasks}>
-                <PublishIcon />
-              </IconButton>
-              <IconButton size="small" onClick={captureMasks.downloadMasks}>
-                <DownloadIcon />
-              </IconButton>
-              <IconButton size="small" onClick={captureMasks.removeAllMasks}>
-                <CloseIcon />
-              </IconButton>
-            </div>
+      <Paper className={classes.masks} elevation={4}>
+        <div className={classes.masksHeader}>
+          <Typography variant="h6" component="h3">
+            Candidate Masks
+          </Typography>
+          <div className={classes.icons}>
+            <IconButton size="small" onClick={setMasks}>
+              <PublishIcon />
+            </IconButton>
+            <IconButton size="small" onClick={captureMasks.downloadMasks}>
+              <DownloadIcon />
+            </IconButton>
+            <IconButton size="small" onClick={captureMasks.removeAllMasks}>
+              <CloseIcon />
+            </IconButton>
           </div>
-          <ul className={classes.masksList}>
-            {captureMasks.masks.map(({ binary: dataUri }, i) => (
-              <li key={dataUri}>
-                <Paper elevation={4} className={classes.imgContainer}>
-                  <div className={classes.removeMask}>
-                    <IconButton
-                      name={i}
-                      className={classes.iconBtn}
-                      onClick={captureMasks.removeMask}
-                    >
-                      <DeleteForeverIcon fontSize="large" />
-                    </IconButton>
-                  </div>
-                  <img src={dataUri} className={classes.img} alt={`mask #${i}`} />
-                </Paper>
-              </li>
-            ))}
-          </ul>
-        </Paper>
-      </>
+        </div>
+        <ul className={classes.masksList}>
+          {captureMasks.masks.map(({ binary: dataUri }, i) => (
+            <li key={dataUri} className={classes.maskContainer}>
+              <Paper elevation={4} className={classes.imgContainer}>
+                <div className={classes.removeMask}>
+                  <IconButton
+                    name={i}
+                    className={classes.iconBtn}
+                    onClick={captureMasks.removeMask}
+                  >
+                    <DeleteForeverIcon fontSize="large" />
+                  </IconButton>
+                </div>
+                <img src={dataUri} className={classes.img} alt={`mask #${i}`} />
+              </Paper>
+            </li>
+          ))}
+        </ul>
+      </Paper>
     )
   );
 };

@@ -15,7 +15,7 @@ import {
 
 const useStyles = makeStyles((theme) => ({
   masks: {
-    padding: theme.spacing(1),
+    padding: theme.spacing(2),
     background: 'rgba(255,255,255,0.5)',
   },
   masksHeader: {
@@ -27,11 +27,11 @@ const useStyles = makeStyles((theme) => ({
     flexFlow: 'row wrap',
     justifyContent: 'space-around',
   },
+  maskContainer: { marginTop: theme.spacing(2) },
   imgContainer: {
     width: 200,
     textAlign: 'right',
     padding: theme.spacing(0.5),
-    marginTop: theme.spacing(0.5),
     borderRadius: theme.spacing(1),
   },
   img: {
@@ -49,41 +49,39 @@ const ScoreResults = (props) => {
 
   return (
     !!results.length && (
-      <>
-        <Paper className={classes.masks} elevation={4}>
-          <div className={classes.masksHeader}>
-            <div>
-              <Typography variant="h6" component="h3">
-                Round Score:{' '}
-                <span style={{ color: scoreToColor(binPercentScore) }}>
-                  {gameScoreAverage.toFixed(1)}
-                </span>
-              </Typography>
-            </div>
-            {props.handleClose && (
-              <div>
-                <IconButton size="small" onClick={props.handleClose}>
-                  <CloseIcon />
-                </IconButton>
-              </div>
-            )}
+      <Paper className={classes.masks} elevation={4}>
+        <div className={classes.masksHeader}>
+          <div>
+            <Typography variant="h6" component="h3">
+              Round Score:{' '}
+              <span style={{ color: scoreToColor(binPercentScore) }}>
+                {gameScoreAverage.toFixed(1)}
+              </span>
+            </Typography>
           </div>
-          <ul className={classes.masksList}>
-            {results.map(({ score, dataUri }, i) => (
-              <li key={dataUri}>
-                <Paper
-                  elevation={4}
-                  className={classes.imgContainer}
-                  style={{ background: rawScoreToColor(score, 0.4) }}
-                >
-                  <Typography>{rawScoreToTenBinScore(score)}</Typography>
-                  <img src={dataUri} className={classes.img} alt={`mask #${i}`} />
-                </Paper>
-              </li>
-            ))}
-          </ul>
-        </Paper>
-      </>
+          {props.handleClose && (
+            <div>
+              <IconButton size="small" onClick={props.handleClose}>
+                <CloseIcon />
+              </IconButton>
+            </div>
+          )}
+        </div>
+        <ul className={classes.masksList}>
+          {results.map(({ score, dataUri }, i) => (
+            <li key={dataUri} className={classes.maskContainer}>
+              <Paper
+                elevation={4}
+                className={classes.imgContainer}
+                style={{ background: rawScoreToColor(score, 0.4) }}
+              >
+                <Typography>{rawScoreToTenBinScore(score)}</Typography>
+                <img src={dataUri} className={classes.img} alt={`mask #${i}`} />
+              </Paper>
+            </li>
+          ))}
+        </ul>
+      </Paper>
     )
   );
 };
