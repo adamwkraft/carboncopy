@@ -5,7 +5,7 @@ import { useLapTimer } from './lapTimer';
 import { useWebcam } from '../context/webcam';
 import { useBodyPix } from '../context/bodyPix';
 
-export const useLoop = (handleLoop) => {
+export const useLoop = () => {
   const webcam = useWebcam();
   const predict = useBodyPix();
 
