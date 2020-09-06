@@ -68,14 +68,13 @@ const useStyles = makeStyles((theme) => ({
 const Practice = (props) => {
   const classes = useStyles();
 
-  const practice = usePractice();
+  const practice = usePractice(props.game);
 
   useEffect(() => {
     props.game.setMode(practice);
   }, [practice, props.game]);
 
   const {
-    loop,
     loopType,
     simpleGame,
     captureMasks,
@@ -83,6 +82,8 @@ const Practice = (props) => {
     setCapturedMasks,
     handleClickCaptureMasks,
   } = practice;
+
+  const { loop } = props.game;
 
   const timerColor = scoreToColor(100 - simpleGame.progressPercent);
 
@@ -112,12 +113,12 @@ const Practice = (props) => {
           <>
             <GameSelect
               disabled={!loop.ready || loop.looping}
-              handleClick={simpleGame.handleLoadShippedMasks}
+              handleClick={simpleGame.zip.handleLoadPreparedMasks}
             />
             <FileUpload
               variant="contained"
-              onChange={simpleGame.handleLoadUserMasks}
-              disabled={!loop.ready || loop.looping || simpleGame.loading}
+              onChange={simpleGame.zip.handleZipInputChange}
+              disabled={!loop.ready || loop.looping || simpleGame.zip.loading}
             >
               {simpleGame.loading ? 'Loading...' : 'Load Masks'}
             </FileUpload>
