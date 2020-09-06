@@ -1,13 +1,9 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 import Menu from '@material-ui/core/Menu';
 import Button from '@material-ui/core/Button';
 import MenuItem from '@material-ui/core/MenuItem';
 import { makeStyles } from '@material-ui/core/styles';
-import { useRef } from 'react';
-import { useCallback } from 'react';
-import { useEffect } from 'react';
-import { useState } from 'react';
+import React, { useRef, useCallback, useEffect, useState } from 'react';
 
 const useStyles = makeStyles((theme) => ({
   item: (width) => ({
@@ -49,12 +45,12 @@ const GameSelect = (props) => {
     <>
       <div ref={ref}>
         <Button
-          aria-controls="mask-menu"
+          fullWidth={true}
+          variant="contained"
           aria-haspopup="true"
           onClick={handleOpen}
-          variant="contained"
+          aria-controls="mask-menu"
           disabled={props.disabled}
-          fullWidth={true}
         >
           Select Masks
         </Button>
@@ -73,8 +69,8 @@ const GameSelect = (props) => {
           horizontal: 'center',
         }}
         onClose={handleClose}
-        container={ref.current}
         open={Boolean(anchorEl)}
+        container={props.containerRef.current || null}
       >
         {Array.from({ length: 3 }).map((_, idx) => (
           <MenuItem key={idx} button={true} onClick={handleClick(`set${idx + 1}.zip`)}>
@@ -88,6 +84,7 @@ const GameSelect = (props) => {
 
 GameSelect.propTypes = {
   value: PropTypes.string,
+  containerRef: PropTypes.object,
   disabled: PropTypes.bool.isRequired,
   handleClick: PropTypes.func.isRequired,
 };
