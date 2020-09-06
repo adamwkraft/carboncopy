@@ -32,9 +32,9 @@ const ChoosePlayers = (props) => {
 
   const handleSetPlayerMode = useCallback(
     ({ currentTarget: { name } }) => {
-      props.game.screen.handlers.setPlayerMode(name);
+      props.setPlayerMode(name);
     },
-    [props.game.screen.handlers],
+    [props],
   );
 
   const transitions = useTransition(true, null, {
@@ -54,10 +54,10 @@ const ChoosePlayers = (props) => {
             {screenStatesArrays.players.map((playerMode) => (
               <li className={classes.playerModeItem} key={playerMode}>
                 <Button
-                  disabled={!!wipScreens[playerMode]}
+                  name={playerMode}
                   variant="outlined"
                   onClick={handleSetPlayerMode}
-                  name={playerMode}
+                  disabled={!!wipScreens[playerMode]}
                 >
                   {playerMode}
                 </Button>
@@ -71,7 +71,7 @@ const ChoosePlayers = (props) => {
 };
 
 ChoosePlayers.propTypes = {
-  game: PropTypes.object.isRequired,
+  setPlayerMode: PropTypes.func.isRequired,
 };
 
 export default ChoosePlayers;

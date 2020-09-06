@@ -34,26 +34,23 @@ const Footers = {
 
 const ScreenFooter = (props) => {
   const classes = useStyles();
-  const {
-    game: {
-      screen: { state },
-    },
-  } = props;
 
-  if (state.screen === screenStates.screen.DEFAULT) return <ChoosePlayers {...props} />;
+  const { screen, players, mode } = props.screen.state;
 
-  const Footer = Footers[state.screen]?.[state.players]?.[state.mode] || Null;
+  if (screen === screenStates.screen.DEFAULT)
+    return <ChoosePlayers setPlayerMode={props.screen.handlers.setPlayerMode} />;
+
+  const Footer = Footers[screen]?.[players]?.[mode] || Null;
 
   return (
     <div className={classes.root}>
-      <Footer {...props} />
+      <Footer />
     </div>
   );
 };
 
 ScreenFooter.propTypes = {
-  game: PropTypes.object.isRequired,
-  webcam: PropTypes.object.isRequired,
+  screen: PropTypes.object.isRequired,
 };
 
 export default ScreenFooter;

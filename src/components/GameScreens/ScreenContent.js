@@ -23,23 +23,18 @@ const Screens = {
 };
 
 const ScreenContent = (props) => {
-  const {
-    game: {
-      screen: { state },
-    },
-  } = props;
+  const { screen, mode, players } = props.screen.state;
   // early return if we haven't chosen a number of players yet
-  if (state.screen === screenStates.screen.DEFAULT) return null;
-  if (state.mode === screenStates.mode.DEFAULT) return <SelectGameMode {...props} />;
+  if (screen === screenStates.screen.DEFAULT) return null;
+  if (mode === screenStates.mode.DEFAULT) return <SelectGameMode screen={props.screen} />;
 
-  const Content = Screens[state.screen]?.[state.players]?.[state.mode] || Null;
+  const Content = Screens[screen]?.[players]?.[mode] || Null;
 
-  return <Content {...props} />;
+  return <Content />;
 };
 
 ScreenContent.propTypes = {
-  game: PropTypes.object.isRequired,
-  webcam: PropTypes.object.isRequired,
+  screen: PropTypes.object.isRequired,
 };
 
 export default ScreenContent;

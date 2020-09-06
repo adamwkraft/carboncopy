@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import { screenStates } from '../lib/screenConstants';
 import { useLoop } from './loop';
 
-export const useGame = () => {
+export const useGameController = () => {
   const loop = useLoop();
   const [mode, setMode] = useState(null);
   const [screenState, screenHandlers] = useScreenController();
@@ -20,7 +20,7 @@ export const useGame = () => {
     }
   }, [screenState, mode]);
 
-  const game = useMemo(
+  const gameController = useMemo(
     () => ({
       screen: {
         state: screenState,
@@ -33,5 +33,5 @@ export const useGame = () => {
     [screenState, screenHandlers, mode, loop],
   );
 
-  return game;
+  return gameController;
 };

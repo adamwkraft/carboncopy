@@ -22,24 +22,20 @@ const Headers = {
 
 const ScreenHeader = (props) => {
   const classes = useStyles();
-  const {
-    game: {
-      screen: { state },
-    },
-  } = props;
 
-  const HeaderContent = Headers[state.screen]?.[state.players] || DefaultHeader;
+  const { screen, players } = props.screenState;
+
+  const HeaderContent = Headers[screen]?.[players] || DefaultHeader;
 
   return (
     <header className={classes.root}>
-      <HeaderContent {...props} />
+      <HeaderContent />
     </header>
   );
 };
 
 ScreenHeader.propTypes = {
-  game: PropTypes.object.isRequired,
-  webcam: PropTypes.object.isRequired,
+  screenState: PropTypes.object.isRequired,
 };
 
 export default ScreenHeader;

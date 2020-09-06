@@ -1,21 +1,17 @@
 import PropTypes from 'prop-types';
-import React, { useEffect, memo } from 'react';
+import classnames from 'classnames';
+import { makeStyles } from '@material-ui/styles';
 import { useSpring, animated, config } from 'react-spring';
+import React, { useEffect, memo, createContext, useContext } from 'react';
 
 import Webcam from './Webcam';
-
-import { screenStates } from '../lib/screenConstants';
-import { makeStyles } from '@material-ui/styles';
-
-import classnames from 'classnames';
-
-import ScreenHeader from './GameScreens/ScreenHeader';
-import ScreenContent from './GameScreens/ScreenContent';
-import ScreenFooter from './GameScreens/ScreenFooter';
-
-import { useGame } from '../hooks/game';
 import GlobalHeader from './GlobalHeader';
-import { useMemo } from 'react';
+import ScreenHeader from './GameScreens/ScreenHeader';
+import ScreenFooter from './GameScreens/ScreenFooter';
+import ScreenContent from './GameScreens/ScreenContent';
+
+import { useGameController } from '../hooks/game';
+import { screenStates } from '../lib/screenConstants';
 
 const useStyles = makeStyles((theme) => ({
   header: {
@@ -38,10 +34,22 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const gameContext = createContext();
+
+export const useGame = () => {
+  const state = useContext(gameContext);
+
+  if (!state) {
+    throw new Error('useGame must be called from inside the <Game> component.');
+  }
+
+  return state;
+};
+
 const Game = ({ webcam }) => {
   const classes = useStyles();
 
-  const game = useGame();
+  const game = useGameController();
 
   useEffect(() => {
     if (game.screen.state.screen !== screenStates.screen.DEFAULT && webcam.hidden) {
@@ -53,19 +61,16 @@ const Game = ({ webcam }) => {
 
   const styleProps = useSpring({ to: { opacity: !webcam.hidden ? 1 : 0 }, config: config.gentle });
 
-  const screenProps = useMemo(
-    () => ({
-      game,
-      webcam,
-    }),
-    [game, webcam],
-  );
-
   return (
-    <>
-      <GlobalHeader {...screenProps} />
+    <gameContext.Provider value={game}>
+      <GlobalHeader
+        mode={game.screen.state.mode}
+        screen={game.screen.state.screen}
+        goHome={game.screen.handlers.resetState}
+        goBack={game.screen.handlers.reverseState}
+      />
       <div className={classes.header}>
-        <ScreenHeader {...screenProps} />
+        <ScreenHeader screenState={game.screen.state} />
       </div>
       <animated.div style={styleProps}>
         <Webcam>
@@ -78,12 +83,12 @@ const Game = ({ webcam }) => {
                 })}
               />
             )}
-            <ScreenContent {...screenProps} />
+            <ScreenContent screen={game.screen} />
           </>
         </Webcam>
       </animated.div>
-      <ScreenFooter {...screenProps} />
-    </>
+      <ScreenFooter screen={game.screen} />
+    </gameContext.Provider>
   );
 };
 

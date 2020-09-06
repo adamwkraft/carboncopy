@@ -1,6 +1,5 @@
-import PropTypes from 'prop-types';
+import React from 'react';
 import classnames from 'classnames';
-import React, { useEffect } from 'react';
 import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/core';
 
@@ -10,7 +9,9 @@ import ProgressBar from '../../ProgressBar';
 import ScoreResults from '../../ScoreResults';
 import CapturedMasks from '../../CapturedMasks';
 
+import { useGame } from '../../Game';
 import { scoreToColor } from '../../../lib/score';
+import { useWebcam } from '../../../context/webcam';
 import { usePractice } from '../../../hooks/screenHooks/practice';
 
 const useStyles = makeStyles((theme) => ({
@@ -68,11 +69,9 @@ const useStyles = makeStyles((theme) => ({
 const Practice = (props) => {
   const classes = useStyles();
 
-  const practice = usePractice(props.game);
-
-  useEffect(() => {
-    props.game.setMode(practice);
-  }, [practice, props.game]);
+  const game = useGame();
+  const webcam = useWebcam();
+  const practice = usePractice(game);
 
   const {
     loopType,
@@ -83,7 +82,7 @@ const Practice = (props) => {
     handleClickCaptureMasks,
   } = practice;
 
-  const { loop } = props.game;
+  const { loop } = game;
 
   const timerColor = scoreToColor(100 - simpleGame.progressPercent);
 
@@ -93,7 +92,7 @@ const Practice = (props) => {
         [classes.overlay]: !loop.looping,
         [classes.rootTop]: !!loop.looping,
         [classes.rootApart]:
-          !!(simpleGame.scores?.length || captureMasks.masks?.length) && props.webcam.isFullScreen,
+          !!(simpleGame.scores?.length || captureMasks.masks?.length) && webcam.isFullScreen,
       })}
     >
       <div
@@ -138,7 +137,7 @@ const Practice = (props) => {
           )
         )}
       </div>
-      {props.webcam.isFullScreen && !loop.looping && (
+      {webcam.isFullScreen && !loop.looping && (
         <div className={classes.captures}>
           <ScoreResults results={simpleGame.scores} handleClose={simpleGame.clearScores} />
           <CapturedMasks captureMasks={captureMasks} setMasks={setCapturedMasks} />
@@ -146,11 +145,6 @@ const Practice = (props) => {
       )}
     </div>
   );
-};
-
-Practice.propTypes = {
-  game: PropTypes.object.isRequired,
-  webcam: PropTypes.object.isRequired,
 };
 
 export default Practice;

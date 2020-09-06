@@ -40,23 +40,23 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const GlobalHeader = ({ game }) => {
+const GlobalHeader = (props) => {
   const classes = useStyles();
   const audio = useAudio();
 
-  if (game.screen.state.screen === screenStates.screen.DEFAULT) return null;
+  if (props.screen === screenStates.screen.DEFAULT) return null;
 
   return (
     <div className={classes.options}>
       <div>
-        <IconButton className={classes.btn} size="small" onClick={game.screen.handlers.resetState}>
+        <IconButton className={classes.btn} size="small" onClick={props.goHome}>
           <HomeIcon />
         </IconButton>
-        {game.screen.state.mode && (
+        {props.mode && (
           <IconButton
             className={classnames(classes.btn, classes.back)}
             size="small"
-            onClick={game.screen.handlers.reverseState}
+            onClick={props.goBack}
           >
             <BackIcon />
           </IconButton>
@@ -73,7 +73,10 @@ const GlobalHeader = ({ game }) => {
 };
 
 GlobalHeader.propTypes = {
-  game: PropTypes.object.isRequired,
+  mode: PropTypes.string,
+  screen: PropTypes.string,
+  goHome: PropTypes.func.isRequired,
+  goBack: PropTypes.func.isRequired,
 };
 
 export default memo(GlobalHeader);

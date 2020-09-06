@@ -32,9 +32,9 @@ const SelectGameMode = (props) => {
 
   const handleSetGameMode = useCallback(
     ({ currentTarget: { name } }) => {
-      props.game.screen.handlers.setGameMode(name);
+      props.screen.handlers.setGameMode(name);
     },
-    [props.game.screen.handlers],
+    [props.screen.handlers],
   );
 
   return (
@@ -43,14 +43,14 @@ const SelectGameMode = (props) => {
         Select Game Mode
       </Typography>
       <ul className={classes.gameMode}>
-        {screenStatesArrays.mode[props.game.screen.state.players]?.map((gameMode) => (
+        {screenStatesArrays.mode[props.screen.state.players]?.map((gameMode) => (
           <li className={classes.gameModeItem} key={gameMode}>
             <Button
               color="primary"
-              disabled={!!wipScreens[gameMode]}
+              name={gameMode}
               variant="contained"
               onClick={handleSetGameMode}
-              name={gameMode}
+              disabled={!!wipScreens[gameMode]}
             >
               {gameMode}
             </Button>
@@ -62,7 +62,7 @@ const SelectGameMode = (props) => {
 };
 
 SelectGameMode.propTypes = {
-  game: PropTypes.object.isRequired,
+  screen: PropTypes.object.isRequired,
 };
 
 export default SelectGameMode;
