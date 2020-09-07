@@ -5,6 +5,8 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { makeStyles } from '@material-ui/core/styles';
 import React, { useRef, useCallback, useEffect, useState } from 'react';
 
+import { numShippedMasks } from '../lib/constants';
+
 const useStyles = makeStyles((theme) => ({
   item: (width) => ({
     minWidth: width - theme.spacing(4),
@@ -72,7 +74,7 @@ const GameSelect = (props) => {
         open={Boolean(anchorEl)}
         container={props.containerRef.current || null}
       >
-        {Array.from({ length: 3 }).map((_, idx) => (
+        {Array.from({ length: numShippedMasks }).map((_, idx) => (
           <MenuItem key={idx} button={true} onClick={handleClick(`set${idx + 1}.zip`)}>
             <span className={classes.item}>Game {idx + 1}</span>
           </MenuItem>
