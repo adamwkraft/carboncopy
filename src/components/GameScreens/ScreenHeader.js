@@ -7,7 +7,9 @@ import DefaultHeader from '../DefaultHeader';
 import { screenStates } from '../../lib/screenConstants';
 
 const useStyles = makeStyles((theme) => ({
-  root: {},
+  root: {
+    marginTop: theme.spacing(2),
+  },
 }));
 
 const Headers = {

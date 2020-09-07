@@ -1,5 +1,4 @@
 import PropTypes from 'prop-types';
-import { makeStyles } from '@material-ui/styles';
 import React, { memo, createContext, useContext } from 'react';
 
 import Webcam from './Webcam';
@@ -9,12 +8,6 @@ import ScreenFooter from './GameScreens/ScreenFooter';
 import ScreenContent from './GameScreens/ScreenContent';
 
 import { useGameController } from '../hooks/game';
-
-const useStyles = makeStyles((theme) => ({
-  header: {
-    marginTop: theme.spacing(2),
-  },
-}));
 
 const gameContext = createContext();
 
@@ -29,8 +22,6 @@ export const useGame = () => {
 };
 
 const Game = ({ webcam }) => {
-  const classes = useStyles();
-
   const game = useGameController();
 
   return (
@@ -41,9 +32,7 @@ const Game = ({ webcam }) => {
         goHome={game.screen.handlers.resetState}
         goBack={game.screen.handlers.reverseState}
       />
-      <div className={classes.header}>
-        <ScreenHeader screenState={game.screen.state} />
-      </div>
+      <ScreenHeader screenState={game.screen.state} />
       <Webcam overlay={!game.screen.state.mode}>
         <ScreenContent screen={game.screen} />
       </Webcam>
