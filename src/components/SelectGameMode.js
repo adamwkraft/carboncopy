@@ -1,10 +1,10 @@
 import PropTypes from 'prop-types';
-import React, { useCallback } from 'react';
-import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/styles';
-import Typography from '@material-ui/core/Typography';
+import React, { useCallback, useMemo } from 'react';
 
 import { screenStatesArrays, wipScreens } from '../lib/screenConstants';
+
+import Options from './Options';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -14,12 +14,12 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'center',
     flexDirection: 'column',
     '& button': {
-      marginTop: theme.spacing(2),
       minWidth: 150,
+      marginTop: theme.spacing(2),
     },
-    '& ul': {
-      textAlign: 'center',
-    },
+  },
+  gameMode: {
+    textAlign: 'center',
   },
   header: {
     marginTop: theme.spacing(4),
@@ -37,26 +37,25 @@ const SelectGameMode = (props) => {
     [props.screen.handlers],
   );
 
+  const buttons = useMemo(
+    () =>
+      screenStatesArrays.mode[props.screen.state.players]?.map((gameMode) => ({
+        props: {
+          key: gameMode,
+          name: gameMode,
+          children: gameMode,
+          onClick: handleSetGameMode,
+          disabled: !!wipScreens[gameMode],
+        },
+      })),
+    [props.screen.state.players, handleSetGameMode],
+  );
+
   return (
     <div className={classes.root}>
-      <Typography component="h1" variant="h4" className={classes.header}>
-        Select Game Mode
-      </Typography>
-      <ul className={classes.gameMode}>
-        {screenStatesArrays.mode[props.screen.state.players]?.map((gameMode) => (
-          <li className={classes.gameModeItem} key={gameMode}>
-            <Button
-              color="primary"
-              name={gameMode}
-              variant="contained"
-              onClick={handleSetGameMode}
-              disabled={!!wipScreens[gameMode]}
-            >
-              {gameMode}
-            </Button>
-          </li>
-        ))}
-      </ul>
+      <div className={classes.gameMode}>
+        <Options buttons={buttons} />
+      </div>
     </div>
   );
 };

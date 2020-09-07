@@ -1,22 +1,20 @@
 import PropTypes from 'prop-types';
-import React, { useCallback } from 'react';
-import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/styles';
-import Typography from '@material-ui/core/Typography';
-import { useTransition, animated } from 'react-spring';
+import React, { useCallback, useMemo } from 'react';
 
+import Options from './Options';
 import { screenStatesArrays, wipScreens } from '../lib/screenConstants';
 
 const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
-    justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'column',
-    marginTop: theme.spacing(10),
+    justifyContent: 'center',
+    height: '100%',
     '& button': {
-      marginTop: theme.spacing(2),
       minWidth: 150,
+      marginTop: theme.spacing(2),
     },
   },
   transition: {
@@ -37,35 +35,23 @@ const ChoosePlayers = (props) => {
     [props],
   );
 
-  const transitions = useTransition(true, null, {
-    from: { transform: 'translate3d(0,-80px,0)', opacity: 0 },
-    enter: { transform: 'translate3d(0,0px,0)', opacity: 1 },
-    leave: { transform: 'translate3d(0,-80px,0)', opacity: 0 },
-  });
+  const buttons = useMemo(
+    () =>
+      screenStatesArrays.players.map((playerMode) => ({
+        props: {
+          key: playerMode,
+          name: playerMode,
+          children: playerMode,
+          onClick: handleSetPlayerMode,
+          disabled: !!wipScreens[playerMode],
+        },
+      })),
+    [handleSetPlayerMode],
+  );
 
   return (
     <div className={classes.root}>
-      {transitions.map(({ item, props, key }) => (
-        <animated.div key={key} style={props} className={classes.transition}>
-          <Typography component="h1" variant="h4" className={classes.header}>
-            Please Choose One
-          </Typography>
-          <ul className={classes.playerMode}>
-            {screenStatesArrays.players.map((playerMode) => (
-              <li className={classes.playerModeItem} key={playerMode}>
-                <Button
-                  name={playerMode}
-                  variant="outlined"
-                  onClick={handleSetPlayerMode}
-                  disabled={!!wipScreens[playerMode]}
-                >
-                  {playerMode}
-                </Button>
-              </li>
-            ))}
-          </ul>
-        </animated.div>
-      ))}
+      <Options buttons={buttons} />
     </div>
   );
 };
