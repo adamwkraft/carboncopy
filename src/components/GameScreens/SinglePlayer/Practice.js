@@ -146,7 +146,22 @@ const Practice = (props) => {
         })}
         ref={containerRef}
       >
-        <Options buttons={buttons} />
+        {loop.looping ? (
+          <Options
+            offset={70}
+            buttons={[
+              {
+                props: {
+                  key: 'stop',
+                  onClick: handleClickGame,
+                  children: 'Stop',
+                },
+              },
+            ]}
+          />
+        ) : (
+          <Options buttons={buttons} />
+        )}
         {loop.looping && loopType === 'play' && (
           <div className={classes.progress}>
             <ProgressBar color={timerColor} completed={100 - simpleGame.progressPercent} />
