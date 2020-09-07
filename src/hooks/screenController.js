@@ -17,11 +17,11 @@ const reducer = (state, action) => {
       return initialScreenState;
     case screenTypes.REVERSE: {
       const newState = { ...state };
-
       if (state.mode) {
         newState.mode = screenStates.mode.DEFAULT;
       } else if (state.screen !== screenStates.screen.DEFAULT) {
-        newState.mode = screenStates.screen.DEFAULT;
+        newState.screen = screenStates.screen.DEFAULT;
+        newState.players = screenStates.players.DEFAULT;
       } else return state;
 
       return newState;
