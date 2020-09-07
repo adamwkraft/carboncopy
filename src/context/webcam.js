@@ -33,7 +33,7 @@ const WebcamProvider = ({ children }) => {
   const [flipX, setFlipX] = useState(true);
   const [ready, setReady] = useState(false);
   const [cameras, setCameras] = useState([]);
-  const [hidden, _setHidden] = useState(true);
+  const [hidden, __setHidden] = useState(true);
   const [scratchpad, setScratchpad] = useState(null);
   const [videoError, setVideoError] = useState(null);
   const [videoStream, setVideoStream] = useState(null);
@@ -62,11 +62,11 @@ const WebcamProvider = ({ children }) => {
   }, [scratchpad, ready]);
 
   const setVisible = useCallback(() => {
-    _setHidden(false);
+    __setHidden(false);
   }, []);
 
-  const setHidden = useCallback(() => {
-    _setHidden(true);
+  const _setHidden = useCallback(() => {
+    __setHidden(true);
   }, []);
 
   const clearScratchpad = useCallback(() => {
@@ -107,7 +107,7 @@ const WebcamProvider = ({ children }) => {
       const deviceIdx = isDeviceIdx ? userConstraintsOrDeviceIdx : userConstraints.deviceIdx;
 
       try {
-        console.log('Getting Webcam...');
+        console.log('Finding Webcams...');
         const constraints = {
           video: {
             width: { exact: userConstraints.width || VIDEO_WIDTH },
@@ -127,7 +127,7 @@ const WebcamProvider = ({ children }) => {
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
         const deviceId = stream.getTracks()[0]?.getCapabilities()?.deviceId;
 
-        console.log('Got Webcam!');
+        console.log('Found webcam!');
         setVideoStream(stream);
         setCurrentDeviceId(deviceId);
         videoRef.current.srcObject = stream;
@@ -149,7 +149,11 @@ const WebcamProvider = ({ children }) => {
         new Promise((resolve) => {
           videoRef.current.onloadeddata = () => resolve();
         }),
-      ]).then(() => setReady(true));
+      ]).then(() => {
+        console.log('Webcam ready!');
+        setReady(true);
+        __setHidden(false);
+      });
     },
     [stopVideo, videoRef, cameras],
   );
@@ -342,7 +346,7 @@ const WebcamProvider = ({ children }) => {
       setFlipX,
       videoRef,
       hasVideo,
-      setHidden,
+      _setHidden,
       canvasRef,
       stopVideo,
       setVisible,
@@ -376,7 +380,7 @@ const WebcamProvider = ({ children }) => {
       hidden,
       cameras,
       setFlipX,
-      setHidden,
+      _setHidden,
       stopVideo,
       fullScreen,
       setVisible,
