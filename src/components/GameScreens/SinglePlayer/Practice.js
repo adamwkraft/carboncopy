@@ -1,8 +1,8 @@
-import React from 'react';
 import classnames from 'classnames';
-import Button from '@material-ui/core/Button';
+import React, { useRef, useMemo } from 'react';
 import { makeStyles } from '@material-ui/core';
 
+import Options from '../../Options';
 import FileUpload from '../../FileUpload';
 import GameSelect from '../../GameSelect';
 import ProgressBar from '../../ProgressBar';
@@ -33,17 +33,6 @@ const useStyles = makeStyles((theme) => ({
   rootApart: {
     justifyContent: 'space-between',
   },
-  options: {
-    display: 'flex',
-    alignItems: 'center',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    marginBottom: theme.spacing(1),
-    '& > *': {
-      marginTop: theme.spacing(2),
-      minWidth: 150,
-    },
-  },
   optionsTop: {
     justifyContent: 'center',
     alignItems: 'center',
@@ -60,7 +49,7 @@ const useStyles = makeStyles((theme) => ({
   },
   progress: {
     position: 'absolute',
-    top: -theme.spacing(1),
+    top: theme.spacing(1),
     left: theme.spacing(8),
     right: theme.spacing(8),
   },
@@ -71,6 +60,7 @@ const Practice = (props) => {
 
   const game = useGame();
   const webcam = useWebcam();
+  const containerRef = useRef();
   const practice = usePractice(game);
 
   const {
@@ -86,6 +76,61 @@ const Practice = (props) => {
 
   const timerColor = scoreToColor(100 - simpleGame.progressPercent);
 
+  const buttons = useMemo(
+    () => [
+      {
+        props: {
+          key: 'play/stop',
+          onClick: handleClickGame,
+          disabled: !loop.ready || (!loop.looping && !simpleGame.ready),
+          children: loop.looping ? 'Stop' : 'Play',
+        },
+      },
+      {
+        props: {
+          containerRef,
+          key: 'chooseMasks',
+          disabled: !loop.ready || loop.looping,
+          handleClick: simpleGame.zip.handleLoadPreparedMasks,
+        },
+        Component: GameSelect,
+        visible: !loop.looping,
+      },
+      {
+        props: {
+          key: 'loadMasks',
+          variant: 'contained',
+          onChange: simpleGame.zip.handleZipInputChange,
+          disabled: !loop.ready || loop.looping || simpleGame.zip.loading,
+          children: simpleGame.loading ? 'Loading...' : 'Load Masks',
+        },
+        Component: FileUpload,
+        visible: !loop.looping,
+      },
+      {
+        props: {
+          key: 'captureMasks',
+          onClick: handleClickCaptureMasks,
+          disabled: !loop.ready || loop.looping,
+          children: 'Capture Masks',
+          color: 'default',
+        },
+        visible: !loop.looping,
+      },
+    ],
+    [
+      loop.ready,
+      loop.looping,
+      handleClickGame,
+      simpleGame.ready,
+      simpleGame.loading,
+      simpleGame.zip.loading,
+      handleClickCaptureMasks,
+      simpleGame.zip.handleZipInputChange,
+      simpleGame.zip.handleLoadPreparedMasks,
+    ],
+  );
+
   return (
     <div
       className={classnames(classes.root, {
@@ -96,45 +141,16 @@ const Practice = (props) => {
       })}
     >
       <div
-        className={classnames(classes.options, {
+        className={classnames({
           [classes.optionsTop]: !!loop.looping,
         })}
+        ref={containerRef}
       >
-        <Button
-          color="primary"
-          variant="contained"
-          onClick={handleClickGame}
-          disabled={!loop.ready || (!loop.looping && !simpleGame.ready)}
-        >
-          {loop.looping ? 'Stop' : 'Play'}
-        </Button>
-        {!loop.looping ? (
-          <>
-            <GameSelect
-              disabled={!loop.ready || loop.looping}
-              handleClick={simpleGame.zip.handleLoadPreparedMasks}
-            />
-            <FileUpload
-              variant="contained"
-              onChange={simpleGame.zip.handleZipInputChange}
-              disabled={!loop.ready || loop.looping || simpleGame.zip.loading}
-            >
-              {simpleGame.loading ? 'Loading...' : 'Load Masks'}
-            </FileUpload>
-            <Button
-              variant="contained"
-              onClick={handleClickCaptureMasks}
-              disabled={!loop.ready || loop.looping}
-            >
-              Capture Masks
-            </Button>
-          </>
-        ) : (
-          loopType === 'play' && (
-            <div className={classes.progress}>
-              <ProgressBar color={timerColor} completed={100 - simpleGame.progressPercent} />
-            </div>
-          )
+        <Options buttons={buttons} />
+        {loop.looping && loopType === 'play' && (
+          <div className={classes.progress}>
+            <ProgressBar color={timerColor} completed={100 - simpleGame.progressPercent} />
+          </div>
         )}
       </div>
       {webcam.isFullScreen && !loop.looping && (

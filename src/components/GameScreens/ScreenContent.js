@@ -6,6 +6,7 @@ import { screenStates } from '../../lib/screenConstants';
 import Null from '../Null';
 import SelectGameMode from '../SelectGameMode';
 import Practice from '../GameScreens/SinglePlayer/Practice';
+import ChoosePlayers from '../ChoosePlayers';
 
 const Screens = {
   [screenStates.screen.PLAY]: {
@@ -24,8 +25,9 @@ const Screens = {
 
 const ScreenContent = (props) => {
   const { screen, mode, players } = props.screen.state;
-  // early return if we haven't chosen a number of players yet
-  if (screen === screenStates.screen.DEFAULT) return null;
+
+  if (screen === screenStates.screen.DEFAULT)
+    return <ChoosePlayers setPlayerMode={props.screen.handlers.setPlayerMode} />;
   if (mode === screenStates.mode.DEFAULT) return <SelectGameMode screen={props.screen} />;
 
   const Content = Screens[screen]?.[players]?.[mode] || Null;

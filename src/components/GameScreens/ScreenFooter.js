@@ -4,13 +4,13 @@ import PropTypes from 'prop-types';
 import { screenStates } from '../../lib/screenConstants';
 
 import Null from '../Null';
-import ChoosePlayers from '../ChoosePlayers';
-import PracticeFooter from './SinglePlayer/PracticeFooter';
+import { maxWidth } from '../../lib/constants';
 import { makeStyles } from '@material-ui/styles';
+import PracticeFooter from './SinglePlayer/PracticeFooter';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    maxWidth: 1200,
+    maxWidth,
     margin: '0 auto',
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
@@ -36,9 +36,6 @@ const ScreenFooter = (props) => {
   const classes = useStyles();
 
   const { screen, players, mode } = props.screen.state;
-
-  if (screen === screenStates.screen.DEFAULT)
-    return <ChoosePlayers setPlayerMode={props.screen.handlers.setPlayerMode} />;
 
   const Footer = Footers[screen]?.[players]?.[mode] || Null;
 
