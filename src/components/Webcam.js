@@ -68,7 +68,6 @@ const useStyles = makeStyles((theme) => ({
     position: 'absolute',
     bottom: theme.spacing(1.5),
     right: ({ isFullScreen: fs }) => theme.spacing(fs ? 1.5 : 3),
-    color: 'white',
     zIndex: 20,
     '&:hover': {
       background: 'rgba(255,255,255,0.25)',
@@ -140,11 +139,15 @@ const Webcam = ({ overlay, ...props }) => {
           <div className={classes.children}>{props.children}</div>
         )}
         {webcam.hasFullScreen && (
-          <IconButton className={classes.fullScreen} onClick={webcam.toggleFullScreen}>
+          <IconButton
+            color="secondary"
+            className={classes.fullScreen}
+            onClick={webcam.toggleFullScreen}
+          >
             {webcam.isFullScreen ? (
-              <ExitFullScreen color="primary" />
+              <ExitFullScreen color="secondary" />
             ) : (
-              <EnterFullScreen color="primary" />
+              <EnterFullScreen color="secondary" />
             )}
           </IconButton>
         )}
