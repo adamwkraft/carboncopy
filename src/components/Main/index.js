@@ -6,10 +6,11 @@ import { useWebcam } from '../../context/webcam';
 
 import Game from '../Game';
 import NoWebcam from './NoWebcam';
+import { maxWidth } from '../../lib/constants';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    maxWidth: 1600,
+    maxWidth,
     margin: `0 auto ${theme.spacing(2)}px`,
   },
 }));
