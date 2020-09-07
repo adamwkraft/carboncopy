@@ -7,11 +7,11 @@ import { screenStatesArrays, wipScreens } from '../lib/screenConstants';
 
 const useStyles = makeStyles((theme) => ({
   root: {
+    height: '100%',
     display: 'flex',
     alignItems: 'center',
     flexDirection: 'column',
     justifyContent: 'center',
-    height: '100%',
     '& button': {
       minWidth: 150,
       marginTop: theme.spacing(2),
