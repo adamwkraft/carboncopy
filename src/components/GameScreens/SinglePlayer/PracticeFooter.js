@@ -21,12 +21,12 @@ const PracticeFooter = (props) => {
 
   if (!game.mode) return null;
 
-  const { captureMasks, simpleGame, setCapturedMasks } = game.mode;
+  const { captureMasks, simpleGame, handlePlayCapturedMasks } = game.mode;
 
   return (
     <div className={classes.root}>
       <ScoreResults results={simpleGame.scores} handleClose={simpleGame.clearScores} />
-      <CapturedMasks captureMasks={captureMasks} setMasks={setCapturedMasks} />
+      <CapturedMasks captureMasks={captureMasks} handlePlay={handlePlayCapturedMasks} />
     </div>
   );
 };

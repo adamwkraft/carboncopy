@@ -68,7 +68,8 @@ const Practice = (props) => {
     simpleGame,
     captureMasks,
     handleClickGame,
-    setCapturedMasks,
+    handleStartRandomGame,
+    handlePlayCapturedMasks,
     handleClickCaptureMasks,
   } = practice;
 
@@ -84,6 +85,15 @@ const Practice = (props) => {
           onClick: handleClickGame,
           disabled: !loop.ready || (!loop.looping && !simpleGame.ready),
           children: loop.looping ? 'Stop' : 'Play',
+        },
+      },
+      {
+        props: {
+          key: 'playRandom',
+          color: 'secondary',
+          onClick: handleStartRandomGame,
+          disabled: !loop.ready || loop.looping,
+          children: 'Play Random',
         },
       },
       {
@@ -124,6 +134,7 @@ const Practice = (props) => {
       handleClickGame,
       simpleGame.ready,
       simpleGame.loading,
+      handleStartRandomGame,
       simpleGame.zip.loading,
       handleClickCaptureMasks,
       simpleGame.zip.handleZipInputChange,
@@ -171,7 +182,7 @@ const Practice = (props) => {
       {webcam.isFullScreen && !loop.looping && (
         <div className={classes.captures}>
           <ScoreResults results={simpleGame.scores} handleClose={simpleGame.clearScores} />
-          <CapturedMasks captureMasks={captureMasks} setMasks={setCapturedMasks} />
+          <CapturedMasks captureMasks={captureMasks} handlePlay={handlePlayCapturedMasks} />
         </div>
       )}
     </div>

@@ -1,15 +1,14 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core';
+import React, { useMemo, useCallback } from 'react';
 
-import IconButton from '@material-ui/core/IconButton';
-import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import CloseIcon from '@material-ui/icons/Close';
-import PublishIcon from '@material-ui/icons/Publish';
+import IconButton from '@material-ui/core/IconButton';
+import PlayIcon from '@material-ui/icons/PlayCircleOutline';
 import DownloadIcon from '@material-ui/icons/CloudDownload';
+import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
+
 import MasksGrid from './MasksGrid';
-import { useMemo } from 'react';
-import { useCallback } from 'react';
 
 const useStyles = makeStyles((theme) => ({
   removeMask: {
@@ -44,24 +43,27 @@ const useStyles = makeStyles((theme) => ({
 const CandidateMasks = (props) => {
   const classes = useStyles();
 
-  const { captureMasks, setMasks } = props;
+  const { captureMasks, handlePlay } = props;
 
   const actionButtons = useMemo(
     () => [
       {
-        onClick: setMasks,
-        Icon: PublishIcon,
+        key: 'play',
+        Icon: PlayIcon,
+        onClick: handlePlay,
       },
       {
-        onClick: captureMasks.downloadMasks,
+        key: 'download',
         Icon: DownloadIcon,
+        onClick: captureMasks.downloadMasks,
       },
       {
-        onClick: captureMasks.removeAllMasks,
+        key: 'clear',
         Icon: CloseIcon,
+        onClick: captureMasks.removeAllMasks,
       },
     ],
-    [captureMasks.downloadMasks, captureMasks.removeAllMasks, setMasks],
+    [captureMasks.downloadMasks, captureMasks.removeAllMasks, handlePlay],
   );
 
   const getDataUri = useCallback(({ binary: dataUri }) => dataUri, []);
@@ -79,17 +81,17 @@ const CandidateMasks = (props) => {
 
   return (
     <MasksGrid
-      masks={captureMasks.masks}
       title="Candidate Masks"
-      actionButtons={actionButtons}
       getDataUri={getDataUri}
+      masks={captureMasks.masks}
+      actionButtons={actionButtons}
       getImageChild={getImageChild}
     />
   );
 };
 
 CandidateMasks.propTypes = {
-  setMasks: PropTypes.func.isRequired,
+  handlePlay: PropTypes.func.isRequired,
   captureMasks: PropTypes.object.isRequired,
 };
 

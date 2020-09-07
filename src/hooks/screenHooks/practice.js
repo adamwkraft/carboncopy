@@ -27,6 +27,13 @@ export const usePractice = (game) => {
     }
   }, [loop, simpleGame]);
 
+  const handleStartRandomGame = useCallback(async () => {
+    if (loop.looping) return;
+
+    await simpleGame.zip.handleLoadRandomMaskSet();
+    handleClickGame();
+  }, [handleClickGame, loop.looping, simpleGame.zip]);
+
   const handleClickCaptureMasks = useCallback(() => {
     if (loop.looping) {
       loop.stop();
@@ -37,12 +44,15 @@ export const usePractice = (game) => {
     }
   }, [loop, captureMasks, simpleGame]);
 
-  const setCapturedMasks = useCallback(async () => {
+  const handlePlayCapturedMasks = useCallback(async () => {
+    if (loop.looping) return;
+
     const masks = await Promise.all(
       captureMasks.masks.map(({ overlay }) => webcam.dataUriToImageData(overlay)),
     );
     simpleGame.setMasks(masks);
-  }, [captureMasks.masks, simpleGame, webcam]);
+    handleClickGame();
+  }, [captureMasks.masks, simpleGame, webcam, handleClickGame, loop.looping]);
 
   const practice = useMemo(
     () => ({
@@ -50,7 +60,8 @@ export const usePractice = (game) => {
       simpleGame,
       captureMasks,
       handleClickGame,
-      setCapturedMasks,
+      handleStartRandomGame,
+      handlePlayCapturedMasks,
       handleClickCaptureMasks,
     }),
     [
@@ -58,7 +69,8 @@ export const usePractice = (game) => {
       simpleGame,
       captureMasks,
       handleClickGame,
-      setCapturedMasks,
+      handleStartRandomGame,
+      handlePlayCapturedMasks,
       handleClickCaptureMasks,
     ],
   );
