@@ -108,7 +108,7 @@ const MasksGrid = (props) => {
           {actions || actionButtons ? (
             <div className={classes.actions}>
               {actionButtons.map(({ Icon, onClick, key }) => (
-                <IconButton key={key || onClick} size="small" onClick={onClick}>
+                <IconButton key={key} size="small" onClick={onClick}>
                   <Icon />
                 </IconButton>
               ))}
