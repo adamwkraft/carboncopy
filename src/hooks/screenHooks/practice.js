@@ -4,8 +4,7 @@ import { useWebcam } from '../../context/webcam';
 import { useSimpleGame } from '../loopHandlers/simpleGame';
 import { useCaptureMasks } from '../loopHandlers/captureMasks';
 
-export const usePractice = (game) => {
-  const { loop } = game;
+export const usePractice = (loop) => {
   const webcam = useWebcam();
   const simpleGame = useSimpleGame();
   const captureMasks = useCaptureMasks();
@@ -74,10 +73,6 @@ export const usePractice = (game) => {
       handleClickCaptureMasks,
     ],
   );
-
-  useEffect(() => {
-    game.setMode(practice);
-  }, [game, practice]);
 
   return practice;
 };

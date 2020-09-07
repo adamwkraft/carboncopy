@@ -9,7 +9,7 @@ import ProgressBar from '../../ProgressBar';
 import ScoreResults from '../../ScoreResults';
 import CapturedMasks from '../../CapturedMasks';
 
-import { useGame } from '../../Game';
+import { useGame, useGameMode } from '../../Game';
 import { scoreToColor } from '../../../lib/score';
 import { useWebcam } from '../../../context/webcam';
 import { usePractice } from '../../../hooks/screenHooks/practice';
@@ -61,7 +61,7 @@ const Practice = (props) => {
   const game = useGame();
   const webcam = useWebcam();
   const containerRef = useRef();
-  const practice = usePractice(game);
+  const practice = useGameMode(usePractice);
 
   const {
     loopType,

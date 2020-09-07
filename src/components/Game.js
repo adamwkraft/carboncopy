@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import React, { memo, createContext, useContext } from 'react';
+import React, { memo, createContext, useContext, useEffect } from 'react';
 
 import Webcam from './Webcam';
 import GlobalHeader from './GlobalHeader';
@@ -19,6 +19,17 @@ export const useGame = () => {
   }
 
   return state;
+};
+
+export const useGameMode = (useGameModeHook) => {
+  const { loop, setMode } = useGame();
+  const gameMode = useGameModeHook(loop);
+
+  useEffect(() => {
+    setMode(gameMode);
+  }, [gameMode, setMode]);
+
+  return gameMode;
 };
 
 const Game = ({ webcam }) => {
