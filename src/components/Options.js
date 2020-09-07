@@ -21,7 +21,7 @@ const Options = (props) => {
   const classes = useStyles();
   const trail = useTrail(props.buttons.length, {
     transform: 'translate3d(0,0px,0)',
-    from: { transform: 'translate3d(0,-100px,0)' },
+    from: { transform: `translate3d(0,-${props.offset || 100}px,0)` },
     config: config.stiff,
   });
 
