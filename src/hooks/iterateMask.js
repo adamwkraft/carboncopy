@@ -1,12 +1,16 @@
-import { useRef, useState, useCallback } from 'react';
-import { useMemo } from 'react';
+import { useMemo, useRef, useState, useCallback } from 'react';
 
 // set masks, iterate masks, retain ref to current mask
 export const useIterateMask = () => {
-  const [masks, setMasks] = useState([]);
-
+  const masksRef = useRef([]);
   const maskRef = useRef(null);
   const maskIdxRef = useRef(0);
+  const [masks, _setMasks] = useState([]);
+
+  const setMasks = useCallback((newMasks) => {
+    _setMasks(newMasks);
+    masksRef.current = typeof newMasks === 'function' ? newMasks(masksRef.current) : newMasks;
+  }, []);
 
   const reset = useCallback(() => {
     maskIdxRef.current = 0;
@@ -14,20 +18,22 @@ export const useIterateMask = () => {
   }, []);
 
   const next = useCallback(() => {
-    const currentPoly = masks[maskIdxRef.current];
+    const currentMask = masksRef.current[maskIdxRef.current];
 
-    if (!currentPoly) {
+    if (!currentMask) {
       maskRef.current = null;
       maskIdxRef.current = 0;
 
       return null;
     }
 
-    maskRef.current = currentPoly;
+    maskRef.current = currentMask;
     maskIdxRef.current++;
 
-    return currentPoly;
-  }, [masks]);
+    return currentMask;
+  }, []);
+
+  const getNumMasks = useCallback(() => masksRef.current.length, []);
 
   return useMemo(
     () => ({
@@ -35,8 +41,9 @@ export const useIterateMask = () => {
       reset,
       maskRef,
       setMasks,
-      numMasks: masks.length,
+      getNumMasks,
+      hasMasks: !!masks.length,
     }),
-    [next, reset, masks],
+    [next, masks, reset, setMasks, getNumMasks],
   );
 };

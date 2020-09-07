@@ -8,10 +8,9 @@ import { getScoreAndOverlayForSegmentationAndImageData } from '../../lib/util';
 export const useSimpleGame = () => {
   const promRef = useRef();
   const webcam = useWebcam();
-
   const maskIterator = useIterateMask();
-  const zip = useZip(maskIterator.setMasks);
   const [scores, setScores] = useState([]);
+  const zip = useZip(maskIterator.setMasks);
   const [progressPercent, setProgressPercent] = useState(0);
 
   const clearScores = useCallback(() => {
@@ -26,7 +25,7 @@ export const useSimpleGame = () => {
         setProgressPercent(0.0);
         clearScores();
         controller.useTimer({
-          maxLaps: maskIterator.numMasks,
+          maxLaps: maskIterator.getNumMasks(),
           printSeconds: true,
           announceSeconds: true,
           lapDuration,
@@ -83,7 +82,7 @@ export const useSimpleGame = () => {
       clearScores,
       progressPercent,
       reset: maskIterator.reset,
-      ready: !!maskIterator.numMasks,
+      ready: maskIterator.hasMasks,
       setMasks: maskIterator.setMasks,
     }),
     [zip, scores, progressPercent, handleLoop, clearScores, maskIterator],
