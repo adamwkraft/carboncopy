@@ -246,3 +246,5 @@ export const saveAs = (blob, filename) => {
     URL.revokeObjectURL(elem.href);
   }
 };
+
+export const getMaskName = (num) => `set${num}.zip`;
