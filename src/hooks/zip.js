@@ -1,7 +1,10 @@
 import JSZip from 'jszip';
 import JSZipUtils from 'jszip-utils';
 import { useCallback, useState, useMemo } from 'react';
+
+import { getMaskName } from '../lib/util';
 import { useWebcam } from '../context/webcam';
+import { numShippedMasks } from '../lib/constants';
 
 export const useZip = (setMasks) => {
   const webcam = useWebcam();
@@ -58,13 +61,19 @@ export const useZip = (setMasks) => {
     [loadZippedMasks],
   );
 
+  const handleLoadRandomMaskSet = useCallback(async () => {
+    const num = Math.floor(Math.random() * numShippedMasks);
+    return handleLoadPreparedMasks(getMaskName(num + 1));
+  }, [handleLoadPreparedMasks]);
+
   const data = useMemo(
     () => ({
       loading: zipLoading,
       handleZipInputChange,
+      handleLoadRandomMaskSet,
       handleLoadPreparedMasks,
     }),
-    [zipLoading, handleZipInputChange, handleLoadPreparedMasks],
+    [zipLoading, handleZipInputChange, handleLoadPreparedMasks, handleLoadRandomMaskSet],
   );
 
   return data;
