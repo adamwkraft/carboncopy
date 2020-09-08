@@ -35,15 +35,22 @@ export const useIterateMask = () => {
 
   const getNumMasks = useCallback(() => masksRef.current.length, []);
 
+  const random = useCallback(() => {
+    const mask = masks[Math.floor(Math.random() * masks.length)];
+    maskRef.current = mask;
+    return mask;
+  }, [masks]);
+
   return useMemo(
     () => ({
       next,
       reset,
+      random,
       maskRef,
       setMasks,
       getNumMasks,
       hasMasks: !!masks.length,
     }),
-    [next, masks, reset, setMasks, getNumMasks],
+    [next, masks, random, reset, setMasks, getNumMasks],
   );
 };
