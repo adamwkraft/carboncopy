@@ -7,7 +7,6 @@ import Null from '../Null';
 import { maxWidth } from '../../lib/constants';
 import { makeStyles } from '@material-ui/styles';
 import PracticeFooter from './SinglePlayer/PracticeFooter';
-import SurvivalFooter from './SinglePlayer/SurvivalFooter';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -22,7 +21,7 @@ const Footers = {
   [screenStates.screen.PLAY]: {
     [screenStates.players.SINGLE_PLAYER]: {
       [screenStates.mode[screenStates.players.SINGLE_PLAYER].PRACTICE]: PracticeFooter,
-      [screenStates.mode[screenStates.players.SINGLE_PLAYER].SURVIVAL]: SurvivalFooter,
+      [screenStates.mode[screenStates.players.SINGLE_PLAYER].SURVIVAL]: PracticeFooter,
       [screenStates.mode[screenStates.players.SINGLE_PLAYER].TIME_ATTACK]: () =>
         'TIME_ATTACK footer',
     },

@@ -1,13 +1,18 @@
-import { useMemo, useCallback } from 'react';
-import { useLoop } from '../loop';
+import { useRef, useEffect, useMemo, useCallback } from 'react';
 import { useSimpleGame } from '../loopHandlers/simpleGame';
 import { useCaptureMasks } from '../loopHandlers/captureMasks';
-import SelectInput from '@material-ui/core/Select/SelectInput';
 
-export const useSurvival = () => {
-  const loop = useLoop();
+export const useSurvival = (loop) => {
   const simpleGame = useSimpleGame();
   const captureMasks = useCaptureMasks();
+
+  const loadedRef = useRef(false);
+  useEffect(() => {
+    if (!loadedRef.current) {
+      loadedRef.current = true;
+      simpleGame.zip.handleLoadPreparedMasks('survival_2.zip'); // TODO: Make a BETTER Survival Set.
+    }
+  }, [simpleGame]);
 
   const handleClickGame = useCallback(async () => {
     if (loop.looping) {

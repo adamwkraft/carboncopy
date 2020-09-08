@@ -4,7 +4,7 @@ import { useZip } from '../zip';
 import { useIterateMask } from '../iterateMask';
 import { useWebcam } from '../../context/webcam';
 import { getScoreAndOverlayForSegmentationAndImageData } from '../../lib/util';
-import { rawScoreToTenBinScore } from '../../lib/score_utils';
+import { rawScoreToTenBinScore } from '../../lib/score';
 
 export const useSimpleGame = () => {
   const promRef = useRef();
