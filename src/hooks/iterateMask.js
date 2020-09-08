@@ -29,17 +29,30 @@ export const useIterateMask = () => {
     return currentPoly;
   }, [masks]);
 
+  const infiniteNext = useCallback(() => {
+    const currentPoly = masks[maskIdxRef.current];
+    if (!currentPoly) {
+      // Loop back to first mask
+      const firstPoly = masks[0];
+      maskRef.current = firstPoly;
+      maskIdxRef.current = 1;
+      return firstPoly;
+    } else {
+      maskRef.current = currentPoly;
+      maskIdxRef.current++;
+      return currentPoly;
+    }
+  }, [masks]);
+
   const random = useCallback(() => {
-    const index = Math.floor(Math.random() * masks.length);
-    console.log('ADAM, index:', index);
     const mask = masks[Math.floor(Math.random() * masks.length)];
     maskRef.current = mask;
-    console.log('ADMA< MASK:', mask);
     return mask;
   }, [masks]);
 
   return useMemo(
     () => ({
+      infiniteNext,
       next,
       reset,
       random,
@@ -47,6 +60,6 @@ export const useIterateMask = () => {
       setMasks,
       numMasks: masks.length,
     }),
-    [next, reset, random, masks],
+    [infiniteNext, next, reset, random, masks],
   );
 };

@@ -7,6 +7,8 @@ import Typography from '@material-ui/core/Typography';
 import CloseIcon from '@material-ui/icons/Close';
 import IconButton from '@material-ui/core/IconButton';
 
+import { rawScoreToTenBinScore, tenBinScoreToPercent } from '../lib/score_utils';
+
 const useStyles = makeStyles((theme) => ({
   masks: {
     padding: theme.spacing(1),
@@ -36,18 +38,6 @@ const ScoreResults = (props) => {
   const classes = useStyles();
 
   const { results } = props;
-
-  const rawScoreToTenBinScore = (score) => {
-    // Takes in score from [0-100] and returns score [1-10]
-    const lowThresh = 25;
-    const highThresh = 88;
-    const p = (score - lowThresh) / (highThresh - lowThresh);
-    return Math.max(1, Math.min(10, Math.round(p * 10)));
-  };
-
-  const tenBinScoreToPercent = (score) => {
-    return (score / 10) * 100;
-  };
 
   const scoreToColor = (score) => {
     // Returns a hex color value from reg to green based on score from 0-100

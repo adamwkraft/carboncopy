@@ -5,6 +5,7 @@ import { useMemo, useRef, useCallback, useState } from 'react';
 import { useIterateMask } from '../iterateMask';
 import { useWebcam } from '../../context/webcam';
 import { getScoreAndOverlayForSegmentationAndImageData } from '../../lib/util';
+import { rawScoreToTenBinScore } from '../../lib/score_utils';
 
 export const useSimpleGame = () => {
   const promRef = useRef();
@@ -141,10 +142,11 @@ export const useSimpleGame = () => {
       const lapDuration = 3000;
       if (controller.time.first) {
         maskIterator.random();
+        // maskIterator.infiniteNext();
         setProgressPercent(0.0);
         clearScores();
         controller.useTimer({
-          maxLaps: 99999999999999,
+          maxLaps: 9999999, // Good luck surviving this long!
           printSeconds: true,
           announceSeconds: true,
           lapDuration,
@@ -174,19 +176,14 @@ export const useSimpleGame = () => {
               setScores((state) => [...state, { score, dataUri }]);
 
               webcam.clearCanvas();
-
-              // Some Notes:
-              // -I think one more countdown is still enabled.
-              // -It is a big laggy, is there something weird about the logic?
-              // -Obviously, we need a larger set of masks to randomly iterate through.
-
-              // TODO: Create score utils to re-use scoring logic.
-              if (score > 100) {
+              const tenBinScore = rawScoreToTenBinScore(score);
+              if (tenBinScore < 5) {
                 // Game Over
                 maskIterator.reset();
-                return stop;
+                return stop();
               } else {
                 maskIterator.random();
+                // maskIterator.infiniteNext();
               }
             });
           },

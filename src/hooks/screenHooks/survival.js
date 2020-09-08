@@ -2,6 +2,7 @@ import { useMemo, useCallback } from 'react';
 import { useLoop } from '../loop';
 import { useSimpleGame } from '../loopHandlers/simpleGame';
 import { useCaptureMasks } from '../loopHandlers/captureMasks';
+import SelectInput from '@material-ui/core/Select/SelectInput';
 
 export const useSurvival = () => {
   const loop = useLoop();
@@ -9,7 +10,6 @@ export const useSurvival = () => {
   const captureMasks = useCaptureMasks();
 
   const handleClickGame = useCallback(async () => {
-    simpleGame.handleLoadShippedMasks('set2.zip'); // TODO: Make a Survival Set.
     if (loop.looping) {
       loop.stop();
     } else {

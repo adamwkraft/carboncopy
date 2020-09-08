@@ -1,11 +1,10 @@
 import React from 'react';
+import { useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/core';
 
-import FileUpload from '../../FileUpload';
-import GameSelect from '../../GameSelect';
 import CapturedMasks from '../../CapturedMasks';
 import ProgressBar from '../../ProgressBar';
 import ScoreResults from '../../ScoreResults';
@@ -58,15 +57,17 @@ const useStyles = makeStyles((theme) => ({
 const Survival = (props) => {
   const classes = useStyles();
 
-  const {
-    loop,
-    simpleGame,
-    captureMasks,
-    handleClickGame,
-    handleClickCaptureMasks,
-  } = props.game.mode.survival;
+  const { loop, simpleGame, captureMasks, handleClickGame } = props.game.mode.survival;
 
-  simpleGame.handleLoadShippedMasks('set2.zip'); // TODO: Make a Survival Set.
+  const loadedRef = useRef(false);
+  useEffect(() => {
+    if (!loadedRef.current) {
+      loadedRef.current = true;
+      simpleGame.handleLoadShippedMasks('set3.zip'); // TODO: Make a Survival Set.
+    }
+  }, [simpleGame]);
+
+  // simpleGame.handleLoadShippedMasks('survival_2.zip'); // TODO: Make a Survival Set.
 
   return (
     <div
@@ -82,20 +83,19 @@ const Survival = (props) => {
           [classes.optionsTop]: !!loop.looping,
         })}
       >
-        <Button
-          color="primary"
-          variant="contained"
-          onClick={handleClickGame}
-          disabled={!loop.ready || (!loop.looping && !simpleGame.ready)}
-        >
-          {loop.looping ? 'Stop' : 'Play'}
-        </Button>
         {loop.looping ? (
           <div>
             <ProgressBar bgcolor="#00695c" completed={100 - simpleGame.progressPercent} />
           </div>
         ) : (
-          <></>
+          <Button
+            color="primary"
+            variant="contained"
+            onClick={handleClickGame}
+            disabled={!loop.ready}
+          >
+            Play
+          </Button>
         )}
       </div>
       {props.webcam.isFullScreen && !loop.looping && (
