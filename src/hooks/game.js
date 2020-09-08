@@ -20,6 +20,16 @@ export const useGameController = () => {
     }
   }, [screenState, mode]);
 
+  useEffect(() => {
+    if (
+      (screenState.screen === screenStates.screen.DEFAULT ||
+        screenState.mode === screenStates.mode.DEFAULT) &&
+      loop.looping
+    ) {
+      loop.stop();
+    }
+  }, [screenState, loop]);
+
   const gameController = useMemo(
     () => ({
       screen: {
