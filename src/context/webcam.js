@@ -37,6 +37,8 @@ const WebcamProvider = ({ children }) => {
   const [scratchpad, setScratchpad] = useState(null);
   const [videoError, setVideoError] = useState(null);
   const [videoStream, setVideoStream] = useState(null);
+  const [permissionNeeded, setPermissionNeeded] = useState(false);
+  const [permissionDenied, setPermissionDenied] = useState(false);
   const [currentDeviceId, setCurrentDeviceId] = useState(undefined);
   const [autoStartDeviceId, _setAutoStartDeviceId] = useState(undefined);
 
@@ -130,11 +132,17 @@ const WebcamProvider = ({ children }) => {
         console.log('Found webcam!');
         setVideoStream(stream);
         setCurrentDeviceId(deviceId);
+        setVideoError(false);
+        setPermissionDenied(false);
+        setPermissionNeeded(false);
         videoRef.current.srcObject = stream;
       } catch (e) {
         const message = 'Error starting video.';
         console.error(message);
         console.error(e.message);
+        if (e.message?.toLowerCase?.()?.includes?.('permission denied')) {
+          setPermissionDenied(true);
+        }
         setVideoStream(null);
         setReady(false);
         setVideoError(message);
@@ -258,19 +266,25 @@ const WebcamProvider = ({ children }) => {
     discoverCameras().then((foundCameras) => {
       const autoStartId = window.localStorage.getItem(AUTOSTART_KEY);
 
-      const foundDeviceId = foundCameras.reduce(
-        (acc, { deviceId, label }, idx) =>
+      let foundEmptyDevice = false;
+      const foundDeviceId = foundCameras.reduce((acc, { deviceId, label }, idx) => {
+        if (!deviceId) foundEmptyDevice = true;
+
+        return (
           acc ||
           (deviceId === autoStartId ||
           (!autoStartId && foundCameras.length === 1 && idx === 0) ||
           (!autoStartId && label.includes('Built-in'))
             ? deviceId
-            : null),
-        null,
-      );
+            : null)
+        );
+      }, null);
 
       if (foundDeviceId) {
         setAutoStartDeviceId(foundDeviceId);
+      } else if (foundEmptyDevice) {
+        setPermissionNeeded(true);
+        console.warn('Need video permissions!');
       } else if (!foundDeviceId && autoStartId) clearAutoStartDeviceId();
     });
   }, []); // eslint-disable-line
@@ -363,6 +377,8 @@ const WebcamProvider = ({ children }) => {
       enterFullScreen,
       stop: stopVideo,
       discoverCameras,
+      permissionNeeded,
+      permissionDenied,
       toggleFullScreen,
       autoStartDeviceId,
       imageDataToDataUri,
@@ -396,6 +412,8 @@ const WebcamProvider = ({ children }) => {
       currentDeviceId,
       enterFullScreen,
       discoverCameras,
+      permissionNeeded,
+      permissionDenied,
       toggleFullScreen,
       autoStartDeviceId,
       imageDataToDataUri,

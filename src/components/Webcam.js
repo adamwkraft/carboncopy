@@ -1,15 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
+import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/styles';
 import IconButton from '@material-ui/core/IconButton';
 import { useSpring, animated, config } from 'react-spring';
 import EnterFullScreen from '@material-ui/icons/Fullscreen';
 import ExitFullScreen from '@material-ui/icons/FullscreenExit';
 
-import Loader from './Loader';
 import { maxWidth } from '../lib/constants';
 import { useWebcam } from '../context/webcam';
+
+import Loader from './Loader';
+import PermissionNeeded from './PermissionNeeded';
 
 const useStyles = makeStyles((theme) => ({
   root: ({ isFullScreen: fs }) => ({
@@ -17,7 +19,9 @@ const useStyles = makeStyles((theme) => ({
     margin: '0 auto',
     position: 'relative',
     height: `calc(0.5625 * (100vw - ${theme.spacing(4)}px))`,
-    maxHeight: `calc(0.5625 * (1200px - ${theme.spacing(4)}px))`,
+    [`@media(min-width: ${maxWidth}px)`]: {
+      height: fs ? '100%' : `calc(0.5625 * (${maxWidth}px - ${theme.spacing(4)}px))`,
+    },
     ...(fs
       ? {
           display: 'flex',
@@ -73,21 +77,16 @@ const useStyles = makeStyles((theme) => ({
       background: 'rgba(255,255,255,0.25)',
     },
   },
-  overlay: ({ overlayColor }) => ({
+  overlay: ({ overlayColor, isFullScreen }) => ({
     background: overlayColor,
     position: 'absolute',
     top: 0,
     bottom: 5,
-    left: theme.spacing(2),
-    right: theme.spacing(2),
-    borderRadius: theme.spacing(1),
+    left: isFullScreen ? 0 : theme.spacing(2),
+    right: isFullScreen ? 0 : theme.spacing(2),
+    borderRadius: isFullScreen ? 0 : theme.spacing(1),
     zIndex: 0,
   }),
-  fsOverlay: {
-    left: 0,
-    right: 0,
-    borderRadius: 0,
-  },
   loader: {
     position: 'absolute',
     top: 0,
@@ -103,6 +102,15 @@ const useStyles = makeStyles((theme) => ({
       height: 100,
     },
   },
+  paper: {
+    top: 0,
+    bottom: 5,
+    zIndex: -1,
+    position: 'absolute',
+    left: theme.spacing(2),
+    right: theme.spacing(2),
+    borderRadius: theme.spacing(1),
+  },
 }));
 
 const Webcam = ({ overlay, ...props }) => {
@@ -115,49 +123,50 @@ const Webcam = ({ overlay, ...props }) => {
   return (
     <div ref={webcam.rootRef} className={classes.root}>
       <animated.div style={styleProps} className={classes.container}>
-        <video
-          autoPlay={true}
-          ref={webcam.videoRef}
-          className={classes.video}
-          width={webcam.videoRef?.current?.videoWidth}
-          height={webcam.videoRef?.current?.videoHeight}
-        />
-        <canvas
-          ref={webcam.canvasRef}
-          className={classes.canvas}
-          width={webcam.videoRef?.current?.videoWidth}
-          height={webcam.videoRef?.current?.videoHeight}
-        />
-        {!webcam.hidden && overlay && (
-          <div
-            className={classnames(classes.overlay, {
-              [classes.fsOverlay]: webcam.isFullScreen,
-            })}
+        <>
+          <video
+            autoPlay={true}
+            ref={webcam.videoRef}
+            className={classes.video}
+            width={webcam.videoRef?.current?.videoWidth}
+            height={webcam.videoRef?.current?.videoHeight}
           />
-        )}
-        {props.children && !webcam.hidden && (
-          <div className={classes.children}>{props.children}</div>
-        )}
-        {webcam.hasFullScreen && (
-          <IconButton
-            color="secondary"
-            className={classes.fullScreen}
-            onClick={webcam.toggleFullScreen}
-          >
-            {webcam.isFullScreen ? (
-              <ExitFullScreen color="secondary" />
-            ) : (
-              <EnterFullScreen color="secondary" />
-            )}
-          </IconButton>
-        )}
+          <canvas
+            ref={webcam.canvasRef}
+            className={classes.canvas}
+            width={webcam.videoRef?.current?.videoWidth}
+            height={webcam.videoRef?.current?.videoHeight}
+          />
+          {!webcam.hidden && overlay && <div className={classes.overlay} />}
+          {props.children && !webcam.hidden && (
+            <div className={classes.children}>{props.children}</div>
+          )}
+          {webcam.hasFullScreen && (
+            <IconButton
+              color="secondary"
+              className={classes.fullScreen}
+              onClick={webcam.toggleFullScreen}
+            >
+              {webcam.isFullScreen ? (
+                <ExitFullScreen color="secondary" />
+              ) : (
+                <EnterFullScreen color="secondary" />
+              )}
+            </IconButton>
+          )}
+        </>
+        {!webcam.isFullScreen && <Paper elevation={4} className={classes.paper} />}
       </animated.div>
-      {webcam.hidden && (
-        <div className={classes.loader}>
-          <div>
-            <Loader color="#000" />
+      {webcam.permissionNeeded ? (
+        <PermissionNeeded permissionDenied={webcam.permissionDenied} />
+      ) : (
+        webcam.hidden && (
+          <div className={classes.loader}>
+            <div>
+              <Loader color="#000" />
+            </div>
           </div>
-        </div>
+        )
       )}
     </div>
   );
