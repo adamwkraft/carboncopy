@@ -1,10 +1,10 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
 import { makeStyles } from '@material-ui/core';
 
-import CapturedMasks from '../../CapturedMasks';
 import ScoreResults from '../../ScoreResults';
+import CapturedMasks from '../../CapturedMasks';
+import { useGame } from '../../Game';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -14,21 +14,21 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Practice = (props) => {
+const PracticeFooter = (props) => {
   const classes = useStyles();
-  const { captureMasks, simpleGame } = props.game.mode.practice;
+
+  const game = useGame();
+
+  if (!game.mode) return null;
+
+  const { captureMasks, simpleGame, handlePlayCapturedMasks } = game.mode;
 
   return (
     <div className={classes.root}>
       <ScoreResults results={simpleGame.scores} handleClose={simpleGame.clearScores} />
-      <CapturedMasks captureMasks={captureMasks} />
+      <CapturedMasks captureMasks={captureMasks} handlePlay={handlePlayCapturedMasks} />
     </div>
   );
 };
 
-Practice.propTypes = {
-  game: PropTypes.object.isRequired,
-  webcam: PropTypes.object.isRequired,
-};
-
-export default Practice;
+export default PracticeFooter;

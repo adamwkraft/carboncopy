@@ -1,12 +1,16 @@
-import { useRef, useState, useCallback } from 'react';
-import { useMemo } from 'react';
+import { useMemo, useRef, useState, useCallback } from 'react';
 
 // set masks, iterate masks, retain ref to current mask
 export const useIterateMask = () => {
-  const [masks, setMasks] = useState([]);
-
+  const masksRef = useRef([]);
   const maskRef = useRef(null);
   const maskIdxRef = useRef(0);
+  const [masks, _setMasks] = useState([]);
+
+  const setMasks = useCallback((newMasks) => {
+    _setMasks(newMasks);
+    masksRef.current = typeof newMasks === 'function' ? newMasks(masksRef.current) : newMasks;
+  }, []);
 
   const reset = useCallback(() => {
     maskIdxRef.current = 0;
@@ -14,35 +18,22 @@ export const useIterateMask = () => {
   }, []);
 
   const next = useCallback(() => {
-    const currentPoly = masks[maskIdxRef.current];
+    const currentMask = masksRef.current[maskIdxRef.current];
 
-    if (!currentPoly) {
+    if (!currentMask) {
       maskRef.current = null;
       maskIdxRef.current = 0;
 
       return null;
     }
 
-    maskRef.current = currentPoly;
+    maskRef.current = currentMask;
     maskIdxRef.current++;
 
-    return currentPoly;
-  }, [masks]);
+    return currentMask;
+  }, []);
 
-  const infiniteNext = useCallback(() => {
-    const currentPoly = masks[maskIdxRef.current];
-    if (!currentPoly) {
-      // Loop back to first mask
-      const firstPoly = masks[0];
-      maskRef.current = firstPoly;
-      maskIdxRef.current = 1;
-      return firstPoly;
-    } else {
-      maskRef.current = currentPoly;
-      maskIdxRef.current++;
-      return currentPoly;
-    }
-  }, [masks]);
+  const getNumMasks = useCallback(() => masksRef.current.length, []);
 
   const random = useCallback(() => {
     const mask = masks[Math.floor(Math.random() * masks.length)];
@@ -52,14 +43,14 @@ export const useIterateMask = () => {
 
   return useMemo(
     () => ({
-      infiniteNext,
       next,
       reset,
       random,
       maskRef,
       setMasks,
-      numMasks: masks.length,
+      getNumMasks,
+      hasMasks: !!masks.length,
     }),
-    [infiniteNext, next, reset, random, masks],
+    [next, masks, random, reset, setMasks, getNumMasks],
   );
 };

@@ -1,16 +1,19 @@
 import PropTypes from 'prop-types';
+import classnames from 'classnames';
 import React, { memo } from 'react';
 import { makeStyles } from '@material-ui/styles';
-import BackIcon from '@material-ui/icons/ArrowLeft';
+
 import HomeIcon from '@material-ui/icons/Home';
-import MuteVolumeIcon from '@material-ui/icons/VolumeMute';
+import BackIcon from '@material-ui/icons/ArrowLeft';
+import IconButton from '@material-ui/core/IconButton';
 import VolumeOffIcon from '@material-ui/icons/VolumeOff';
-import classnames from 'classnames';
+import MuteVolumeIcon from '@material-ui/icons/VolumeMute';
 
 import WebcamSelect from './WebcamSelect';
-import IconButton from '@material-ui/core/IconButton';
-import { screenStates } from '../lib/screenConstants';
 import { useAudio } from '../context/audio';
+import { screenStates } from '../lib/screenConstants';
+import { maxWidth } from '../lib/constants';
+import { useSpring, config, animated } from 'react-spring';
 
 const useStyles = makeStyles((theme) => ({
   btn: {
@@ -23,43 +26,46 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(2),
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     width: '100%',
-    maxWidth: 1600,
+    maxWidth,
+    display: 'flex',
     margin: '0 auto',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   right: {
     display: 'flex',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
   volume: {
     marginLeft: theme.spacing(1),
   },
 }));
 
-const GlobalHeader = ({ game }) => {
+const GlobalHeader = (props) => {
   const classes = useStyles();
   const audio = useAudio();
 
-  if (game.screen.state.screen === screenStates.screen.DEFAULT) return null;
+  const onHomeScreen = props.screen === screenStates.screen.DEFAULT;
+  const styleProps = useSpring({ to: { opacity: !onHomeScreen ? 1 : 0 }, config: config.stiff });
 
   return (
     <div className={classes.options}>
       <div>
-        <IconButton className={classes.btn} size="small" onClick={game.screen.handlers.resetState}>
-          <HomeIcon />
-        </IconButton>
-        {game.screen.state.mode && (
-          <IconButton
-            className={classnames(classes.btn, classes.back)}
-            size="small"
-            onClick={game.screen.handlers.reverseState}
-          >
-            <BackIcon />
-          </IconButton>
+        {!onHomeScreen && (
+          <animated.div style={styleProps}>
+            <IconButton className={classes.btn} size="small" onClick={props.goHome}>
+              <HomeIcon />
+            </IconButton>
+            <IconButton
+              size="small"
+              onClick={props.goBack}
+              className={classnames(classes.btn, classes.back)}
+            >
+              <BackIcon />
+            </IconButton>
+          </animated.div>
         )}
       </div>
       <div className={classes.right}>
@@ -73,7 +79,10 @@ const GlobalHeader = ({ game }) => {
 };
 
 GlobalHeader.propTypes = {
-  game: PropTypes.object.isRequired,
+  mode: PropTypes.string,
+  screen: PropTypes.string,
+  goHome: PropTypes.func.isRequired,
+  goBack: PropTypes.func.isRequired,
 };
 
 export default memo(GlobalHeader);

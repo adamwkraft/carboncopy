@@ -1,92 +1,54 @@
 import PropTypes from 'prop-types';
-import React, { useEffect, memo } from 'react';
-import { useSpring, animated, config } from 'react-spring';
+import React, { memo, createContext, useContext, useEffect } from 'react';
 
 import Webcam from './Webcam';
-
-import { screenStates } from '../lib/screenConstants';
-import { makeStyles } from '@material-ui/styles';
-
-import classnames from 'classnames';
-
-import ScreenHeader from './GameScreens/ScreenHeader';
-import ScreenContent from './GameScreens/ScreenContent';
-import ScreenFooter from './GameScreens/ScreenFooter';
-
-import { useGame } from '../hooks/game';
 import GlobalHeader from './GlobalHeader';
-import { useMemo } from 'react';
+import ScreenHeader from './GameScreens/ScreenHeader';
+import ScreenFooter from './GameScreens/ScreenFooter';
+import ScreenContent from './GameScreens/ScreenContent';
 
-const useStyles = makeStyles((theme) => ({
-  header: {
-    marginTop: theme.spacing(2),
-  },
-  overlay: {
-    background: 'rgba(255,255,255,0.5)',
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: theme.spacing(2),
-    right: theme.spacing(2),
-    borderRadius: theme.spacing(1),
-    zIndex: -1,
-  },
-  fsOverlay: {
-    left: 0,
-    right: 0,
-    borderRadius: 0,
-  },
-}));
+import { useGameController } from '../hooks/game';
 
-const Game = ({ webcam }) => {
-  const classes = useStyles();
+const gameContext = createContext();
 
-  const game = useGame();
+export const useGame = () => {
+  const state = useContext(gameContext);
 
-  console.log(game);
+  if (!state) {
+    throw new Error('useGame must be called from inside the <Game> component.');
+  }
+
+  return state;
+};
+
+export const useGameMode = (useGameModeHook) => {
+  const { loop, setMode } = useGame();
+  const gameMode = useGameModeHook(loop);
 
   useEffect(() => {
-    if (game.screen.state.screen !== screenStates.screen.DEFAULT && webcam.hidden) {
-      webcam.setVisible();
-    } else if (game.screen.state.screen === screenStates.screen.DEFAULT && !webcam.hidden) {
-      webcam.setHidden();
-    }
-  }, [webcam, game.screen.state.screen]);
+    setMode(gameMode);
+  }, [gameMode, setMode]);
 
-  const styleProps = useSpring({ to: { opacity: !webcam.hidden ? 1 : 0 }, config: config.gentle });
+  return gameMode;
+};
 
-  const screenProps = useMemo(
-    () => ({
-      game,
-      webcam,
-    }),
-    [game, webcam],
-  );
+const Game = ({ webcam }) => {
+  const game = useGameController();
 
   return (
-    <>
-      <GlobalHeader {...screenProps} />
-      <div className={classes.header}>
-        <ScreenHeader {...screenProps} />
-      </div>
-      <animated.div style={styleProps}>
-        <Webcam>
-          {/* TODO: need to check if webcam is loading here */}
-          <>
-            {!game.screen.state.mode && (
-              <div
-                className={classnames({
-                  [classes.overlay]: !game.screen.state.mode,
-                  [classes.fsOverlay]: webcam.isFullScreen,
-                })}
-              />
-            )}
-            <ScreenContent {...screenProps} />
-          </>
-        </Webcam>
-      </animated.div>
-      <ScreenFooter {...screenProps} />
-    </>
+    <gameContext.Provider value={game}>
+      <GlobalHeader
+        mode={game.screen.state.mode}
+        screen={game.screen.state.screen}
+        goHome={game.screen.handlers.resetState}
+        goBack={game.screen.handlers.reverseState}
+      />
+      <ScreenHeader screenState={game.screen.state} />
+      <Webcam overlay={!game.screen.state.mode}>
+        <ScreenContent screen={game.screen} />
+      </Webcam>
+      <ScreenFooter screen={game.screen} />
+    </gameContext.Provider>
   );
 };
 

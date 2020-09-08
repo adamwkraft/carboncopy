@@ -1,27 +1,37 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
-import { usePractice } from './screenHooks/practice';
-import { useSurvival } from './screenHooks/survival';
 import { useScreenController } from './screenController';
+import { useEffect } from 'react';
+import { screenStates } from '../lib/screenConstants';
+import { useLoop } from './loop';
 
-export const useGame = () => {
+export const useGameController = () => {
+  const loop = useLoop();
+  const [mode, setMode] = useState(null);
   const [screenState, screenHandlers] = useScreenController();
-  const practice = usePractice();
-  const survival = useSurvival();
 
-  const game = useMemo(
+  useEffect(() => {
+    if (
+      (screenState.screen === screenStates.screen.DEFAULT ||
+        screenState.mode === screenStates.mode.DEFAULT) &&
+      mode
+    ) {
+      setMode(null);
+    }
+  }, [screenState, mode]);
+
+  const gameController = useMemo(
     () => ({
       screen: {
         state: screenState,
         handlers: screenHandlers,
       },
-      mode: {
-        practice,
-        survival,
-      },
+      mode,
+      loop,
+      setMode,
     }),
-    [screenState, screenHandlers, practice, survival],
+    [screenState, screenHandlers, mode, loop],
   );
 
-  return game;
+  return gameController;
 };

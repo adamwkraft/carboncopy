@@ -6,11 +6,12 @@ import { useWebcam } from '../../context/webcam';
 
 import Game from '../Game';
 import NoWebcam from './NoWebcam';
+import { maxWidth } from '../../lib/constants';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    maxWidth: 1600,
-    margin: '0 auto',
+    maxWidth,
+    margin: `0 auto ${theme.spacing(2)}px`,
   },
 }));
 
@@ -29,7 +30,6 @@ const Main = (props) => {
     ) {
       startedRef.current = true;
 
-      console.log('starting');
       webcam.start().catch(console.error);
     }
   }, [hasVideo, cameras, currentDeviceId, autoStartDeviceId]); // eslint-disable-line

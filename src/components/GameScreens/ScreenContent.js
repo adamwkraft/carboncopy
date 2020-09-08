@@ -7,6 +7,7 @@ import Null from '../Null';
 import SelectGameMode from '../SelectGameMode';
 import Practice from '../GameScreens/SinglePlayer/Practice';
 import Survival from '../GameScreens/SinglePlayer/Survival';
+import ChoosePlayers from '../ChoosePlayers';
 
 const Screens = {
   [screenStates.screen.PLAY]: {
@@ -24,23 +25,19 @@ const Screens = {
 };
 
 const ScreenContent = (props) => {
-  const {
-    game: {
-      screen: { state },
-    },
-  } = props;
-  // early return if we haven't chosen a number of players yet
-  if (state.screen === screenStates.screen.DEFAULT) return null;
-  if (state.mode === screenStates.mode.DEFAULT) return <SelectGameMode {...props} />;
+  const { screen, mode, players } = props.screen.state;
 
-  const Content = Screens[state.screen]?.[state.players]?.[state.mode] || Null;
+  if (screen === screenStates.screen.DEFAULT)
+    return <ChoosePlayers setPlayerMode={props.screen.handlers.setPlayerMode} />;
+  if (mode === screenStates.mode.DEFAULT) return <SelectGameMode screen={props.screen} />;
 
-  return <Content {...props} />;
+  const Content = Screens[screen]?.[players]?.[mode] || Null;
+
+  return <Content />;
 };
 
 ScreenContent.propTypes = {
-  game: PropTypes.object.isRequired,
-  webcam: PropTypes.object.isRequired,
+  screen: PropTypes.object.isRequired,
 };
 
 export default ScreenContent;
