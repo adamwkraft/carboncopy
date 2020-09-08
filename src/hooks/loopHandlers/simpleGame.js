@@ -1,7 +1,6 @@
-import JSZip from 'jszip';
-import JSZipUtils from 'jszip-utils';
 import { useMemo, useRef, useCallback, useState } from 'react';
 
+import { useZip } from '../zip';
 import { useIterateMask } from '../iterateMask';
 import { useWebcam } from '../../context/webcam';
 import { getScoreAndOverlayForSegmentationAndImageData } from '../../lib/util';
@@ -9,69 +8,14 @@ import { getScoreAndOverlayForSegmentationAndImageData } from '../../lib/util';
 export const useSimpleGame = () => {
   const promRef = useRef();
   const webcam = useWebcam();
-  const [loading, setLoading] = useState(false);
-
   const maskIterator = useIterateMask();
   const [scores, setScores] = useState([]);
-  const [progressPercent, setProgressPercent] = useState(0.0);
-  const [selectedMasks, setSelectedMasks] = useState(null);
+  const zip = useZip(maskIterator.setMasks);
+  const [progressPercent, setProgressPercent] = useState(0);
 
   const clearScores = useCallback(() => {
     setScores([]);
   }, []);
-
-  const handleZip = useCallback(
-    async (file) => {
-      setLoading(true);
-      const data = await JSZip.loadAsync(file);
-      const binaryMasks = await Promise.all(
-        data
-          .filter((name) => name.endsWith('.png'))
-          .map(({ name }) => data.file(name).async('base64')),
-      );
-
-      const masksAsImageData = await Promise.all(
-        binaryMasks.map((b64) => webcam.dataUriToImageData(`data:image/png;base64,${b64}`)),
-      );
-
-      maskIterator.setMasks(masksAsImageData);
-      setLoading(false);
-    },
-    [maskIterator, webcam],
-  );
-
-  const handleLoadUserMasks = useCallback(
-    ([file]) => {
-      if (file.type !== 'application/zip') {
-        console.error('Expected a zip file but got', file.type);
-        return;
-      }
-
-      handleZip(file);
-      setSelectedMasks(null);
-    },
-    [handleZip],
-  );
-
-  const handleLoadShippedMasks = useCallback(
-    async (filename) => {
-      if (!filename) {
-        setSelectedMasks(null);
-        return;
-      }
-
-      const file = await new JSZip.external.Promise((resolve, reject) => {
-        JSZipUtils.getBinaryContent(process.env.PUBLIC_URL + `/masks/${filename}`, (err, data) => {
-          if (err) reject(err);
-          else resolve(data);
-        });
-      });
-
-      handleZip(file);
-      setSelectedMasks(filename);
-    },
-    [handleZip],
-  );
 
   const handleLoop = useCallback(
     async (controller) => {
@@ -81,7 +25,7 @@ export const useSimpleGame = () => {
         setProgressPercent(0.0);
         clearScores();
         controller.useTimer({
-          maxLaps: maskIterator.numMasks,
+          maxLaps: maskIterator.getNumMasks(),
           printSeconds: true,
           announceSeconds: true,
           lapDuration,
@@ -97,16 +41,10 @@ export const useSimpleGame = () => {
               const {
                 score,
                 targetOverlay,
-                segOverlay,
+                // segOverlay,
               } = getScoreAndOverlayForSegmentationAndImageData(target, segmentation, webcam.flipX);
 
               const dataUri = webcam.imageDataToDataUri(targetOverlay);
-              // // Blend and create a new DataUri
-              // webcam.clearScratchpad();
-              // webcam.scratchpad.ctx.putImageData(segOverlay, 0, 0);
-              // webcam.scratchpad.ctx.putImageData(targetOverlay, 0, 0);
-              // const dataUri = webcam.scratchpad.canvas.toDataURL('image/png');
-              // webcam.clearScratchpad();
 
               setScores((state) => [...state, { score, dataUri }]);
 
@@ -138,26 +76,15 @@ export const useSimpleGame = () => {
 
   return useMemo(
     () => ({
+      zip,
       scores,
-      progressPercent,
-      loading,
       handleLoop,
       clearScores,
-      selectedMasks,
-      handleLoadUserMasks,
-      handleLoadShippedMasks,
-      ready: !!maskIterator.numMasks,
+      progressPercent,
+      reset: maskIterator.reset,
+      ready: maskIterator.hasMasks,
+      setMasks: maskIterator.setMasks,
     }),
-    [
-      scores,
-      progressPercent,
-      loading,
-      handleLoop,
-      clearScores,
-      maskIterator,
-      selectedMasks,
-      handleLoadUserMasks,
-      handleLoadShippedMasks,
-    ],
+    [zip, scores, progressPercent, handleLoop, clearScores, maskIterator],
   );
 };

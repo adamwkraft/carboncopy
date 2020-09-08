@@ -190,7 +190,7 @@ export const getScoreAndOverlayForSegmentationAndImageData = (
   }
 
   const score = Math.round((intersection / (union + 0.0000001)) * 100);
-  const overlay = new ImageData(bytes, width, height);
+  // const overlay = new ImageData(bytes, width, height);
 
   // Cleanup
   rgbaPlanes.delete();
@@ -246,3 +246,5 @@ export const saveAs = (blob, filename) => {
     URL.revokeObjectURL(elem.href);
   }
 };
+
+export const getMaskName = (num) => `set${num}.zip`;

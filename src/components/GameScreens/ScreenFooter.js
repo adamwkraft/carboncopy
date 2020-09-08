@@ -4,8 +4,18 @@ import PropTypes from 'prop-types';
 import { screenStates } from '../../lib/screenConstants';
 
 import Null from '../Null';
-import ChoosePlayers from '../ChoosePlayers';
+import { maxWidth } from '../../lib/constants';
+import { makeStyles } from '@material-ui/styles';
 import PracticeFooter from './SinglePlayer/PracticeFooter';
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    maxWidth,
+    margin: '0 auto',
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+  },
+}));
 
 const Footers = {
   [screenStates.screen.PLAY]: {
@@ -23,22 +33,21 @@ const Footers = {
 };
 
 const ScreenFooter = (props) => {
-  const {
-    game: {
-      screen: { state },
-    },
-  } = props;
+  const classes = useStyles();
 
-  if (state.screen === screenStates.screen.DEFAULT) return <ChoosePlayers {...props} />;
+  const { screen, players, mode } = props.screen.state;
 
-  const Footer = Footers[state.screen]?.[state.players]?.[state.mode] || Null;
+  const Footer = Footers[screen]?.[players]?.[mode] || Null;
 
-  return <Footer {...props} />;
+  return (
+    <div className={classes.root}>
+      <Footer />
+    </div>
+  );
 };
 
 ScreenFooter.propTypes = {
-  game: PropTypes.object.isRequired,
-  webcam: PropTypes.object.isRequired,
+  screen: PropTypes.object.isRequired,
 };
 
 export default ScreenFooter;

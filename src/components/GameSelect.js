@@ -1,13 +1,11 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 import Menu from '@material-ui/core/Menu';
 import Button from '@material-ui/core/Button';
 import MenuItem from '@material-ui/core/MenuItem';
 import { makeStyles } from '@material-ui/core/styles';
-import { useRef } from 'react';
-import { useCallback } from 'react';
-import { useEffect } from 'react';
-import { useState } from 'react';
+import React, { useRef, useCallback, useEffect, useState } from 'react';
+
+import { numShippedMasks } from '../lib/constants';
 
 const useStyles = makeStyles((theme) => ({
   item: (width) => ({
@@ -16,7 +14,7 @@ const useStyles = makeStyles((theme) => ({
   }),
 }));
 
-const GameSelect = ({ value, ...props }) => {
+const GameSelect = (props) => {
   const [width, setWidth] = useState(0);
   const classes = useStyles(width);
 
@@ -49,12 +47,12 @@ const GameSelect = ({ value, ...props }) => {
     <>
       <div ref={ref}>
         <Button
-          aria-controls="mask-menu"
+          fullWidth={true}
+          variant="contained"
           aria-haspopup="true"
           onClick={handleOpen}
-          variant="contained"
+          aria-controls="mask-menu"
           disabled={props.disabled}
-          fullWidth={true}
         >
           Select Masks
         </Button>
@@ -73,10 +71,10 @@ const GameSelect = ({ value, ...props }) => {
           horizontal: 'center',
         }}
         onClose={handleClose}
-        container={ref.current}
         open={Boolean(anchorEl)}
+        container={props.containerRef.current || null}
       >
-        {Array.from({ length: 3 }).map((_, idx) => (
+        {Array.from({ length: numShippedMasks }).map((_, idx) => (
           <MenuItem key={idx} button={true} onClick={handleClick(`set${idx + 1}.zip`)}>
             <span className={classes.item}>Game {idx + 1}</span>
           </MenuItem>
@@ -88,6 +86,7 @@ const GameSelect = ({ value, ...props }) => {
 
 GameSelect.propTypes = {
   value: PropTypes.string,
+  containerRef: PropTypes.object,
   disabled: PropTypes.bool.isRequired,
   handleClick: PropTypes.func.isRequired,
 };

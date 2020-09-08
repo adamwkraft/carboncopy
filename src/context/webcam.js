@@ -33,10 +33,12 @@ const WebcamProvider = ({ children }) => {
   const [flipX, setFlipX] = useState(true);
   const [ready, setReady] = useState(false);
   const [cameras, setCameras] = useState([]);
-  const [hidden, _setHidden] = useState(true);
+  const [hidden, __setHidden] = useState(true);
   const [scratchpad, setScratchpad] = useState(null);
   const [videoError, setVideoError] = useState(null);
   const [videoStream, setVideoStream] = useState(null);
+  const [permissionNeeded, setPermissionNeeded] = useState(false);
+  const [permissionDenied, setPermissionDenied] = useState(false);
   const [currentDeviceId, setCurrentDeviceId] = useState(undefined);
   const [autoStartDeviceId, _setAutoStartDeviceId] = useState(undefined);
 
@@ -62,11 +64,11 @@ const WebcamProvider = ({ children }) => {
   }, [scratchpad, ready]);
 
   const setVisible = useCallback(() => {
-    _setHidden(false);
+    __setHidden(false);
   }, []);
 
-  const setHidden = useCallback(() => {
-    _setHidden(true);
+  const _setHidden = useCallback(() => {
+    __setHidden(true);
   }, []);
 
   const clearScratchpad = useCallback(() => {
@@ -107,7 +109,7 @@ const WebcamProvider = ({ children }) => {
       const deviceIdx = isDeviceIdx ? userConstraintsOrDeviceIdx : userConstraints.deviceIdx;
 
       try {
-        console.log('Getting Webcam...');
+        console.log('Finding Webcams...');
         const constraints = {
           video: {
             width: { exact: userConstraints.width || VIDEO_WIDTH },
@@ -127,14 +129,20 @@ const WebcamProvider = ({ children }) => {
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
         const deviceId = stream.getTracks()[0]?.getCapabilities()?.deviceId;
 
-        console.log('Got Webcam!');
+        console.log('Found webcam!');
         setVideoStream(stream);
         setCurrentDeviceId(deviceId);
+        setVideoError(false);
+        setPermissionDenied(false);
+        setPermissionNeeded(false);
         videoRef.current.srcObject = stream;
       } catch (e) {
         const message = 'Error starting video.';
         console.error(message);
         console.error(e.message);
+        if (e.message?.toLowerCase?.()?.includes?.('permission denied')) {
+          setPermissionDenied(true);
+        }
         setVideoStream(null);
         setReady(false);
         setVideoError(message);
@@ -149,7 +157,11 @@ const WebcamProvider = ({ children }) => {
         new Promise((resolve) => {
           videoRef.current.onloadeddata = () => resolve();
         }),
-      ]).then(() => setReady(true));
+      ]).then(() => {
+        console.log('Webcam ready!');
+        setReady(true);
+        __setHidden(false);
+      });
     },
     [stopVideo, videoRef, cameras],
   );
@@ -254,19 +266,25 @@ const WebcamProvider = ({ children }) => {
     discoverCameras().then((foundCameras) => {
       const autoStartId = window.localStorage.getItem(AUTOSTART_KEY);
 
-      const foundDeviceId = foundCameras.reduce(
-        (acc, { deviceId, label }, idx) =>
+      let foundEmptyDevice = false;
+      const foundDeviceId = foundCameras.reduce((acc, { deviceId, label }, idx) => {
+        if (!deviceId) foundEmptyDevice = true;
+
+        return (
           acc ||
           (deviceId === autoStartId ||
           (!autoStartId && foundCameras.length === 1 && idx === 0) ||
           (!autoStartId && label.includes('Built-in'))
             ? deviceId
-            : null),
-        null,
-      );
+            : null)
+        );
+      }, null);
 
       if (foundDeviceId) {
         setAutoStartDeviceId(foundDeviceId);
+      } else if (foundEmptyDevice) {
+        setPermissionNeeded(true);
+        console.warn('Need video permissions!');
       } else if (!foundDeviceId && autoStartId) clearAutoStartDeviceId();
     });
   }, []); // eslint-disable-line
@@ -342,7 +360,7 @@ const WebcamProvider = ({ children }) => {
       setFlipX,
       videoRef,
       hasVideo,
-      setHidden,
+      _setHidden,
       canvasRef,
       stopVideo,
       setVisible,
@@ -359,6 +377,8 @@ const WebcamProvider = ({ children }) => {
       enterFullScreen,
       stop: stopVideo,
       discoverCameras,
+      permissionNeeded,
+      permissionDenied,
       toggleFullScreen,
       autoStartDeviceId,
       imageDataToDataUri,
@@ -376,7 +396,7 @@ const WebcamProvider = ({ children }) => {
       hidden,
       cameras,
       setFlipX,
-      setHidden,
+      _setHidden,
       stopVideo,
       fullScreen,
       setVisible,
@@ -392,6 +412,8 @@ const WebcamProvider = ({ children }) => {
       currentDeviceId,
       enterFullScreen,
       discoverCameras,
+      permissionNeeded,
+      permissionDenied,
       toggleFullScreen,
       autoStartDeviceId,
       imageDataToDataUri,
