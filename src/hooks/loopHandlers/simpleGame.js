@@ -4,13 +4,13 @@ import { useZip } from '../zip';
 import { useAudio } from '../../context/audio';
 import { useIterateMask } from '../iterateMask';
 import { useWebcam } from '../../context/webcam';
-import { getScoreAndOverlayForSegmentationAndImageData } from '../../lib/util';
+import { getScoreAndOverlayForSegmentationAndImageData, getScore } from '../../lib/util';
 import { rawScoreToTenBinScore } from '../../lib/score';
 
 export const useSimpleGame = () => {
   const promRef = useRef();
   const webcam = useWebcam();
-  const roundTracker = useRef();
+  const roundTracker = useRef(0);
   const maskIterator = useIterateMask();
   const [scores, setScores] = useState([]);
   const zip = useZip(maskIterator.setMasks);
@@ -160,23 +160,29 @@ export const useSimpleGame = () => {
             const currentMaskIdx = maskIterator.maskIdxRef.current;
             const target = maskIterator.maskRef.current;
 
+            // we will reach this
+            if (!target) {
+              stop();
+              roundTracker.current = 0;
+              maskIterator.reset();
+              return stop();
+            }
+
             // if we hit this then we succeeded in the predict promise
             // but fired a new lap before it succeeded
             if (roundTracker.current >= currentMaskIdx) return;
 
-            // we will reach this
-            if (!target) return stop();
-
             promRef.current = predict(webcam.videoRef.current)
               .then(async (segmentation) => {
-                const { score, targetOverlay } = getScoreAndOverlayForSegmentationAndImageData(
-                  target,
-                  segmentation,
-                  webcam.flipX,
-                );
+                const score = getScore(target, segmentation, webcam.flipX);
 
                 const tenBinScore = rawScoreToTenBinScore(score);
-                if (tenBinScore > 7) {
+                if (tenBinScore > 5) {
+                  const { score, targetOverlay } = getScoreAndOverlayForSegmentationAndImageData(
+                    target,
+                    segmentation,
+                    webcam.flipX,
+                  );
                   const dataUri = webcam.imageDataToDataUri(targetOverlay);
                   // if we hit this then we succeeded in the predict promise
                   // but fired a new lap before it succeeded
@@ -185,9 +191,10 @@ export const useSimpleGame = () => {
                   setScores((state) => [...state, { score, dataUri }]);
                   webcam.clearCanvas();
                   maskIterator.next();
+                  roundTracker.current++;
                 }
               })
-              .catch((...args) => console.log('caught error', ...args));
+              .catch(console.error);
           },
         });
       }
