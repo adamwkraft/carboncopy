@@ -1,6 +1,7 @@
 import { useMemo, useRef, useCallback, useState } from 'react';
 
 import { useZip } from '../zip';
+import { useAudio } from '../../context/audio';
 import { useIterateMask } from '../iterateMask';
 import { useWebcam } from '../../context/webcam';
 import { getScoreAndOverlayForSegmentationAndImageData } from '../../lib/util';
@@ -9,9 +10,15 @@ import { rawScoreToTenBinScore } from '../../lib/score';
 export const useSimpleGame = () => {
   const promRef = useRef();
   const webcam = useWebcam();
+  const roundTracker = useRef();
   const maskIterator = useIterateMask();
   const [scores, setScores] = useState([]);
   const zip = useZip(maskIterator.setMasks);
+  const {
+    handlers: {
+      speech: { say },
+    },
+  } = useAudio();
   const [progressPercent, setProgressPercent] = useState(0);
 
   const clearScores = useCallback(() => {
@@ -30,7 +37,6 @@ export const useSimpleGame = () => {
           printSeconds: true,
           announceSeconds: true,
           lapDuration,
-          newLapDelay: 1000,
           onLap: ({ predict, time, stop }) => {
             const target = maskIterator.maskRef.current;
 
@@ -80,7 +86,6 @@ export const useSimpleGame = () => {
       const lapDuration = 3000;
       if (controller.time.first) {
         maskIterator.random();
-        // maskIterator.infiniteNext();
         setProgressPercent(0.0);
         clearScores();
         controller.useTimer({
@@ -88,7 +93,6 @@ export const useSimpleGame = () => {
           printSeconds: true,
           announceSeconds: true,
           lapDuration,
-          newLapDelay: 1000,
           onLap: ({ predict, time, stop }) => {
             const target = maskIterator.maskRef.current;
 
@@ -104,12 +108,6 @@ export const useSimpleGame = () => {
               );
 
               const dataUri = webcam.imageDataToDataUri(targetOverlay);
-              // // Blend and create a new DataUri
-              // webcam.clearScratchpad();
-              // webcam.scratchpad.ctx.putImageData(segOverlay, 0, 0);
-              // webcam.scratchpad.ctx.putImageData(targetOverlay, 0, 0);
-              // const dataUri = webcam.scratchpad.canvas.toDataURL('image/png');
-              // webcam.clearScratchpad();
 
               setScores((state) => [...state, { score, dataUri }]);
 
@@ -121,7 +119,6 @@ export const useSimpleGame = () => {
                 return stop();
               } else {
                 maskIterator.random();
-                // maskIterator.infiniteNext();
               }
             });
           },
@@ -147,12 +144,76 @@ export const useSimpleGame = () => {
     [webcam, maskIterator, clearScores],
   );
 
+  const handleTimeAttackLoop = useCallback(
+    async (controller) => {
+      const lapDuration = 500;
+      if (controller.time.first) {
+        maskIterator.next();
+        setProgressPercent(0);
+        clearScores();
+        controller.useTimer({
+          printSeconds: false,
+          announceSeconds: false,
+          lapDuration,
+          postLapDelay: 0,
+          onLap: ({ predict, time, stop }) => {
+            const currentMaskIdx = maskIterator.maskIdxRef.current;
+            const target = maskIterator.maskRef.current;
+
+            // if we hit this then we succeeded in the predict promise
+            // but fired a new lap before it succeeded
+            if (roundTracker.current >= currentMaskIdx) return;
+
+            // we will reach this
+            if (!target) return stop();
+
+            promRef.current = predict(webcam.videoRef.current)
+              .then(async (segmentation) => {
+                const { score, targetOverlay } = getScoreAndOverlayForSegmentationAndImageData(
+                  target,
+                  segmentation,
+                  webcam.flipX,
+                );
+
+                const tenBinScore = rawScoreToTenBinScore(score);
+                if (tenBinScore > 7) {
+                  const dataUri = webcam.imageDataToDataUri(targetOverlay);
+                  // if we hit this then we succeeded in the predict promise
+                  // but fired a new lap before it succeeded
+                  if (roundTracker.current >= currentMaskIdx) return;
+                  say('Got it!');
+                  setScores((state) => [...state, { score, dataUri }]);
+                  webcam.clearCanvas();
+                  maskIterator.next();
+                }
+              })
+              .catch((...args) => console.log('caught error', ...args));
+          },
+        });
+      }
+
+      if (maskIterator.maskRef.current) {
+        webcam.ctx.putImageData(maskIterator.maskRef.current, 0, 0);
+      }
+
+      // return a cleanup function to clear the canvas
+      // use a promise ref since we are capturing asynchronously
+      // if first promise not initialized, clear canvas right away
+      return () => {
+        if (promRef.current) promRef.current.then(controller.webcam.clearCanvas);
+        else controller.webcam.clearCanvas();
+      };
+    },
+    [webcam, maskIterator, clearScores, say],
+  );
+
   return useMemo(
     () => ({
       zip,
       scores,
       handleLoop,
       handleSurvivalLoop,
+      handleTimeAttackLoop,
       clearScores,
       progressPercent,
       reset: maskIterator.reset,
@@ -165,6 +226,7 @@ export const useSimpleGame = () => {
       progressPercent,
       handleLoop,
       handleSurvivalLoop,
+      handleTimeAttackLoop,
       clearScores,
       maskIterator.hasMasks,
       maskIterator.reset,
