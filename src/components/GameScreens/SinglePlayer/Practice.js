@@ -16,13 +16,24 @@ import { usePractice } from '../../../hooks/screenHooks/practice';
 
 const useStyles = makeStyles((theme) => ({
   root: {
+    width: '100%',
+    height: '100%',
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  scrollContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: -17,
+    overflowY: 'scroll',
     padding: theme.spacing(1),
     height: '100%',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'column',
-    overflow: 'scroll',
   },
   overlay: {
     background: 'rgba(255,255,255,0.5)',
@@ -143,48 +154,50 @@ const Practice = (props) => {
   );
 
   return (
-    <div
-      className={classnames(classes.root, {
-        [classes.overlay]: !loop.looping,
-        [classes.rootTop]: !!loop.looping,
-        [classes.rootApart]:
-          !!(simpleGame.scores?.length || captureMasks.masks?.length) && webcam.isFullScreen,
-      })}
-    >
+    <div className={classes.root}>
       <div
-        className={classnames({
-          [classes.optionsTop]: !!loop.looping,
+        className={classnames(classes.scrollContainer, {
+          [classes.overlay]: !loop.looping,
+          [classes.rootTop]: !!loop.looping,
+          [classes.rootApart]:
+            !!(simpleGame.scores?.length || captureMasks.masks?.length) && webcam.isFullScreen,
         })}
-        ref={containerRef}
       >
-        {loop.looping ? (
-          <Options
-            offset={70}
-            buttons={[
-              {
-                props: {
-                  key: 'stop',
-                  onClick: handleClickGame,
-                  children: 'Stop',
+        <div
+          className={classnames({
+            [classes.optionsTop]: !!loop.looping,
+          })}
+          ref={containerRef}
+        >
+          {loop.looping ? (
+            <Options
+              offset={70}
+              buttons={[
+                {
+                  props: {
+                    key: 'stop',
+                    onClick: handleClickGame,
+                    children: 'Stop',
+                  },
                 },
-              },
-            ]}
-          />
-        ) : (
-          <Options buttons={buttons} />
-        )}
-        {loop.looping && loopType === 'play' && (
-          <div className={classes.progress}>
-            <ProgressBar color={timerColor} completed={100 - simpleGame.progressPercent} />
+              ]}
+            />
+          ) : (
+            <Options buttons={buttons} />
+          )}
+          {loop.looping && loopType === 'play' && (
+            <div className={classes.progress}>
+              <ProgressBar color={timerColor} completed={100 - simpleGame.progressPercent} />
+            </div>
+          )}
+        </div>
+        {webcam.isFullScreen && !loop.looping && (
+          <div className={classes.captures}>
+            <ScoreResults results={simpleGame.scores} handleClose={simpleGame.clearScores} />
+            <CapturedMasks captureMasks={captureMasks} handlePlay={handlePlayCapturedMasks} />
           </div>
         )}
       </div>
-      {webcam.isFullScreen && !loop.looping && (
-        <div className={classes.captures}>
-          <ScoreResults results={simpleGame.scores} handleClose={simpleGame.clearScores} />
-          <CapturedMasks captureMasks={captureMasks} handlePlay={handlePlayCapturedMasks} />
-        </div>
-      )}
     </div>
   );
 };
