@@ -22,8 +22,7 @@ const Footers = {
     [screenStates.players.SINGLE_PLAYER]: {
       [screenStates.mode[screenStates.players.SINGLE_PLAYER].PRACTICE]: PracticeFooter,
       [screenStates.mode[screenStates.players.SINGLE_PLAYER].SURVIVAL]: PracticeFooter,
-      [screenStates.mode[screenStates.players.SINGLE_PLAYER].TIME_ATTACK]: () =>
-        'TIME_ATTACK footer',
+      [screenStates.mode[screenStates.players.SINGLE_PLAYER].TIME_ATTACK]: PracticeFooter,
     },
     [screenStates.players.MULTIPLAYER]: {
       [screenStates.mode[screenStates.players.MULTIPLAYER].LOCAL]: () => 'LOCAL footer',
