@@ -34,7 +34,6 @@ export const useCaptureMasks = () => {
         printSeconds: true,
         announceSeconds: true,
         lapDuration: 3000,
-        newLapDelay: 1000,
         // run a single prediction before starting the lap to ensure things roll smoothly
         onBeforeStartLap: async ({ predict, webcam, time, stop }) => {
           return predict();

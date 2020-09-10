@@ -48,6 +48,7 @@ export const useIterateMask = () => {
       random,
       maskRef,
       setMasks,
+      maskIdxRef,
       getNumMasks,
       hasMasks: !!masks.length,
     }),

@@ -26,7 +26,9 @@ const PracticeFooter = (props) => {
   return (
     <div className={classes.root}>
       <ScoreResults results={simpleGame.scores} handleClose={simpleGame.clearScores} />
-      <CapturedMasks captureMasks={captureMasks} handlePlay={handlePlayCapturedMasks} />
+      {captureMasks && (
+        <CapturedMasks captureMasks={captureMasks} handlePlay={handlePlayCapturedMasks} />
+      )}
     </div>
   );
 };

@@ -108,6 +108,40 @@ export const getSegmentationeOverlayAndBinaryImageData = (segmentation, flipped)
   return { overlayImageData, binaryImageData: overlayImageData };
 };
 
+export const getScore = (targetImageData, segmentation, flipped) => {
+  // Just get the score
+  const { data, width, height } = segmentation;
+  const bytes = new Uint8ClampedArray(segmentation.data.length * 4);
+
+  let union = 0;
+  let intersection = 0;
+
+  for (let i = 0; i < height * width; ++i) {
+    const x = i % width;
+    const y = parseInt(i / width);
+
+    const bytes_index = flipped ? width - x + width * y : i;
+
+    const isPerson = data[i];
+    const isInPolygon = !!targetImageData.data[bytes_index * 4 + 2];
+    const isIntersection = isInPolygon && isPerson;
+    const isMissedPolygon = isInPolygon && !isPerson;
+    const isPersonOutOfPolygon = !isInPolygon && isPerson;
+    const isInteresting = isPersonOutOfPolygon || isIntersection || isMissedPolygon;
+
+    if (isIntersection) intersection++;
+    if (isPerson || isInPolygon) union++;
+
+    bytes[bytes_index * 4] = isPersonOutOfPolygon ? 255 : 0; // red
+    bytes[bytes_index * 4 + 1] = isIntersection ? 255 : 0; // green
+    bytes[bytes_index * 4 + 2] = isMissedPolygon ? 255 : 0; // blue
+    bytes[bytes_index * 4 + 3] = isInteresting ? 128 : 0; // alpha
+  }
+
+  const score = Math.round((intersection / (union + 0.0000001)) * 100);
+  return score;
+};
+
 export const getScoreAndOverlayForSegmentationAndImageData = (
   targetImageData,
   segmentation,
@@ -161,35 +195,7 @@ export const getScoreAndOverlayForSegmentationAndImageData = (
     mergedImage.rows,
   );
 
-  const { data, width, height } = segmentation;
-  const bytes = new Uint8ClampedArray(segmentation.data.length * 4);
-
-  let union = 0;
-  let intersection = 0;
-
-  for (let i = 0; i < height * width; ++i) {
-    const x = i % width;
-    const y = parseInt(i / width);
-
-    const bytes_index = flipped ? width - x + width * y : i;
-
-    const isPerson = data[i];
-    const isInPolygon = !!targetImageData.data[bytes_index * 4 + 2];
-    const isIntersection = isInPolygon && isPerson;
-    const isMissedPolygon = isInPolygon && !isPerson;
-    const isPersonOutOfPolygon = !isInPolygon && isPerson;
-    const isInteresting = isPersonOutOfPolygon || isIntersection || isMissedPolygon;
-
-    if (isIntersection) intersection++;
-    if (isPerson || isInPolygon) union++;
-
-    bytes[bytes_index * 4] = isPersonOutOfPolygon ? 255 : 0; // red
-    bytes[bytes_index * 4 + 1] = isIntersection ? 255 : 0; // green
-    bytes[bytes_index * 4 + 2] = isMissedPolygon ? 255 : 0; // blue
-    bytes[bytes_index * 4 + 3] = isInteresting ? 128 : 0; // alpha
-  }
-
-  const score = Math.round((intersection / (union + 0.0000001)) * 100);
+  const score = getScore(targetImageData, segmentation, flipped);
 
   // Cleanup
   rgbaPlanes.delete();

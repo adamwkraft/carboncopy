@@ -1,18 +1,13 @@
 import classnames from 'classnames';
-import React, { useRef, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { makeStyles } from '@material-ui/core';
 
 import Options from '../../Options';
-import FileUpload from '../../FileUpload';
-import GameSelect from '../../GameSelect';
-import ProgressBar from '../../ProgressBar';
 import ScoreResults from '../../ScoreResults';
-import CapturedMasks from '../../CapturedMasks';
 
 import { useGame, useGameMode } from '../../Game';
-import { scoreToColor } from '../../../lib/score';
 import { useWebcam } from '../../../context/webcam';
-import { usePractice } from '../../../hooks/screenHooks/practice';
+import { useTimeAttack } from '../../../hooks/screenHooks/timeAttack';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -66,27 +61,16 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Practice = (props) => {
+const TimeAttack = (props) => {
   const classes = useStyles();
 
   const game = useGame();
   const webcam = useWebcam();
-  const containerRef = useRef();
-  const practice = useGameMode(usePractice);
+  const timeAttack = useGameMode(useTimeAttack);
 
-  const {
-    loopType,
-    simpleGame,
-    captureMasks,
-    handleClickGame,
-    handleStartRandomGame,
-    handlePlayCapturedMasks,
-    handleClickCaptureMasks,
-  } = practice;
+  const { simpleGame, handleClickGame } = timeAttack;
 
   const { loop } = game;
-
-  const timerColor = scoreToColor(100 - simpleGame.progressPercent);
 
   const buttons = useMemo(
     () => [
@@ -98,59 +82,8 @@ const Practice = (props) => {
           children: loop.looping ? 'Stop' : 'Play',
         },
       },
-      {
-        props: {
-          key: 'playRandom',
-          color: 'secondary',
-          onClick: handleStartRandomGame,
-          disabled: !loop.ready || loop.looping,
-          children: 'Play Random',
-        },
-      },
-      {
-        props: {
-          containerRef,
-          key: 'chooseMasks',
-          disabled: !loop.ready || loop.looping,
-          handleClick: simpleGame.zip.handleLoadPreparedMasks,
-        },
-        Component: GameSelect,
-        visible: !loop.looping,
-      },
-      {
-        props: {
-          key: 'loadMasks',
-          variant: 'contained',
-          onChange: simpleGame.zip.handleZipInputChange,
-          disabled: !loop.ready || loop.looping || simpleGame.zip.loading,
-          children: simpleGame.loading ? 'Loading...' : 'Load Masks',
-        },
-        Component: FileUpload,
-        visible: !loop.looping,
-      },
-      {
-        props: {
-          key: 'captureMasks',
-          onClick: handleClickCaptureMasks,
-          disabled: !loop.ready || loop.looping,
-          children: 'Capture Masks',
-          color: 'default',
-        },
-        visible: !loop.looping,
-      },
     ],
-    [
-      loop.ready,
-      loop.looping,
-      handleClickGame,
-      simpleGame.ready,
-      simpleGame.loading,
-      handleStartRandomGame,
-      simpleGame.zip.loading,
-      handleClickCaptureMasks,
-      simpleGame.zip.handleZipInputChange,
-      simpleGame.zip.handleLoadPreparedMasks,
-    ],
+    [loop.ready, loop.looping, handleClickGame, simpleGame.ready],
   );
 
   return (
@@ -159,15 +92,13 @@ const Practice = (props) => {
         className={classnames(classes.scrollContainer, {
           [classes.overlay]: !loop.looping,
           [classes.rootTop]: !!loop.looping,
-          [classes.rootApart]:
-            !!(simpleGame.scores?.length || captureMasks.masks?.length) && webcam.isFullScreen,
+          [classes.rootApart]: !!simpleGame.scores?.length && webcam.isFullScreen,
         })}
       >
         <div
           className={classnames({
             [classes.optionsTop]: !!loop.looping,
           })}
-          ref={containerRef}
         >
           {loop.looping ? (
             <Options
@@ -185,16 +116,10 @@ const Practice = (props) => {
           ) : (
             <Options buttons={buttons} />
           )}
-          {loop.looping && loopType === 'play' && (
-            <div className={classes.progress}>
-              <ProgressBar color={timerColor} completed={100 - simpleGame.progressPercent} />
-            </div>
-          )}
         </div>
         {webcam.isFullScreen && !loop.looping && (
           <div className={classes.captures}>
             <ScoreResults results={simpleGame.scores} handleClose={simpleGame.clearScores} />
-            <CapturedMasks captureMasks={captureMasks} handlePlay={handlePlayCapturedMasks} />
           </div>
         )}
       </div>
@@ -202,4 +127,4 @@ const Practice = (props) => {
   );
 };
 
-export default Practice;
+export default TimeAttack;

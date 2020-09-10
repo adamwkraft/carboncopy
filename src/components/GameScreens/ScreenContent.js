@@ -8,14 +8,14 @@ import SelectGameMode from '../SelectGameMode';
 import Practice from '../GameScreens/SinglePlayer/Practice';
 import Survival from '../GameScreens/SinglePlayer/Survival';
 import ChoosePlayers from '../ChoosePlayers';
+import TimeAttack from './SinglePlayer/TimeAttack';
 
 const Screens = {
   [screenStates.screen.PLAY]: {
     [screenStates.players.SINGLE_PLAYER]: {
       [screenStates.mode[screenStates.players.SINGLE_PLAYER].PRACTICE]: Practice,
       [screenStates.mode[screenStates.players.SINGLE_PLAYER].SURVIVAL]: Survival,
-      [screenStates.mode[screenStates.players.SINGLE_PLAYER].TIME_ATTACK]: () =>
-        'TIME_ATTACK Content',
+      [screenStates.mode[screenStates.players.SINGLE_PLAYER].TIME_ATTACK]: TimeAttack,
     },
     [screenStates.players.MULTIPLAYER]: {
       [screenStates.mode[screenStates.players.MULTIPLAYER].LOCAL]: () => 'LOCAL Content',
