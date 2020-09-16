@@ -37,20 +37,18 @@ export const useLoop = () => {
   const loop = useCallback(
     async (timestamp) => {
       const time = loopTime.update(timestamp);
-      const cleanup = await handleLoopRef.current({
+      const controller = {
         time,
         webcam,
         predict,
+        timerRef: lapTimer.timerRef,
         useTimer: lapTimer.useTimer,
         stop: setStopLoop,
-      });
+      };
 
-      lapTimer.handleLap({
-        time,
-        webcam,
-        predict,
-        stop: setStopLoop,
-      });
+      const cleanup = await handleLoopRef.current(controller);
+
+      lapTimer.handleLap(controller);
 
       if (loopingRef.current) {
         requestAnimationFrame(loop);
