@@ -20,6 +20,7 @@ import MuiDialogTitle from '@material-ui/core/DialogTitle';
 import MuiDialogContent from '@material-ui/core/DialogContent';
 import CloseIcon from '@material-ui/icons/Close';
 import Typography from '@material-ui/core/Typography';
+import stickImage from '../images/stick_figure_in_box.png';
 
 const useStyles = makeStyles((theme) => ({
   btn: {
@@ -57,6 +58,9 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: theme.spacing(2),
     width: '34px',
     height: '34px',
+  },
+  stickImage: {
+    width: '100%',
   },
 }));
 
@@ -139,12 +143,7 @@ const GlobalHeader = (props) => {
                   Place your webcam at a distance and ensure there is enough space around you to
                   move safely.
                 </Typography>
-                <img
-                  src={process.env.PUBLIC_URL + '/images/stick_figure_in_box.png'}
-                  width="400px"
-                  height="300px"
-                  alt="Stick Figure"
-                />
+                <img src={stickImage} className={classes.stickImage} alt="Stick Figure" />
               </DialogContent>
             </Dialog>
           </animated.div>
