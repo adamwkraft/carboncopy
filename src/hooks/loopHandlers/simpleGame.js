@@ -117,10 +117,8 @@ export const useSimpleGame = () => {
                 maskIterator.reset();
                 return stop();
               } else {
-                controller.timerRef.current.lapDuration = Math.max(
-                  controller.timerRef.current.lapDuration * 0.9,
-                  1,
-                );
+                controller.timerRef.current.lapDuration =
+                  Math.floor(Math.max(controller.timerRef.current.lapDuration * 0.9, 1) * 10) / 10;
                 maskIterator.random();
               }
             });
