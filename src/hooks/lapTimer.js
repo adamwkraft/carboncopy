@@ -132,7 +132,8 @@ export const useLapTimer = () => {
       clear,
       useTimer,
       handleLap,
+      timerRef: lapTimer,
     }),
-    [clear, useTimer, handleLap],
+    [clear, useTimer, handleLap, lapTimer],
   );
 };
