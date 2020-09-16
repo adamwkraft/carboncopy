@@ -4,8 +4,8 @@ import { useZip } from '../zip';
 import { useAudio } from '../../context/audio';
 import { useIterateMask } from '../iterateMask';
 import { useWebcam } from '../../context/webcam';
-import { getScoreAndOverlayForSegmentationAndImageData, getScore } from '../../lib/util';
 import { rawScoreToTenBinScore } from '../../lib/score';
+import { getScoreAndOverlayForSegmentationAndImageData, getScore } from '../../lib/util';
 
 export const useSimpleGame = () => {
   const promRef = useRef();
@@ -27,16 +27,14 @@ export const useSimpleGame = () => {
 
   const handleLoop = useCallback(
     async (controller) => {
-      const lapDuration = 3000;
       if (controller.time.first) {
         maskIterator.next(); // load the first mask
-        setProgressPercent(0.0);
+        setProgressPercent(0);
         clearScores();
         controller.useTimer({
           maxLaps: maskIterator.getNumMasks(),
           printSeconds: true,
           announceSeconds: true,
-          lapDuration,
           onLap: ({ predict, time, stop }) => {
             const target = maskIterator.maskRef.current;
 
@@ -62,7 +60,10 @@ export const useSimpleGame = () => {
         });
       } else {
         // Set the progress
-        const progress_percent = Math.min(controller.time.lapTime / lapDuration, 1.0);
+        const progress_percent = Math.min(
+          controller.time.lapTime / controller.timerRef.current.lapDuration,
+          1.0,
+        );
         setProgressPercent(Math.round(progress_percent * 100));
       }
 
@@ -83,7 +84,6 @@ export const useSimpleGame = () => {
 
   const handleSurvivalLoop = useCallback(
     async (controller) => {
-      const lapDuration = 3000;
       if (controller.time.first) {
         maskIterator.random();
         setProgressPercent(0.0);
@@ -92,7 +92,6 @@ export const useSimpleGame = () => {
           maxLaps: 9999999, // Good luck surviving this long!
           printSeconds: true,
           announceSeconds: true,
-          lapDuration,
           onLap: ({ predict, time, stop }) => {
             const target = maskIterator.maskRef.current;
 
@@ -118,6 +117,10 @@ export const useSimpleGame = () => {
                 maskIterator.reset();
                 return stop();
               } else {
+                controller.timerRef.current.lapDuration = Math.max(
+                  controller.timerRef.current.lapDuration * 0.9,
+                  1,
+                );
                 maskIterator.random();
               }
             });
@@ -125,7 +128,10 @@ export const useSimpleGame = () => {
         });
       } else {
         // Set the progress
-        const progress_percent = Math.min(controller.time.lapTime / lapDuration, 1.0);
+        const progress_percent = Math.min(
+          controller.time.lapTime / controller.timerRef.current.lapDuration,
+          1.0,
+        );
         setProgressPercent(Math.round(progress_percent * 100));
       }
 
@@ -146,7 +152,6 @@ export const useSimpleGame = () => {
 
   const handleTimeAttackLoop = useCallback(
     async (controller) => {
-      const lapDuration = 500;
       if (controller.time.first) {
         maskIterator.next();
         setProgressPercent(0);
@@ -154,7 +159,7 @@ export const useSimpleGame = () => {
         controller.useTimer({
           printSeconds: false,
           announceSeconds: false,
-          lapDuration,
+          lapDuration: 500,
           postLapDelay: 0,
           onLap: ({ predict, time, stop }) => {
             const currentMaskIdx = maskIterator.maskIdxRef.current;
