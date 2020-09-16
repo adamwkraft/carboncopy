@@ -1,5 +1,6 @@
 import { useCallback, useRef, useMemo } from 'react';
 import { useAudio } from '../context/audio';
+import { scoreToColor } from '../lib/score';
 
 export const useLapTimer = () => {
   const lapTimer = useRef();
@@ -64,21 +65,25 @@ export const useLapTimer = () => {
           return stop();
         }
 
-        const secondsPassed = Math.floor(time.lapTime / 1000);
+        const secondsPassed = Math.floor(time.lapTime / 100) / 10;
 
         // we get a single instance of -1 so set min to 0
-        const countdown = Math.max(lapTimer.current.lapDuration / 1000 - secondsPassed, 0);
+        const countdown = +Math.max(lapTimer.current.lapDuration / 1000 - secondsPassed, 0).toFixed(
+          1,
+        );
 
         // display the integer seconds remaining in the lap in the top left corner of the canvas
         if (lapTimer.current.printSeconds) {
+          const percent = (Number(countdown) / lapTimer.current.lapDuration) * 100000;
+          const color = scoreToColor(percent);
           const { ctx } = webcam;
           ctx.font = '40px Arial';
-          ctx.fillStyle = 'white';
+          ctx.fillStyle = color;
           ctx.clearRect(0, 0, 50, 50);
 
           if (countdown) {
             // don't print if 0
-            ctx.fillText(countdown, 10, 40);
+            ctx.fillText(countdown.toFixed(1), 10, 40);
           }
         }
 
@@ -86,7 +91,8 @@ export const useLapTimer = () => {
         if (
           countdown &&
           lapTimer.current.announceSeconds &&
-          lapTimer.current.lastSpeech !== countdown
+          lapTimer.current.lastSpeech !== countdown &&
+          parseInt(countdown, 10) === Number(countdown) // only speak ints
         ) {
           lapTimer.current.lastSpeech = countdown;
           speech.say(`${countdown}`);
