@@ -40,6 +40,7 @@ const Game = ({ webcam }) => {
       <GlobalHeader
         mode={game.screen.state.mode}
         screen={game.screen.state.screen}
+        players={game.screen.state.players}
         goHome={game.screen.handlers.resetState}
         goBack={game.screen.handlers.reverseState}
       />

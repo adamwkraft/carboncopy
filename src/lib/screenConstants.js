@@ -35,8 +35,6 @@ export const screenStates = {
 
 // identifies these values as works in progress, ie disabled buttons
 export const wipScreens = [
-  screenStates.players.MULTIPLAYER,
-  screenStates.mode[MULTIPLAYER].LOCAL,
   screenStates.mode[MULTIPLAYER].REMOTE,
 ].reduce((acc, item) => ({ ...acc, [item]: !!1 }), {});
 
