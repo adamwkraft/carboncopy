@@ -5,10 +5,11 @@ import { screenStates } from '../../lib/screenConstants';
 
 import Null from '../Null';
 import SelectGameMode from '../SelectGameMode';
-import Practice from '../GameScreens/SinglePlayer/Practice';
-import Survival from '../GameScreens/SinglePlayer/Survival';
+import Practice from './SinglePlayer/Practice';
+import Survival from './SinglePlayer/Survival';
 import ChoosePlayers from '../ChoosePlayers';
 import TimeAttack from './SinglePlayer/TimeAttack';
+import Local from './MultiPlayer/Local';
 
 const Screens = {
   [screenStates.screen.PLAY]: {
@@ -18,14 +19,17 @@ const Screens = {
       [screenStates.mode[screenStates.players.SINGLE_PLAYER].TIME_ATTACK]: TimeAttack,
     },
     [screenStates.players.MULTIPLAYER]: {
-      [screenStates.mode[screenStates.players.MULTIPLAYER].LOCAL]: () => 'LOCAL Content',
+      [screenStates.mode[screenStates.players.MULTIPLAYER].LOCAL]: Local,
       [screenStates.mode[screenStates.players.MULTIPLAYER].REMOTE]: () => 'REMOTE Content',
     },
   },
 };
 
+console.log({Screens})
+
 const ScreenContent = (props) => {
   const { screen, mode, players } = props.screen.state;
+  console.log(props)
 
   if (screen === screenStates.screen.DEFAULT)
     return <ChoosePlayers setPlayerMode={props.screen.handlers.setPlayerMode} />;
