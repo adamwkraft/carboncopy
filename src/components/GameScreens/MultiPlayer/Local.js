@@ -1,17 +1,10 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
+import React from 'react';
 import classnames from 'classnames';
 import Button from '@material-ui/core/Button';
 import { makeStyles, Typography } from '@material-ui/core';
 
-import CapturedMasks from '../../CapturedMasks';
-import ProgressBar from '../../ProgressBar';
-import ScoreResults from '../../ScoreResults';
 import { useGame, useGameMode } from '../../Game';
-import { useSurvival } from '../../../hooks/screenHooks/survival';
-import { scoreToColor } from '../../../lib/score';
-import { useWebcam } from '../../../context/webcam';
-import { useCaptureMasks } from '../../../hooks/loopHandlers/captureMasks';
+
 import { useLocal } from '../../../hooks/screenHooks/local';
 
 const useStyles = makeStyles((theme) => ({
@@ -65,10 +58,29 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Survival = (props) => {
+const text = [
+  'Player One, get ready to capture your masks.',
+  'Player Two, get ready to capture your masks.',
+  'Player One, get ready to play!',
+  'Player Two, get ready to play!',
+];
+
+const subtext = [
+  'Player Two, please leave the room.',
+  'Player One, please leave the room.',
+  'Good luck!',
+  'Good luck!',
+];
+
+const buttonText = [
+  "Capture Player One's Masks",
+  "Capture Player Two's Masks",
+  'Player One Play',
+  'Player Two Play',
+];
+
+const Local = (props) => {
   const classes = useStyles();
-  // const survival = useGameMode(useSurvival);
-  const webcam = useWebcam();
   const game = useGame();
   const local = useGameMode(useLocal);
 
@@ -81,23 +93,29 @@ const Survival = (props) => {
           [classes.rootApart]: !!false,
         })}
       >
-        <Typography component="h2" variant="h5">
-          sad
-        </Typography>
-        <Typography component="h2" variant="h6">
-          sad
-        </Typography>
-        <Button color="primary" variant="contained" onClick={local.handleCapturePlayerOne}>
-          sad
-        </Button>
+        {!game.loop.looping && (
+          <>
+            <Typography component="h2" variant="h5">
+              {text[local.setupProgress]}
+            </Typography>
+            <Typography component="h2" variant="h6">
+              {subtext[local.setupProgress]}
+            </Typography>
+            <Button
+              color="primary"
+              variant="contained"
+              disabled={!game.loop.ready}
+              onClick={local.handleClick}
+            >
+              {buttonText[local.setupProgress]}
+            </Button>
+          </>
+        )}
       </div>
     </div>
   );
 };
 
-Survival.propTypes = {
-  game: PropTypes.object.isRequired,
-  webcam: PropTypes.object.isRequired,
-};
+Local.propTypes = {};
 
-export default Survival;
+export default Local;

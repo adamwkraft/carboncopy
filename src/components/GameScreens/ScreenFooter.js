@@ -7,6 +7,7 @@ import Null from '../Null';
 import { maxWidth } from '../../lib/constants';
 import { makeStyles } from '@material-ui/styles';
 import PracticeFooter from './SinglePlayer/PracticeFooter';
+import LocalFooter from './MultiPlayer/LocalFooter';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -25,7 +26,7 @@ const Footers = {
       [screenStates.mode[screenStates.players.SINGLE_PLAYER].TIME_ATTACK]: PracticeFooter,
     },
     [screenStates.players.MULTIPLAYER]: {
-      [screenStates.mode[screenStates.players.MULTIPLAYER].LOCAL]: () => 'LOCAL footer',
+      [screenStates.mode[screenStates.players.MULTIPLAYER].LOCAL]: LocalFooter,
       [screenStates.mode[screenStates.players.MULTIPLAYER].REMOTE]: () => 'REMOTE footer',
     },
   },

@@ -1,4 +1,4 @@
-import { useMemo, useCallback, useState, useEffect } from 'react';
+import { useMemo, useCallback, useState } from 'react';
 
 import { useWebcam } from '../../context/webcam';
 import { useSimpleGame } from '../loopHandlers/simpleGame';
@@ -9,69 +9,58 @@ export const useLocal = (loop) => {
   const simpleGame = useSimpleGame();
   const captureMasks = useCaptureMasks(3);
 
+  const [masks, setMasks] = useState([[], []]);
   const [setupProgress, setSetupProgress] = useState(0);
+  const incrementProgress = useCallback(() => {
+    setSetupProgress((_) => _ + 1);
+  }, []);
 
-  // const handleClickGame = useCallback(async () => {
-  //   if (loop.looping) {
-  //     loop.stop();
-  //     simpleGame.reset();
-  //   } else {
-  //     loop.start(simpleGame.handleLoop);
-  //     setLoopType('play');
-  //   }
-  // }, [loop, simpleGame]);
-
-  // const handleStartRandomGame = useCallback(async () => {
-  //   if (loop.looping) return;
-
-  //   await simpleGame.zip.handleLoadRandomMaskSet();
-  //   handleClickGame();
-  // }, [handleClickGame, loop.looping, simpleGame.zip]);
-
-  const handleCapturePlayerOne = useCallback(() => {
+  const handleCapture = useCallback(() => {
     if (loop.looping) {
       loop.stop();
-      setSetupProgress((______) => ______ + ______ / ______);
     } else {
-      loop.start(captureMasks.handleLoop);
-    }
-  }, [loop, captureMasks]);
+      incrementProgress();
+      loop.start(
+        captureMasks.handleLoop(async () => {
+          const imageData = await Promise.all(
+            captureMasks.getMasks().map(({ overlay }) => webcam.dataUriToImageData(overlay)),
+          );
 
-  const handlePlayCapturedMasks = useCallback(async () => {
+          if (setupProgress === 0) {
+            setMasks([imageData, []]);
+          } else if (setupProgress === 1) {
+            setMasks((state) => [[...state[0]], imageData]);
+          }
+          captureMasks.removeAllMasks();
+        }),
+      );
+    }
+  }, [loop, captureMasks, setupProgress, webcam, incrementProgress]);
+
+  const handlePlayGame = useCallback(() => {
+    simpleGame.setMasks(masks[setupProgress === 2 ? 1 : 0]);
+    loop.start(simpleGame.handleLoop);
+    incrementProgress();
+  }, [loop, masks, simpleGame, setupProgress, incrementProgress]);
+
+  const handleClick = useCallback(() => {
     if (loop.looping) return;
 
-    const masks = await Promise.all(
-      captureMasks.masks.map(({ overlay }) => webcam.dataUriToImageData(overlay)),
-    );
-    simpleGame.setMasks(masks);
-    // handleClickGame();
-  }, [
-    captureMasks.masks,
-    simpleGame,
-    webcam,
-    // handleClickGame,
-    loop.looping,
-  ]);
+    if (setupProgress < 2) {
+      handleCapture();
+    } else if (setupProgress < 4) {
+      handlePlayGame();
+    }
+  }, [loop.looping, handlePlayGame, handleCapture, setupProgress]);
 
   const practice = useMemo(
     () => ({
       simpleGame,
+      handleClick,
       captureMasks,
       setupProgress,
-      // handleClickGame,
-      // handleStartRandomGame,
-      handlePlayCapturedMasks,
-      handleCapturePlayerOne,
     }),
-    [
-      simpleGame,
-      captureMasks,
-      setupProgress,
-      // handleClickGame,
-      // handleStartRandomGame,
-      handlePlayCapturedMasks,
-      handleCapturePlayerOne,
-    ],
+    [simpleGame, captureMasks, setupProgress, handleClick],
   );
 
   return practice;
