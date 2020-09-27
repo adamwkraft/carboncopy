@@ -7,17 +7,39 @@ import { useMemo } from 'react';
 
 export const useCaptureMasks = (maxMasks = 0) => {
   const promRef = useRef();
+  const masksRef = useRef([]);
   const maskCountRef = useRef();
-  const [masks, setMasks] = useState([]);
+  const [masks, _setMasks] = useState([]);
 
-  const removeMask = useCallback(({ currentTarget: { name: idx } }) => {
-    // the plus coerces the idx to a number
-    setMasks((state) => state.filter((_, index) => index !== +idx));
+  const setMasks = useCallback((arg) => {
+    if (typeof arg === 'function') {
+      _setMasks((state) => {
+        const newState = arg(state);
+        if (newState !== state) {
+          masksRef.current = newState;
+        }
+
+        return newState;
+      });
+    } else {
+      masksRef.current = arg;
+      _setMasks(arg);
+    }
   }, []);
+
+  const getMasks = useCallback(() => masksRef.current, []);
+
+  const removeMask = useCallback(
+    ({ currentTarget: { name: idx } }) => {
+      // the plus coerces the idx to a number
+      setMasks((state) => state.filter((_, index) => index !== +idx));
+    },
+    [setMasks],
+  );
 
   const removeAllMasks = useCallback(() => {
     setMasks([]);
-  }, []);
+  }, [setMasks]);
 
   const downloadMasks = useCallback(() => {
     const zip = new JSZip();
@@ -30,7 +52,7 @@ export const useCaptureMasks = (maxMasks = 0) => {
   }, [masks]);
 
   const handleLoop = useCallback(
-    async (controller) => {
+    (onLoopEnd) => async (controller) => {
       if (controller.time.first) {
         maskCountRef.current = masks.length;
         controller.useTimer({
@@ -67,21 +89,34 @@ export const useCaptureMasks = (maxMasks = 0) => {
       // use a promise ref since we are capturing asynchronously
       // if first promise not initialized, clear canvas right away
       return () => {
-        if (promRef.current) promRef.current.then(controller.webcam.clearCanvas);
-        else controller.webcam.clearCanvas();
+        if (promRef.current) {
+          promRef.current.then(controller.webcam.clearCanvas).then(() => {
+            if (onLoopEnd) {
+              onLoopEnd();
+            }
+          });
+        } else {
+          controller.webcam.clearCanvas();
+          if (onLoopEnd) {
+            onLoopEnd();
+          }
+        }
       };
     },
-    [masks.length, maxMasks],
+    [masks.length, maxMasks, setMasks],
   );
+
+  console.log({ curr: masksRef.current });
 
   return useMemo(
     () => ({
       masks,
+      getMasks,
       handleLoop,
       removeMask,
       downloadMasks,
       removeAllMasks,
     }),
-    [masks, handleLoop, removeMask, downloadMasks, removeAllMasks],
+    [masks, getMasks, handleLoop, removeMask, downloadMasks, removeAllMasks],
   );
 };

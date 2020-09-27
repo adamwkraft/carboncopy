@@ -38,7 +38,7 @@ export const usePractice = (loop) => {
       loop.stop();
       simpleGame.reset();
     } else {
-      loop.start(captureMasks.handleLoop);
+      loop.start(captureMasks.handleLoop());
       setLoopType('capture');
     }
   }, [loop, captureMasks, simpleGame]);
