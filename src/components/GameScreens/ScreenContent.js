@@ -25,11 +25,8 @@ const Screens = {
   },
 };
 
-console.log({Screens})
-
 const ScreenContent = (props) => {
   const { screen, mode, players } = props.screen.state;
-  console.log(props)
 
   if (screen === screenStates.screen.DEFAULT)
     return <ChoosePlayers setPlayerMode={props.screen.handlers.setPlayerMode} />;
