@@ -37,5 +37,5 @@ export const scoreToColor = (score, alpha) => {
   return hex;
 };
 
-export const rawScoreToColor = (score, alpha) =>
-  scoreToColor(tenBinScoreToPercent(rawScoreToTenBinScore(score)), alpha);
+export const tenBinScoreToColor = (score, alpha) =>
+  scoreToColor(tenBinScoreToPercent(score), alpha);

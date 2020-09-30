@@ -2,11 +2,16 @@ import { useState } from 'react';
 import { useRef, useEffect, useMemo, useCallback } from 'react';
 import { useSimpleGame } from '../loopHandlers/simpleGame';
 import { useCaptureMasks } from '../loopHandlers/captureMasks';
+import { initialLapInfo } from '../lapTimer';
 
 export const useSurvival = (loop) => {
-  const [lapTimeInfo, setLapTimeInfo] = useState({});
+  const [lapTimeInfo, setLapTimeInfo] = useState(initialLapInfo);
   const simpleGame = useSimpleGame({ setLapTimeInfo });
   const captureMasks = useCaptureMasks({ setLapTimeInfo });
+
+  const resultsText = useMemo(() => `You survived ${simpleGame?.scores?.length - 1} rounds.`, [
+    simpleGame.scores,
+  ]);
 
   const loadedRef = useRef(false);
   useEffect(() => {
@@ -34,14 +39,24 @@ export const useSurvival = (loop) => {
 
   const survival = useMemo(
     () => ({
+      name: 'survival',
       loop,
       simpleGame,
       lapTimeInfo,
+      resultsText,
       captureMasks,
       handleClickGame,
       handleClickCaptureMasks,
     }),
-    [handleClickCaptureMasks, handleClickGame, loop, simpleGame, captureMasks, lapTimeInfo],
+    [
+      loop,
+      simpleGame,
+      lapTimeInfo,
+      resultsText,
+      captureMasks,
+      handleClickGame,
+      handleClickCaptureMasks,
+    ],
   );
 
   return survival;

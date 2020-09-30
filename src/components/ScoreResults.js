@@ -4,12 +4,7 @@ import { makeStyles } from '@material-ui/core';
 
 import Typography from '@material-ui/core/Typography';
 
-import {
-  tenBinScoreToPercent,
-  rawScoreToColor,
-  rawScoreToTenBinScore,
-  scoreToColor,
-} from '../lib/score';
+import { tenBinScoreToPercent, tenBinScoreToColor, scoreToColor } from '../lib/score';
 import { useMemo } from 'react';
 import MasksGrid from './MasksGrid';
 import { useCallback } from 'react';
@@ -26,29 +21,32 @@ const ScoreResults = (props) => {
   const { results, handleClose } = props;
 
   const title = useMemo(() => {
-    const gameScoreAverage =
-      results.reduce((acc, { score }) => acc + rawScoreToTenBinScore(score), 0) / results.length;
+    const gameScoreAverage = results.reduce((acc, { score }) => acc + score, 0) / results.length;
     const binPercentScore = tenBinScoreToPercent(gameScoreAverage);
     const scoreColor = scoreToColor(binPercentScore);
     const fixedGameScore = gameScoreAverage.toFixed(1);
     const title = (
       <Typography variant="h6" component="h3">
-        Round Score: <span style={{ color: scoreColor }}>{fixedGameScore}</span>
+        {props.label ? (
+          props.label
+        ) : (
+          <>
+            Round Score: <span style={{ color: scoreColor }}>{fixedGameScore}</span>
+          </>
+        )}
       </Typography>
     );
 
     return title;
-  }, [results]);
+  }, [results, props]);
 
   const getDataUri = useCallback(({ dataUri }) => dataUri, []);
   const getPaperProps = useCallback(
-    ({ score }) => ({ style: { background: rawScoreToColor(score, 0.4) } }),
+    ({ score }) => ({ style: { background: tenBinScoreToColor(score, 0.4) } }),
     [],
   );
   const getImageChild = useCallback(
-    ({ score }) => (
-      <Typography className={classes.score}>{rawScoreToTenBinScore(score)}</Typography>
-    ),
+    ({ score }) => <Typography className={classes.score}>{score}</Typography>,
     [classes.score],
   );
 
@@ -65,8 +63,9 @@ const ScoreResults = (props) => {
 };
 
 ScoreResults.propTypes = {
-  results: PropTypes.array.isRequired,
+  label: PropTypes.string,
   handleClose: PropTypes.func,
+  results: PropTypes.array.isRequired,
 };
 
 export default ScoreResults;

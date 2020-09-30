@@ -3,10 +3,11 @@ import { useMemo, useCallback, useState } from 'react';
 import { useWebcam } from '../../context/webcam';
 import { useSimpleGame } from '../loopHandlers/simpleGame';
 import { useCaptureMasks } from '../loopHandlers/captureMasks';
+import { initialLapInfo } from '../lapTimer';
 
 export const useLocal = (loop) => {
   const webcam = useWebcam();
-  const [lapTimeInfo, setLapTimeInfo] = useState({});
+  const [lapTimeInfo, setLapTimeInfo] = useState(initialLapInfo);
   const simpleGame = useSimpleGame({ setLapTimeInfo });
   const captureMasks = useCaptureMasks({ maxMasks: 3, setLapTimeInfo });
 
@@ -54,8 +55,9 @@ export const useLocal = (loop) => {
     }
   }, [loop.looping, handlePlayGame, handleCapture, setupProgress]);
 
-  const practice = useMemo(
+  const local = useMemo(
     () => ({
+      name: 'local',
       simpleGame,
       handleClick,
       lapTimeInfo,
@@ -65,5 +67,5 @@ export const useLocal = (loop) => {
     [simpleGame, lapTimeInfo, captureMasks, setupProgress, handleClick],
   );
 
-  return practice;
+  return local;
 };

@@ -12,6 +12,7 @@ export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
   const webcam = useWebcam();
   const roundTracker = useRef(0);
   const maskIterator = useIterateMask();
+  const lastTimeAttackSuccess = useRef(0);
   const [scores, setScores] = useState([]);
   const zip = useZip(maskIterator.setMasks);
   const {
@@ -49,7 +50,7 @@ export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
 
               const dataUri = webcam.imageDataToDataUri(targetOverlay);
 
-              setScores((state) => [...state, { score, dataUri }]);
+              setScores((state) => [...state, { score: rawScoreToTenBinScore(score), dataUri }]);
 
               webcam.clearCanvas();
               maskIterator.next();
@@ -98,7 +99,7 @@ export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
 
               const dataUri = webcam.imageDataToDataUri(targetOverlay);
 
-              setScores((state) => [...state, { score, dataUri }]);
+              setScores((state) => [...state, { score: rawScoreToTenBinScore(score), dataUri }]);
 
               webcam.clearCanvas();
               const tenBinScore = rawScoreToTenBinScore(score);
@@ -136,10 +137,12 @@ export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
       if (controller.time.first) {
         maskIterator.next();
         clearScores();
+        roundTracker.current = 0;
+        lastTimeAttackSuccess.current = 0;
         controller.useTimer({
           setLapTimeInfo: setLapTimeInfo,
           announceSeconds: false,
-          lapDuration: 500,
+          lapDuration: 250,
           postLapDelay: 0,
           onLap: ({ predict, time, stop }) => {
             const currentMaskIdx = maskIterator.maskIdxRef.current;
@@ -163,7 +166,12 @@ export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
 
                 const tenBinScore = rawScoreToTenBinScore(score);
                 if (tenBinScore > 5) {
-                  const { score, targetOverlay } = getScoreAndOverlayForSegmentationAndImageData(
+                  const segmentationMs = time.elapsed - lastTimeAttackSuccess.current;
+                  const segmentationSec = segmentationMs / 1000;
+                  lastTimeAttackSuccess.current = time.elapsed;
+                  const numSecs = Number(segmentationSec.toFixed(1));
+
+                  const { targetOverlay } = getScoreAndOverlayForSegmentationAndImageData(
                     target,
                     segmentation,
                     webcam.flipX,
@@ -173,7 +181,7 @@ export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
                   // but fired a new lap before it succeeded
                   if (roundTracker.current >= currentMaskIdx) return;
                   say('Got it!');
-                  setScores((state) => [...state, { score, dataUri }]);
+                  setScores((state) => [...state, { score: numSecs, dataUri }]);
                   webcam.clearCanvas();
                   maskIterator.next();
                   roundTracker.current++;

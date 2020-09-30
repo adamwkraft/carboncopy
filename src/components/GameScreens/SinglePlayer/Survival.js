@@ -64,7 +64,7 @@ const Survival = (props) => {
   const classes = useStyles();
   const survival = useGameMode(useSurvival);
   const webcam = useWebcam();
-  const { loop, lapTimeInfo, simpleGame, captureMasks, handleClickGame } = survival;
+  const { loop, lapTimeInfo, simpleGame, captureMasks, handleClickGame, resultsText } = survival;
 
   return (
     <div
@@ -97,7 +97,11 @@ const Survival = (props) => {
       </div>
       {webcam.isFullScreen && !loop.looping && (
         <div className={classes.captures}>
-          <ScoreResults results={simpleGame.scores} handleClose={simpleGame.clearScores} />
+          <ScoreResults
+            label={resultsText}
+            results={simpleGame.scores}
+            handleClose={simpleGame.clearScores}
+          />
         </div>
       )}
     </div>
