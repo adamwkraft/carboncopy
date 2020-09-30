@@ -1,8 +1,9 @@
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
+import Dialog from '@material-ui/core/Dialog';
 import { makeStyles } from '@material-ui/styles';
-
+import { withStyles } from '@material-ui/core/styles';
 import HomeIcon from '@material-ui/icons/Home';
 import BackIcon from '@material-ui/icons/ArrowLeft';
 import IconButton from '@material-ui/core/IconButton';
@@ -14,6 +15,12 @@ import { useAudio } from '../context/audio';
 import { screenStates } from '../lib/screenConstants';
 import { maxWidth } from '../lib/constants';
 import { useSpring, config, animated } from 'react-spring';
+
+import MuiDialogTitle from '@material-ui/core/DialogTitle';
+import MuiDialogContent from '@material-ui/core/DialogContent';
+import CloseIcon from '@material-ui/icons/Close';
+import Typography from '@material-ui/core/Typography';
+import stickImage from '../images/stick_figure_in_box.png';
 
 const useStyles = makeStyles((theme) => ({
   btn: {
@@ -41,11 +48,64 @@ const useStyles = makeStyles((theme) => ({
   volume: {
     marginLeft: theme.spacing(1),
   },
+  closeButton: {
+    position: 'absolute',
+    right: theme.spacing(1),
+    top: theme.spacing(1),
+    color: theme.palette.grey[500],
+  },
+  info: {
+    marginLeft: theme.spacing(2),
+    width: '34px',
+    height: '34px',
+  },
+  stickImage: {
+    width: '100%',
+  },
 }));
+
+const styles = (theme) => ({
+  root: {
+    margin: 0,
+    padding: theme.spacing(2),
+  },
+  closeButton: {
+    position: 'absolute',
+    right: theme.spacing(1),
+    top: theme.spacing(1),
+    color: theme.palette.grey[500],
+  },
+});
+
+const DialogTitle = withStyles(styles)((props) => {
+  const { children, classes, onClose, ...other } = props;
+  return (
+    <MuiDialogTitle disableTypography className={classes.root} {...other}>
+      <Typography variant="h6">{children}</Typography>
+      {onClose ? (
+        <IconButton aria-label="close" className={classes.closeButton} onClick={onClose}>
+          <CloseIcon />
+        </IconButton>
+      ) : null}
+    </MuiDialogTitle>
+  );
+});
+
+const DialogContent = withStyles((theme) => ({
+  root: {
+    padding: theme.spacing(2),
+    textAlign: 'center',
+  },
+}))(MuiDialogContent);
 
 const GlobalHeader = (props) => {
   const classes = useStyles();
   const audio = useAudio();
+  const [open, setOpen] = useState(false);
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   const onHomeScreen = props.screen === screenStates.screen.DEFAULT;
   const styleProps = useSpring({ to: { opacity: !onHomeScreen ? 1 : 0 }, config: config.stiff });
@@ -65,6 +125,27 @@ const GlobalHeader = (props) => {
             >
               <BackIcon />
             </IconButton>
+            <IconButton
+              size="small"
+              className={classnames(classes.btn, classes.info)}
+              onClick={() => {
+                setOpen(true);
+              }}
+            >
+              <b>i</b>
+            </IconButton>
+            <Dialog onClose={handleClose} aria-labelledby="customized-dialog-title" open={open}>
+              <DialogTitle id="customized-dialog-title" onClose={handleClose}>
+                Set Up
+              </DialogTitle>
+              <DialogContent dividers>
+                <Typography gutterBottom>
+                  Place your webcam at a distance and ensure there is enough space around you to
+                  move safely.
+                </Typography>
+                <img src={stickImage} className={classes.stickImage} alt="Stick Figure" />
+              </DialogContent>
+            </Dialog>
           </animated.div>
         )}
       </div>
