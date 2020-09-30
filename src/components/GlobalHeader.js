@@ -60,8 +60,8 @@ const GlobalHeader = (props) => {
             </IconButton>
             <IconButton
               size="small"
-              onClick={props.goBack}
               className={classnames(classes.btn, classes.back)}
+              onClick={props.players === screenStates.players.MULTIPLAYER ? props.goHome : props.goBack}
             >
               <BackIcon />
             </IconButton>

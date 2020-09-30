@@ -8,6 +8,7 @@ import { useBodyPix } from '../context/bodyPix';
 export const useLoop = () => {
   const webcam = useWebcam();
   const predict = useBodyPix();
+  const loopReady = predict && webcam.ready;
 
   const loopTime = useLoopTime();
   const lapTimer = useLapTimer();
@@ -64,7 +65,9 @@ export const useLoop = () => {
 
   const start = useCallback(
     async (handleLoop) => {
-      if (loopingRef.current) {
+      if (!loopReady) {
+        throw new Error('The loop is not ready');
+      } else if (loopingRef.current) {
         throw new Error('The loop is already running');
       } else if (!predict) {
         throw new Error('Please wait for BodyPix to load...');
@@ -77,17 +80,17 @@ export const useLoop = () => {
 
       return requestAnimationFrame(loop);
     },
-    [loop, predict, setStartLoop],
+    [loop, predict, setStartLoop, loopReady],
   );
 
   const controller = useMemo(
     () => ({
       start,
       looping,
+      ready: loopReady,
       stop: setStopLoop,
-      ready: predict && webcam.ready,
     }),
-    [start, predict, looping, setStopLoop, webcam.ready],
+    [start, looping, setStopLoop, loopReady],
   );
 
   return controller;

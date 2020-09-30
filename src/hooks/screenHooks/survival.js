@@ -26,7 +26,7 @@ export const useSurvival = (loop) => {
     if (loop.looping) {
       loop.stop();
     } else {
-      loop.start(captureMasks.handleLoop);
+      loop.start(captureMasks.handleLoop());
     }
   }, [loop, captureMasks]);
 
