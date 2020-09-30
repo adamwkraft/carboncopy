@@ -2,7 +2,12 @@ import { useCallback, useRef, useMemo } from 'react';
 import { useAudio } from '../context/audio';
 import { scoreToColor } from '../lib/score';
 
-const initialColor = scoreToColor(100);
+export const initialLapInfo = {
+  percent: 0.0,
+  percentRemaining: 100.0,
+  color: scoreToColor(100),
+  secondsRemaining: 0,
+};
 
 export const useLapTimer = () => {
   const lapTimer = useRef();
@@ -36,13 +41,7 @@ export const useLapTimer = () => {
           announceSeconds,
         };
         if (setLapTimeInfo) {
-          const lapInfo = {
-            percent: 0.0,
-            percentRemaining: 100.0,
-            color: initialColor,
-            secondsRemaining: lapDuration,
-          };
-          lapTimer.current.setLapTimeInfo(lapInfo);
+          lapTimer.current.setLapTimeInfo(initialLapInfo);
         }
       }
     },

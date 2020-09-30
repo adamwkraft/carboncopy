@@ -26,6 +26,7 @@ export const useTimeAttack = (loop) => {
 
   const timeAttack = useMemo(
     () => ({
+      name: 'time attack',
       simpleGame,
       handleClickGame,
     }),

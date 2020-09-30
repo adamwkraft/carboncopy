@@ -21,15 +21,19 @@ const PracticeFooter = (props) => {
 
   if (!game.mode) return null;
 
-  const { simpleGame, captureMasks, handlePlayCapturedMasks, resultsText } = game.mode;
+  const { simpleGame, captureMasks, handlePlayCapturedMasks, resultsText, name } = game.mode;
+
+  const showResults = name === 'survival' ? !game.loop.looping : true;
 
   return (
     <div className={classes.root}>
-      <ScoreResults
-        results={simpleGame.scores}
-        handleClose={simpleGame.clearScores}
-        label={resultsText}
-      />
+      {showResults && (
+        <ScoreResults
+          results={simpleGame.scores}
+          handleClose={simpleGame.clearScores}
+          label={resultsText}
+        />
+      )}
       {captureMasks && (
         <CapturedMasks captureMasks={captureMasks} handlePlay={handlePlayCapturedMasks} />
       )}

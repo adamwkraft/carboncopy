@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { useRef, useEffect, useMemo, useCallback } from 'react';
 import { useSimpleGame } from '../loopHandlers/simpleGame';
 import { useCaptureMasks } from '../loopHandlers/captureMasks';
+import { initialLapInfo } from '../lapTimer';
 
 export const useSurvival = (loop) => {
-  const [lapTimeInfo, setLapTimeInfo] = useState({});
+  const [lapTimeInfo, setLapTimeInfo] = useState(initialLapInfo);
   const simpleGame = useSimpleGame({ setLapTimeInfo });
   const captureMasks = useCaptureMasks({ setLapTimeInfo });
 
@@ -38,6 +39,7 @@ export const useSurvival = (loop) => {
 
   const survival = useMemo(
     () => ({
+      name: 'survival',
       loop,
       simpleGame,
       lapTimeInfo,
