@@ -40,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const CandidateMasks = (props) => {
+const CapturedMasks = (props) => {
   const classes = useStyles();
 
   const { captureMasks, handlePlay } = props;
@@ -90,9 +90,9 @@ const CandidateMasks = (props) => {
   );
 };
 
-CandidateMasks.propTypes = {
-  handlePlay: PropTypes.func.isRequired,
+CapturedMasks.propTypes = {
+  handlePlay: PropTypes.func,
   captureMasks: PropTypes.object.isRequired,
 };
 
-export default CandidateMasks;
+export default CapturedMasks;
