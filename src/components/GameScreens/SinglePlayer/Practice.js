@@ -10,7 +10,6 @@ import ScoreResults from '../../ScoreResults';
 import CapturedMasks from '../../CapturedMasks';
 
 import { useGame, useGameMode } from '../../Game';
-import { scoreToColor } from '../../../lib/score';
 import { useWebcam } from '../../../context/webcam';
 import { usePractice } from '../../../hooks/screenHooks/practice';
 
@@ -76,6 +75,7 @@ const Practice = (props) => {
 
   const {
     loopType,
+    lapTimeInfo,
     simpleGame,
     captureMasks,
     handleClickGame,
@@ -86,7 +86,7 @@ const Practice = (props) => {
 
   const { loop } = game;
 
-  const timerColor = scoreToColor(100 - simpleGame.progressPercent);
+  const timerColor = lapTimeInfo.color;
 
   const buttons = useMemo(
     () => [
@@ -187,7 +187,7 @@ const Practice = (props) => {
           )}
           {loop.looping && loopType === 'play' && (
             <div className={classes.progress}>
-              <ProgressBar color={timerColor} completed={100 - simpleGame.progressPercent} />
+              <ProgressBar color={timerColor} completed={lapTimeInfo.percentRemaining} />
             </div>
           )}
         </div>

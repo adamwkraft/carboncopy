@@ -2,6 +2,8 @@ import { useCallback, useRef, useMemo } from 'react';
 import { useAudio } from '../context/audio';
 import { scoreToColor } from '../lib/score';
 
+const initialColor = scoreToColor(100);
+
 export const useLapTimer = () => {
   const lapTimer = useRef();
   const {
@@ -14,9 +16,9 @@ export const useLapTimer = () => {
       onLap,
       onEnd,
       maxLaps,
+      setLapTimeInfo,
       lapDuration = 3000,
       postLapDelay = 1000,
-      printSeconds = true,
       announceSeconds = true,
     } = {}) => {
       if (onLap && !lapTimer.current) {
@@ -30,9 +32,18 @@ export const useLapTimer = () => {
           numLaps: 0,
           lapDuration,
           postLapDelay,
-          printSeconds,
+          setLapTimeInfo,
           announceSeconds,
         };
+        if (setLapTimeInfo) {
+          const lapInfo = {
+            percent: 0.0,
+            percentRemaining: 100.0,
+            color: initialColor,
+            secondsRemaining: lapDuration,
+          };
+          lapTimer.current.setLapTimeInfo(lapInfo);
+        }
       }
     },
     [],
@@ -72,19 +83,18 @@ export const useLapTimer = () => {
           1,
         );
 
-        // display the integer seconds remaining in the lap in the top left corner of the canvas
-        if (lapTimer.current.printSeconds) {
-          const percent = (Number(countdown) / lapTimer.current.lapDuration) * 100000;
-          const color = scoreToColor(percent);
-          const { ctx } = webcam;
-          ctx.font = '40px Arial';
-          ctx.fillStyle = color;
-          ctx.clearRect(0, 0, 50, 50);
-
-          if (countdown) {
-            // don't print if 0
-            ctx.fillText(countdown.toFixed(1), 10, 40);
-          }
+        if (lapTimer.current.setLapTimeInfo) {
+          const percentRemaining = (Number(countdown) / lapTimer.current.lapDuration) * 100000;
+          const percent = 100 - percentRemaining;
+          const color = scoreToColor(percentRemaining);
+          const secondsRemaining = countdown.toFixed(1);
+          const lapInfo = {
+            percent,
+            percentRemaining,
+            color,
+            secondsRemaining,
+          };
+          lapTimer.current.setLapTimeInfo(lapInfo);
         }
 
         // announce the current countdown time (if not announced yet and requested)

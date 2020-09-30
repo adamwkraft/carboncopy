@@ -7,7 +7,7 @@ import { useWebcam } from '../../context/webcam';
 import { rawScoreToTenBinScore } from '../../lib/score';
 import { getScoreAndOverlayForSegmentationAndImageData, getScore } from '../../lib/util';
 
-export const useSimpleGame = () => {
+export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
   const promRef = useRef();
   const webcam = useWebcam();
   const roundTracker = useRef(0);
@@ -19,7 +19,6 @@ export const useSimpleGame = () => {
       speech: { say },
     },
   } = useAudio();
-  const [progressPercent, setProgressPercent] = useState(0);
 
   const clearScores = useCallback(() => {
     setScores([]);
@@ -29,11 +28,10 @@ export const useSimpleGame = () => {
     async (controller) => {
       if (controller.time.first) {
         maskIterator.next(); // load the first mask
-        setProgressPercent(0);
         clearScores();
         controller.useTimer({
           maxLaps: maskIterator.getNumMasks(),
-          printSeconds: true,
+          setLapTimeInfo: setLapTimeInfo,
           announceSeconds: true,
           onLap: ({ predict, time, stop }) => {
             const target = maskIterator.maskRef.current;
@@ -58,13 +56,6 @@ export const useSimpleGame = () => {
             });
           },
         });
-      } else {
-        // Set the progress
-        const progress_percent = Math.min(
-          controller.time.lapTime / controller.timerRef.current.lapDuration,
-          1.0,
-        );
-        setProgressPercent(Math.round(progress_percent * 100));
       }
 
       if (maskIterator.maskRef.current) {
@@ -79,18 +70,17 @@ export const useSimpleGame = () => {
         else controller.webcam.clearCanvas();
       };
     },
-    [webcam, maskIterator, clearScores],
+    [webcam, maskIterator, setLapTimeInfo, clearScores],
   );
 
   const handleSurvivalLoop = useCallback(
     async (controller) => {
       if (controller.time.first) {
         maskIterator.random();
-        setProgressPercent(0.0);
         clearScores();
         controller.useTimer({
           maxLaps: 9999999, // Good luck surviving this long!
-          printSeconds: true,
+          setLapTimeInfo: setLapTimeInfo,
           announceSeconds: true,
           onLap: ({ predict, time, stop }) => {
             const target = maskIterator.maskRef.current;
@@ -124,13 +114,6 @@ export const useSimpleGame = () => {
             });
           },
         });
-      } else {
-        // Set the progress
-        const progress_percent = Math.min(
-          controller.time.lapTime / controller.timerRef.current.lapDuration,
-          1.0,
-        );
-        setProgressPercent(Math.round(progress_percent * 100));
       }
 
       if (maskIterator.maskRef.current) {
@@ -145,17 +128,16 @@ export const useSimpleGame = () => {
         else controller.webcam.clearCanvas();
       };
     },
-    [webcam, maskIterator, clearScores],
+    [webcam, maskIterator, setLapTimeInfo, clearScores],
   );
 
   const handleTimeAttackLoop = useCallback(
     async (controller) => {
       if (controller.time.first) {
         maskIterator.next();
-        setProgressPercent(0);
         clearScores();
         controller.useTimer({
-          printSeconds: false,
+          setLapTimeInfo: setLapTimeInfo,
           announceSeconds: false,
           lapDuration: 500,
           postLapDelay: 0,
@@ -214,7 +196,7 @@ export const useSimpleGame = () => {
         else controller.webcam.clearCanvas();
       };
     },
-    [webcam, maskIterator, clearScores, say],
+    [webcam, maskIterator, clearScores, setLapTimeInfo, say],
   );
 
   return useMemo(
@@ -225,7 +207,6 @@ export const useSimpleGame = () => {
       handleSurvivalLoop,
       handleTimeAttackLoop,
       clearScores,
-      progressPercent,
       reset: maskIterator.reset,
       ready: maskIterator.hasMasks,
       setMasks: maskIterator.setMasks,
@@ -233,7 +214,6 @@ export const useSimpleGame = () => {
     [
       zip,
       scores,
-      progressPercent,
       handleLoop,
       handleSurvivalLoop,
       handleTimeAttackLoop,
