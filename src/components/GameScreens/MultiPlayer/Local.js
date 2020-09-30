@@ -1,6 +1,7 @@
 import React from 'react';
 import classnames from 'classnames';
 import Button from '@material-ui/core/Button';
+import ProgressBar from '../../ProgressBar';
 import { makeStyles, Typography } from '@material-ui/core';
 
 import { useGame, useGameMode } from '../../Game';
@@ -93,7 +94,7 @@ const Local = (props) => {
           [classes.rootApart]: !!false,
         })}
       >
-        {!game.loop.looping && (
+        {!game.loop.looping ? (
           <>
             <Typography component="h2" variant="h5">
               {text[local.setupProgress]}
@@ -110,6 +111,13 @@ const Local = (props) => {
               {buttonText[local.setupProgress]}
             </Button>
           </>
+        ) : (
+          <div className={classes.progress}>
+            <ProgressBar
+              color={local.lapTimeInfo.color}
+              completed={local.lapTimeInfo.percentRemaining}
+            />
+          </div>
         )}
       </div>
     </div>

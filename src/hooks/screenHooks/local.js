@@ -6,8 +6,9 @@ import { useCaptureMasks } from '../loopHandlers/captureMasks';
 
 export const useLocal = (loop) => {
   const webcam = useWebcam();
-  const simpleGame = useSimpleGame();
-  const captureMasks = useCaptureMasks(3);
+  const [lapTimeInfo, setLapTimeInfo] = useState({});
+  const simpleGame = useSimpleGame({ setLapTimeInfo });
+  const captureMasks = useCaptureMasks({ maxMasks: 3, setLapTimeInfo });
 
   const [masks, setMasks] = useState([[], []]);
   const [setupProgress, setSetupProgress] = useState(0);
@@ -57,10 +58,11 @@ export const useLocal = (loop) => {
     () => ({
       simpleGame,
       handleClick,
+      lapTimeInfo,
       captureMasks,
       setupProgress,
     }),
-    [simpleGame, captureMasks, setupProgress, handleClick],
+    [simpleGame, lapTimeInfo, captureMasks, setupProgress, handleClick],
   );
 
   return practice;

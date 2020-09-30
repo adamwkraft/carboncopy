@@ -5,7 +5,7 @@ import { useRef, useCallback, useState } from 'react';
 import { saveAs, getSegmentationeOverlayAndBinaryImageData } from '../../lib/util';
 import { useMemo } from 'react';
 
-export const useCaptureMasks = (maxMasks = 0) => {
+export const useCaptureMasks = ({ maxMasks = 0, setLapTimeInfo } = {}) => {
   const promRef = useRef();
   const masksRef = useRef([]);
   const maskCountRef = useRef();
@@ -56,10 +56,10 @@ export const useCaptureMasks = (maxMasks = 0) => {
       if (controller.time.first) {
         maskCountRef.current = masks.length;
         controller.useTimer({
-          printSeconds: true,
           announceSeconds: true,
           lapDuration: 3000,
           maxLaps: maxMasks,
+          setLapTimeInfo: setLapTimeInfo,
           // run a single prediction before starting the lap to ensure things roll smoothly
           onBeforeStartLap: async ({ predict, webcam, time, stop }) => {
             return predict();
@@ -103,10 +103,8 @@ export const useCaptureMasks = (maxMasks = 0) => {
         }
       };
     },
-    [masks.length, maxMasks, setMasks],
+    [masks.length, maxMasks, setLapTimeInfo, setMasks],
   );
-
-  console.log({ curr: masksRef.current });
 
   return useMemo(
     () => ({

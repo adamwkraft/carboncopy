@@ -6,8 +6,9 @@ import { useCaptureMasks } from '../loopHandlers/captureMasks';
 
 export const usePractice = (loop) => {
   const webcam = useWebcam();
-  const simpleGame = useSimpleGame();
-  const captureMasks = useCaptureMasks();
+  const [lapTimeInfo, setLapTimeInfo] = useState({});
+  const simpleGame = useSimpleGame({ setLapTimeInfo });
+  const captureMasks = useCaptureMasks({ setLapTimeInfo });
   const [loopType, setLoopType] = useState(null);
 
   useEffect(() => {
@@ -57,6 +58,7 @@ export const usePractice = (loop) => {
     () => ({
       loopType,
       simpleGame,
+      lapTimeInfo,
       captureMasks,
       handleClickGame,
       handleStartRandomGame,
@@ -66,6 +68,7 @@ export const usePractice = (loop) => {
     [
       loopType,
       simpleGame,
+      lapTimeInfo,
       captureMasks,
       handleClickGame,
       handleStartRandomGame,

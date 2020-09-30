@@ -1,10 +1,12 @@
+import { useState } from 'react';
 import { useRef, useEffect, useMemo, useCallback } from 'react';
 import { useSimpleGame } from '../loopHandlers/simpleGame';
 import { useCaptureMasks } from '../loopHandlers/captureMasks';
 
 export const useSurvival = (loop) => {
-  const simpleGame = useSimpleGame();
-  const captureMasks = useCaptureMasks();
+  const [lapTimeInfo, setLapTimeInfo] = useState({});
+  const simpleGame = useSimpleGame({ setLapTimeInfo });
+  const captureMasks = useCaptureMasks({ setLapTimeInfo });
 
   const loadedRef = useRef(false);
   useEffect(() => {
@@ -34,11 +36,12 @@ export const useSurvival = (loop) => {
     () => ({
       loop,
       simpleGame,
+      lapTimeInfo,
       captureMasks,
       handleClickGame,
       handleClickCaptureMasks,
     }),
-    [handleClickCaptureMasks, handleClickGame, loop, simpleGame, captureMasks],
+    [handleClickCaptureMasks, handleClickGame, loop, simpleGame, captureMasks, lapTimeInfo],
   );
 
   return survival;

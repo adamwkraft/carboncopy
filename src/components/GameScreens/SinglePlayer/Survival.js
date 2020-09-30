@@ -1,15 +1,12 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/core';
 
-import CapturedMasks from '../../CapturedMasks';
 import ProgressBar from '../../ProgressBar';
 import ScoreResults from '../../ScoreResults';
 import { useGameMode } from '../../Game';
 import { useSurvival } from '../../../hooks/screenHooks/survival';
-import { scoreToColor } from '../../../lib/score';
 import { useWebcam } from '../../../context/webcam';
 
 const useStyles = makeStyles((theme) => ({
@@ -67,8 +64,7 @@ const Survival = (props) => {
   const classes = useStyles();
   const survival = useGameMode(useSurvival);
   const webcam = useWebcam();
-  const { loop, simpleGame, captureMasks, handleClickGame } = survival;
-  const timerColor = scoreToColor(100 - simpleGame.progressPercent);
+  const { loop, lapTimeInfo, simpleGame, captureMasks, handleClickGame } = survival;
 
   return (
     <div
@@ -86,7 +82,7 @@ const Survival = (props) => {
       >
         {loop.looping ? (
           <div className={classes.progress}>
-            <ProgressBar color={timerColor} completed={100 - simpleGame.progressPercent} />
+            <ProgressBar color={lapTimeInfo.color} completed={lapTimeInfo.percentRemaining} />
           </div>
         ) : (
           <Button
@@ -102,16 +98,10 @@ const Survival = (props) => {
       {webcam.isFullScreen && !loop.looping && (
         <div className={classes.captures}>
           <ScoreResults results={simpleGame.scores} handleClose={simpleGame.clearScores} />
-          <CapturedMasks captureMasks={captureMasks} />
         </div>
       )}
     </div>
   );
-};
-
-Survival.propTypes = {
-  game: PropTypes.object.isRequired,
-  webcam: PropTypes.object.isRequired,
 };
 
 export default Survival;
