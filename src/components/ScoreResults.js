@@ -33,12 +33,18 @@ const ScoreResults = (props) => {
     const fixedGameScore = gameScoreAverage.toFixed(1);
     const title = (
       <Typography variant="h6" component="h3">
-        Round Score: <span style={{ color: scoreColor }}>{fixedGameScore}</span>
+        {props.label ? (
+          props.label
+        ) : (
+          <>
+            Round Score: <span style={{ color: scoreColor }}>{fixedGameScore}</span>
+          </>
+        )}
       </Typography>
     );
 
     return title;
-  }, [results]);
+  }, [results, props]);
 
   const getDataUri = useCallback(({ dataUri }) => dataUri, []);
   const getPaperProps = useCallback(
@@ -65,8 +71,9 @@ const ScoreResults = (props) => {
 };
 
 ScoreResults.propTypes = {
-  results: PropTypes.array.isRequired,
+  label: PropTypes.string,
   handleClose: PropTypes.func,
+  results: PropTypes.array.isRequired,
 };
 
 export default ScoreResults;
