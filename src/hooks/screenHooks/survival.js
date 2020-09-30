@@ -8,6 +8,10 @@ export const useSurvival = (loop) => {
   const simpleGame = useSimpleGame({ setLapTimeInfo });
   const captureMasks = useCaptureMasks({ setLapTimeInfo });
 
+  const resultsText = useMemo(() => `You survived ${simpleGame?.scores?.length - 1} rounds.`, [
+    simpleGame.scores,
+  ]);
+
   const loadedRef = useRef(false);
   useEffect(() => {
     if (!loadedRef.current) {
@@ -37,11 +41,20 @@ export const useSurvival = (loop) => {
       loop,
       simpleGame,
       lapTimeInfo,
+      resultsText,
       captureMasks,
       handleClickGame,
       handleClickCaptureMasks,
     }),
-    [handleClickCaptureMasks, handleClickGame, loop, simpleGame, captureMasks, lapTimeInfo],
+    [
+      loop,
+      simpleGame,
+      lapTimeInfo,
+      resultsText,
+      captureMasks,
+      handleClickGame,
+      handleClickCaptureMasks,
+    ],
   );
 
   return survival;
