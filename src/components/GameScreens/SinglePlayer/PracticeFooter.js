@@ -23,7 +23,7 @@ const PracticeFooter = (props) => {
 
   const { simpleGame, captureMasks, handlePlayCapturedMasks, resultsText, name } = game.mode;
 
-  const showResults = name === 'survival' ? !game.loop.looping : true;
+  const showResults = name === 'survival' || name === 'time attack' ? !game.loop.looping : true;
 
   return (
     <div className={classes.root}>
