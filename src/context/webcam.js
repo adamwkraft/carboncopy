@@ -267,18 +267,15 @@ const WebcamProvider = ({ children }) => {
       const autoStartId = window.localStorage.getItem(AUTOSTART_KEY);
 
       let foundEmptyDevice = false;
-      const foundDeviceId = foundCameras.reduce((acc, { deviceId, label }, idx) => {
-        if (!deviceId) foundEmptyDevice = true;
+      let foundDeviceId = foundCameras[0]?.deviceId;
+      foundDeviceId =
+        foundCameras.reduce((acc, { deviceId, label }, idx) => {
+          if (!deviceId) foundEmptyDevice = true;
 
-        return (
-          acc ||
-          (deviceId === autoStartId ||
-          (!autoStartId && foundCameras.length === 1 && idx === 0) ||
-          (!autoStartId && label.includes('Built-in'))
-            ? deviceId
-            : null)
-        );
-      }, null);
+          if (deviceId === autoStartId) return deviceId;
+
+          return acc || (label.includes('Built-in') ? deviceId : null);
+        }, null) || foundDeviceId;
 
       if (foundDeviceId) {
         setAutoStartDeviceId(foundDeviceId);

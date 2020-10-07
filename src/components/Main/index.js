@@ -32,7 +32,7 @@ const Main = (props) => {
 
       webcam.start().catch(console.error);
     }
-  }, [hasVideo, cameras, currentDeviceId, autoStartDeviceId]); // eslint-disable-line
+  }, [hasVideo, cameras, currentDeviceId, autoStartDeviceId, webcam]);
 
   const classes = useStyles();
 
