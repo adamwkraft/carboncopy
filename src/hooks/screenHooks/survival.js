@@ -9,9 +9,13 @@ export const useSurvival = (loop) => {
   const simpleGame = useSimpleGame({ setLapTimeInfo });
   const captureMasks = useCaptureMasks({ setLapTimeInfo });
 
-  const resultsText = useMemo(() => `You survived ${simpleGame?.scores?.length - 1} rounds.`, [
-    simpleGame.scores,
-  ]);
+  const resultsText = useMemo(
+    () =>
+      `You survived ${simpleGame?.scores?.length - 1} round${
+        simpleGame?.scores?.length !== 2 ? 's' : ''
+      }.`,
+    [simpleGame.scores],
+  );
 
   const loadedRef = useRef(false);
   useEffect(() => {

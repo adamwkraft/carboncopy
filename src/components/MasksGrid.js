@@ -126,7 +126,7 @@ const MasksGrid = (props) => {
         <ul className={classes.masksList}>
           {masks.map((maskItem, i) => {
             const dataUri = getDataUri ? getDataUri(maskItem) : maskItem;
-            const paperProps = getPaperProps ? getPaperProps(maskItem, i) : {};
+            const paperProps = getPaperProps ? getPaperProps(maskItem, i, masks) : {};
 
             return (
               <li key={dataUri} className={classes.maskContainer}>

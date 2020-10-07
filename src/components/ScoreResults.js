@@ -4,7 +4,7 @@ import { makeStyles } from '@material-ui/core';
 
 import Typography from '@material-ui/core/Typography';
 
-import { tenBinScoreToPercent, tenBinScoreToColor, scoreToColor } from '../lib/score';
+import { tenBinScoreToColor } from '../lib/score';
 import { useMemo } from 'react';
 import MasksGrid from './MasksGrid';
 import { useCallback } from 'react';
@@ -16,29 +16,20 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const ScoreResults = (props) => {
+const ScoreResults = ({ results, handleClose, label, ...props }) => {
   const classes = useStyles();
-  const { results, handleClose } = props;
 
   const title = useMemo(() => {
     const gameScoreAverage = results.reduce((acc, { score }) => acc + score, 0) / results.length;
-    const binPercentScore = tenBinScoreToPercent(gameScoreAverage);
-    const scoreColor = scoreToColor(binPercentScore);
     const fixedGameScore = gameScoreAverage.toFixed(1);
     const title = (
       <Typography variant="h6" component="h3">
-        {props.label ? (
-          props.label
-        ) : (
-          <>
-            Round Score: <span style={{ color: scoreColor }}>{fixedGameScore}</span>
-          </>
-        )}
+        {label ? label : <>Round Score: {fixedGameScore}</>}
       </Typography>
     );
 
     return title;
-  }, [results, props]);
+  }, [results, label]);
 
   const getDataUri = useCallback(({ dataUri }) => dataUri, []);
   const getPaperProps = useCallback(
@@ -58,6 +49,7 @@ const ScoreResults = (props) => {
       getDataUri={getDataUri}
       getPaperProps={getPaperProps}
       getImageChild={getImageChild}
+      {...props}
     />
   );
 };

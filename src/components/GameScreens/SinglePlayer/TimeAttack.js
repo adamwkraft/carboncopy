@@ -68,7 +68,7 @@ const TimeAttack = (props) => {
   const webcam = useWebcam();
   const timeAttack = useGameMode(useTimeAttack);
 
-  const { simpleGame, handleClickGame } = timeAttack;
+  const { simpleGame, resultsText, handleClickGame } = timeAttack;
 
   const { loop } = game;
 
@@ -119,7 +119,11 @@ const TimeAttack = (props) => {
         </div>
         {webcam.isFullScreen && !loop.looping && (
           <div className={classes.captures}>
-            <ScoreResults results={simpleGame.scores} handleClose={simpleGame.clearScores} />
+            <ScoreResults
+              label={resultsText}
+              results={simpleGame.scores}
+              handleClose={simpleGame.clearScores}
+            />
           </div>
         )}
       </div>

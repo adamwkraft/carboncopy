@@ -8,6 +8,17 @@ export const useTimeAttack = (loop) => {
   const simpleGame = useSimpleGame();
 
   const loadedRef = useRef(false);
+
+  const resultsText = useMemo(
+    () =>
+      `You finished Time Attack in ${
+        simpleGame.scores.length && !loop.looping
+          ? simpleGame.scores.reduce((acc, { score }) => acc + score, 0).toFixed(1)
+          : 0
+      } seconds!`,
+    [simpleGame, loop],
+  );
+
   useEffect(() => {
     if (!loadedRef.current) {
       loadedRef.current = true;
@@ -28,9 +39,10 @@ export const useTimeAttack = (loop) => {
     () => ({
       name: 'time attack',
       simpleGame,
+      resultsText,
       handleClickGame,
     }),
-    [simpleGame, handleClickGame],
+    [simpleGame, resultsText, handleClickGame],
   );
 
   return timeAttack;

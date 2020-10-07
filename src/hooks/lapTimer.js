@@ -83,7 +83,10 @@ export const useLapTimer = () => {
         );
 
         if (lapTimer.current.setLapTimeInfo) {
-          const percentRemaining = (Number(countdown) / lapTimer.current.lapDuration) * 100000;
+          const percentRemaining = Math.min(
+            (Number(countdown) / lapTimer.current.lapDuration) * 100000,
+            100,
+          );
           const percent = 100 - percentRemaining;
           const color = scoreToColor(percentRemaining);
           const secondsRemaining = countdown.toFixed(1);

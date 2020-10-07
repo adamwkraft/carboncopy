@@ -60,6 +60,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+export const getSurvivalPaperProps = (_, ind, masks) =>
+  ind === masks.length - 1
+    ? {
+        style: { background: 'rgba(255, 0, 0, 0.4)' },
+      }
+    : {};
+
 const Survival = (props) => {
   const classes = useStyles();
   const survival = useGameMode(useSurvival);
@@ -101,6 +108,8 @@ const Survival = (props) => {
             label={resultsText}
             results={simpleGame.scores}
             handleClose={simpleGame.clearScores}
+            getPaperProps={getSurvivalPaperProps}
+            getImageChild={() => null}
           />
         </div>
       )}
