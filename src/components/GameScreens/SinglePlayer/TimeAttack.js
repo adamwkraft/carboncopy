@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 import { makeStyles } from '@material-ui/core';
 
 import Options from '../../Options';
-import ScoreResults from '../../ScoreResults';
+import BasicFooter from './BasicFooter';
 
 import { useGame, useGameMode } from '../../Game';
 import { useWebcam } from '../../../context/webcam';
@@ -68,7 +68,7 @@ const TimeAttack = (props) => {
   const webcam = useWebcam();
   const timeAttack = useGameMode(useTimeAttack);
 
-  const { simpleGame, resultsText, handleClickGame } = timeAttack;
+  const { simpleGame, handleClickGame } = timeAttack;
 
   const { loop } = game;
 
@@ -117,15 +117,7 @@ const TimeAttack = (props) => {
             <Options buttons={buttons} />
           )}
         </div>
-        {webcam.isFullScreen && !loop.looping && (
-          <div className={classes.captures}>
-            <ScoreResults
-              label={resultsText}
-              results={simpleGame.scores}
-              handleClose={simpleGame.clearScores}
-            />
-          </div>
-        )}
+        {webcam.isFullScreen && <BasicFooter />}
       </div>
     </div>
   );

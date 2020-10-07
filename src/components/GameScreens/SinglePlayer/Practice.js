@@ -3,11 +3,10 @@ import React, { useRef, useMemo } from 'react';
 import { makeStyles } from '@material-ui/core';
 
 import Options from '../../Options';
+import BasicFooter from './BasicFooter';
 import FileUpload from '../../FileUpload';
 import GameSelect from '../../GameSelect';
 import ProgressBar from '../../ProgressBar';
-import ScoreResults from '../../ScoreResults';
-import CapturedMasks from '../../CapturedMasks';
 
 import { useGame, useGameMode } from '../../Game';
 import { useWebcam } from '../../../context/webcam';
@@ -80,7 +79,6 @@ const Practice = (props) => {
     captureMasks,
     handleClickGame,
     handleStartRandomGame,
-    handlePlayCapturedMasks,
     handleClickCaptureMasks,
   } = practice;
 
@@ -191,12 +189,7 @@ const Practice = (props) => {
             </div>
           )}
         </div>
-        {webcam.isFullScreen && !loop.looping && (
-          <div className={classes.captures}>
-            <ScoreResults results={simpleGame.scores} handleClose={simpleGame.clearScores} />
-            <CapturedMasks captureMasks={captureMasks} handlePlay={handlePlayCapturedMasks} />
-          </div>
-        )}
+        {webcam.isFullScreen && !loop.looping && <BasicFooter />}
       </div>
     </div>
   );

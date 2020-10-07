@@ -4,7 +4,7 @@ import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/core';
 
 import ProgressBar from '../../ProgressBar';
-import ScoreResults from '../../ScoreResults';
+import SurvivalFooter from './SurvivalFooter';
 import { useGameMode } from '../../Game';
 import { useSurvival } from '../../../hooks/screenHooks/survival';
 import { useWebcam } from '../../../context/webcam';
@@ -71,7 +71,7 @@ const Survival = (props) => {
   const classes = useStyles();
   const survival = useGameMode(useSurvival);
   const webcam = useWebcam();
-  const { loop, lapTimeInfo, simpleGame, captureMasks, handleClickGame, resultsText } = survival;
+  const { loop, lapTimeInfo, simpleGame, captureMasks, handleClickGame } = survival;
 
   return (
     <div
@@ -104,13 +104,7 @@ const Survival = (props) => {
       </div>
       {webcam.isFullScreen && !loop.looping && (
         <div className={classes.captures}>
-          <ScoreResults
-            label={resultsText}
-            results={simpleGame.scores}
-            handleClose={simpleGame.clearScores}
-            getPaperProps={getSurvivalPaperProps}
-            getImageChild={() => null}
-          />
+          <SurvivalFooter />
         </div>
       )}
     </div>
