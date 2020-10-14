@@ -1,33 +1,35 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
 import { Typography } from '@material-ui/core';
+import { useGame } from '../components/Game';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    textAlign: 'center',
+    marginLeft: theme.spacing(2),
   },
   heading: {
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
+    marginBottom: theme.spacing(1),
   },
 }));
 
 const DefaultHeader = (props) => {
   const classes = useStyles();
 
+  const game = useGame();
+
+  const text =
+    game?.screen?.state?.mode ||
+    (game?.screen?.state?.screen === 'play' ? 'Choose Mode' : 'Select Players');
+
   return (
     <header className={classes.root}>
-      <Typography component="h1" variant="h5" className={classes.heading}>
-        {props.game.screen.state.screen}
+      <Typography component="h1" variant="h6" className={classes.heading}>
+        {text}
       </Typography>
     </header>
   );
 };
 
-DefaultHeader.propTypes = {
-  game: PropTypes.object.isRequired,
-  webcam: PropTypes.object.isRequired,
-};
+DefaultHeader.propTypes = {};
 
 export default DefaultHeader;

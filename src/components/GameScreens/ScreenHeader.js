@@ -14,11 +14,11 @@ const useStyles = makeStyles((theme) => ({
 
 const Headers = {
   [screenStates.screen.DEFAULT]: {
-    [screenStates.players.DEFAULT]: Null,
+    [screenStates.players.DEFAULT]: null,
   },
   [screenStates.screen.PLAY]: {
-    [screenStates.players.SINGLE_PLAYER]: Null,
-    [screenStates.players.MULTIPLAYER]: Null,
+    [screenStates.players.SINGLE_PLAYER]: null,
+    [screenStates.players.MULTIPLAYER]: null,
   },
 };
 
