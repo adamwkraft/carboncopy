@@ -45,6 +45,11 @@ export const useLocal = (loop) => {
     incrementProgress();
   }, [loop, masks, simpleGame, setupProgress, incrementProgress]);
 
+  const handleReset = useCallback(() => {
+    setSetupProgress(0);
+    // TODO: maybe needs more
+  }, []);
+
   const handleClick = useCallback(() => {
     if (loop.looping) return;
 
@@ -52,8 +57,10 @@ export const useLocal = (loop) => {
       handleCapture();
     } else if (setupProgress < 4) {
       handlePlayGame();
+    } else {
+      handleReset();
     }
-  }, [loop.looping, handlePlayGame, handleCapture, setupProgress]);
+  }, [loop.looping, handlePlayGame, handleCapture, handleReset, setupProgress]);
 
   const local = useMemo(
     () => ({

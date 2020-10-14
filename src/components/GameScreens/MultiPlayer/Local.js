@@ -7,9 +7,26 @@ import { makeStyles, Typography } from '@material-ui/core';
 import { useGame, useGameMode } from '../../Game';
 
 import { useLocal } from '../../../hooks/screenHooks/local';
+import { useWebcam } from '../../../context/webcam';
+import BasicFooter from '../SinglePlayer/BasicFooter';
 
 const useStyles = makeStyles((theme) => ({
   root: {
+    width: '100%',
+    height: '100%',
+    overflow: 'hidden',
+    position: 'relative',
+    '& h2': {
+      marginBottom: theme.spacing(1),
+    },
+  },
+  scrollContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: -17,
+    overflowY: 'scroll',
     padding: theme.spacing(1),
     height: '100%',
     display: 'flex',
@@ -25,17 +42,6 @@ const useStyles = makeStyles((theme) => ({
   },
   rootApart: {
     justifyContent: 'space-between',
-  },
-  options: {
-    display: 'flex',
-    alignItems: 'center',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    marginBottom: theme.spacing(1),
-    '& > *': {
-      marginTop: theme.spacing(2),
-      minWidth: 150,
-    },
   },
   optionsTop: {
     justifyContent: 'center',
@@ -56,6 +62,9 @@ const useStyles = makeStyles((theme) => ({
     top: theme.spacing(1),
     left: theme.spacing(8),
     right: theme.spacing(8),
+  },
+  container: {
+    textAlign: 'center',
   },
 }));
 
@@ -84,41 +93,49 @@ const Local = (props) => {
   const classes = useStyles();
   const game = useGame();
   const local = useGameMode(useLocal);
+  const webcam = useWebcam();
 
   return (
     <div className={classes.root}>
       <div
         className={classnames(classes.scrollContainer, {
-          [classes.overlay]: true,
+          [classes.overlay]: !game.loop.looping,
           [classes.rootTop]: false,
           [classes.rootApart]: !!false,
         })}
       >
-        {!game.loop.looping ? (
-          <>
-            <Typography component="h2" variant="h5">
-              {text[local.setupProgress]}
-            </Typography>
-            <Typography component="h2" variant="h6">
-              {subtext[local.setupProgress]}
-            </Typography>
-            <Button
-              color="primary"
-              variant="contained"
-              disabled={!game.loop.ready}
-              onClick={local.handleClick}
-            >
-              {buttonText[local.setupProgress]}
-            </Button>
-          </>
-        ) : (
-          <div className={classes.progress}>
-            <ProgressBar
-              color={local.lapTimeInfo.color}
-              completed={local.lapTimeInfo.percentRemaining}
-            />
-          </div>
-        )}
+        <div
+          className={classnames(classes.container, {
+            [classes.optionsTop]: !!game.loop.looping,
+          })}
+        >
+          {!game.loop.looping ? (
+            <>
+              <Typography component="h2" variant="h5">
+                {text[local.setupProgress]}
+              </Typography>
+              <Typography component="h2" variant="h6">
+                {subtext[local.setupProgress]}
+              </Typography>
+              <Button
+                color="primary"
+                variant="contained"
+                disabled={!game.loop.ready}
+                onClick={local.handleClick}
+              >
+                {buttonText[local.setupProgress] || 'Play Again'}
+              </Button>
+            </>
+          ) : (
+            <div className={classes.progress}>
+              <ProgressBar
+                color={local.lapTimeInfo.color}
+                completed={local.lapTimeInfo.percentRemaining}
+              />
+            </div>
+          )}
+        </div>
+        {/* {webcam.isFullScreen && !game.loop.looping && <BasicFooter />} */}
       </div>
     </div>
   );

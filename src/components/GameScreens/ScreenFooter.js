@@ -29,7 +29,7 @@ const Footers = {
       [screenStates.mode[screenStates.players.SINGLE_PLAYER].TIME_ATTACK]: BasicFooter,
     },
     [screenStates.players.MULTIPLAYER]: {
-      [screenStates.mode[screenStates.players.MULTIPLAYER].LOCAL]: BasicFooter,
+      [screenStates.mode[screenStates.players.MULTIPLAYER].LOCAL]: Null,
       [screenStates.mode[screenStates.players.MULTIPLAYER].REMOTE]: () => 'REMOTE footer',
     },
   },
