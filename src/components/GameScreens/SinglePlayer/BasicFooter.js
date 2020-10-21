@@ -3,9 +3,19 @@ import { useGame } from '../../Game';
 import ScoreResults from '../../ScoreResults';
 import CapturedMasks from '../../CapturedMasks';
 import { tenBinScoreToColor } from '../../../lib/score';
+import { makeStyles } from '@material-ui/core';
+import Typography from '@material-ui/core/Typography';
+
+const useStyles = makeStyles((theme) => ({
+  score: {
+    textAlign: 'right',
+    paddingRight: theme.spacing(1),
+  },
+}));
 
 const BasicFooter = (props) => {
   const game = useGame();
+  const classes = useStyles();
 
   const showTimeAttackResults = useMemo(
     () =>
@@ -14,9 +24,12 @@ const BasicFooter = (props) => {
             getPaperProps: ({ score }) => ({
               style: { background: tenBinScoreToColor(Math.max(10.5 - score, 0), 0.4) },
             }),
+            getImageChild: ({ score }) => (
+              <Typography className={classes.score}>{score}s</Typography>
+            ),
           }
         : {},
-    [game],
+    [game, classes.score],
   );
 
   if (!game.mode) return null;

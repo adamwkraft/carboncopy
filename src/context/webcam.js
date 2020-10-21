@@ -76,7 +76,7 @@ const WebcamProvider = ({ children }) => {
   }, [scratchpad]);
 
   const clearCanvas = useCallback(() => {
-    ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+    ctx.clearRect(0, 0, canvasRef.current?.width, canvasRef.current?.height);
   }, [ctx]);
 
   const stopVideo = useCallback(() => {

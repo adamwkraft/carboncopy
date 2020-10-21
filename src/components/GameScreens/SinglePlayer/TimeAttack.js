@@ -83,6 +83,7 @@ const TimeAttack = (props) => {
 
   const { loop } = game;
   // TODO: add an animation for the screen content on page transition
+
   return (
     <div className={classes.root}>
       <div
@@ -98,18 +99,20 @@ const TimeAttack = (props) => {
           })}
         >
           {!loop.looping && (
-            <Typography variant="h6" component="h3" className={classes.slap}>
-              Match the poses as quickly as you can.
-            </Typography>
+            <>
+              <Typography variant="h6" component="h3" className={classes.slap}>
+                Match the poses as quickly as you can.
+              </Typography>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleClickGame}
+                disabled={!loop.ready}
+              >
+                Play
+              </Button>
+            </>
           )}
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleClickGame}
-            disabled={!loop.ready}
-          >
-            {loop.looping ? 'Stop' : 'Play'}
-          </Button>
         </div>
         {webcam.isFullScreen && <BasicFooter />}
       </div>

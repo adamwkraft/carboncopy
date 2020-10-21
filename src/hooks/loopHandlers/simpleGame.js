@@ -151,7 +151,7 @@ export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
 
             // we will reach this
             if (!target) {
-              stop();
+              // stop(); TODO: Check if we need this.
               roundTracker.current = 0;
               maskIterator.reset();
               return stop();
@@ -161,13 +161,24 @@ export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
             // but fired a new lap before it succeeded
             if (roundTracker.current >= currentMaskIdx) return;
 
+            const maxTimeAllowed = 10.0;
+            const segmentationMs = time.elapsed - lastTimeAttackSuccess.current;
+            if (segmentationMs / 1000 >= maxTimeAllowed) {
+              lastTimeAttackSuccess.current = time.elapsed;
+              say('Missed it!');
+              const dataUri = webcam.imageDataToDataUri(target);
+              setScores((state) => [...state, { score: maxTimeAllowed, dataUri }]);
+              webcam.clearCanvas();
+              maskIterator.next();
+              roundTracker.current++;
+            }
+
             promRef.current = predict(webcam.videoRef.current)
               .then(async (segmentation) => {
                 const score = getScore(target, segmentation, webcam.flipX);
 
                 const tenBinScore = rawScoreToTenBinScore(score);
                 if (tenBinScore > 5) {
-                  const segmentationMs = time.elapsed - lastTimeAttackSuccess.current;
                   const segmentationSec = segmentationMs / 1000;
                   lastTimeAttackSuccess.current = time.elapsed;
                   const numSecs = Number(segmentationSec.toFixed(1));

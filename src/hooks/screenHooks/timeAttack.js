@@ -9,15 +9,16 @@ export const useTimeAttack = (loop) => {
 
   const loadedRef = useRef(false);
 
-  const resultsText = useMemo(
-    () =>
-      `You finished Time Attack in ${
-        simpleGame.scores.length && !loop.looping
-          ? simpleGame.scores.reduce((acc, { score }) => acc + score, 0).toFixed(1)
-          : 0
-      } seconds!`,
-    [simpleGame, loop],
-  );
+  const resultsText = useMemo(() => {
+    let total =
+      simpleGame.scores.length && !loop.looping
+        ? simpleGame.scores.reduce((acc, { score }) => acc + score, 0)
+        : 0;
+    const average = +total.toFixed(1) / simpleGame.scores.length;
+
+    return `You finished Time Attack in ${total.toFixed(1)}
+      seconds, averaging ${average.toFixed(1)} seconds per pose!`;
+  }, [simpleGame, loop]);
 
   useEffect(() => {
     if (!loadedRef.current) {

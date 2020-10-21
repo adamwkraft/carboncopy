@@ -9,6 +9,8 @@ export const rawScoreToTenBinScore = (score) => {
 };
 
 export const tenBinScoreToPercent = (score) => {
+  // Returns a percent value between [0.0, 100.0]
+  score = Math.min(Math.max(score, 0), 10);
   return (score / 10) * 100;
 };
 
@@ -29,9 +31,13 @@ export const scoreToColor = (score, alpha) => {
   const hex = '#' + ('000000' + h.toString(16)).slice(-6);
 
   if (alpha) {
-    const { red, green, blue } = hexToRGB(hex);
-
-    return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+    try {
+      const { red, green, blue } = hexToRGB(hex);
+      return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+    } catch (e) {
+      console.error(e, { score, alpha, hex });
+      return 'rgba(255, 255, 255, 0)';
+    }
   }
 
   return hex;
