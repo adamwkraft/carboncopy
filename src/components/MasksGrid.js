@@ -136,7 +136,7 @@ const MasksGrid = (props) => {
                   {...PaperProps}
                   {...paperProps}
                 >
-                  {getImageChild && getImageChild(maskItem)}
+                  {getImageChild && getImageChild(maskItem, i)}
                   <img src={dataUri} className={classes.img} alt={`mask #${i}`} />
                 </Paper>
               </li>

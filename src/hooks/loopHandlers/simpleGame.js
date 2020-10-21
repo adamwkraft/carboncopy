@@ -81,6 +81,7 @@ export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
         clearScores();
         controller.useTimer({
           maxLaps: 9999999, // Good luck surviving this long!
+          lapDuration: 10.0 * 1000, // Initial time
           setLapTimeInfo: setLapTimeInfo,
           announceSeconds: true,
           onLap: ({ predict, time, stop }) => {
@@ -103,7 +104,7 @@ export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
 
               webcam.clearCanvas();
               const tenBinScore = rawScoreToTenBinScore(score);
-              if (tenBinScore < 5) {
+              if (tenBinScore < 4) {
                 // Game Over
                 maskIterator.reset();
                 return stop();
