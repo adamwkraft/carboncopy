@@ -1,7 +1,7 @@
 import React from 'react';
 import classnames from 'classnames';
 import Button from '@material-ui/core/Button';
-import { makeStyles } from '@material-ui/core';
+import { makeStyles, Typography } from '@material-ui/core';
 
 import ProgressBar from '../../ProgressBar';
 import SurvivalFooter from './SurvivalFooter';
@@ -58,6 +58,11 @@ const useStyles = makeStyles((theme) => ({
     left: theme.spacing(8),
     right: theme.spacing(8),
   },
+  slap: {
+    background: 'rgba(255,255,255,0.95)',
+    padding: theme.spacing(1),
+    borderRadius: theme.spacing(0.5),
+  },
 }));
 
 export const getSurvivalPaperProps = (_, ind, masks) =>
@@ -72,6 +77,8 @@ const Survival = (props) => {
   const survival = useGameMode(useSurvival);
   const webcam = useWebcam();
   const { loop, lapTimeInfo, simpleGame, captureMasks, handleClickGame } = survival;
+
+  // TODO: add an animation for the screen content on page transition
 
   return (
     <div
@@ -92,14 +99,19 @@ const Survival = (props) => {
             <ProgressBar color={lapTimeInfo.color} completed={lapTimeInfo.percentRemaining} />
           </div>
         ) : (
-          <Button
-            color="primary"
-            variant="contained"
-            onClick={handleClickGame}
-            disabled={!loop.ready}
-          >
-            Play
-          </Button>
+          <>
+            <Typography component="h3" variant="h5" className={classes.slap}>
+              Match the poses and survive as long as you can.
+            </Typography>
+            <Button
+              color="primary"
+              variant="contained"
+              onClick={handleClickGame}
+              disabled={!loop.ready}
+            >
+              Play
+            </Button>
+          </>
         )}
       </div>
       {webcam.isFullScreen && !loop.looping && (

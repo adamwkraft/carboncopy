@@ -1,8 +1,7 @@
+import React from 'react';
 import classnames from 'classnames';
-import React, { useMemo } from 'react';
-import { makeStyles } from '@material-ui/core';
+import { Button, makeStyles, Typography } from '@material-ui/core';
 
-import Options from '../../Options';
 import BasicFooter from './BasicFooter';
 
 import { useGame, useGameMode } from '../../Game';
@@ -59,6 +58,18 @@ const useStyles = makeStyles((theme) => ({
     left: theme.spacing(8),
     right: theme.spacing(8),
   },
+  slap: {
+    background: 'rgba(255,255,255,0.95)',
+    padding: theme.spacing(1),
+    borderRadius: theme.spacing(0.5),
+  },
+  screen: {
+    textAlign: 'center',
+    '& > button': {
+      marginTop: theme.spacing(2),
+      minWidth: 150,
+    },
+  },
 }));
 
 const TimeAttack = (props) => {
@@ -71,21 +82,7 @@ const TimeAttack = (props) => {
   const { simpleGame, handleClickGame } = timeAttack;
 
   const { loop } = game;
-
-  const buttons = useMemo(
-    () => [
-      {
-        props: {
-          key: 'play/stop',
-          onClick: handleClickGame,
-          disabled: !loop.ready || (!loop.looping && !simpleGame.ready),
-          children: loop.looping ? 'Stop' : 'Play',
-        },
-      },
-    ],
-    [loop.ready, loop.looping, handleClickGame, simpleGame.ready],
-  );
-
+  // TODO: add an animation for the screen content on page transition
   return (
     <div className={classes.root}>
       <div
@@ -96,26 +93,23 @@ const TimeAttack = (props) => {
         })}
       >
         <div
-          className={classnames({
+          className={classnames(classes.screen, {
             [classes.optionsTop]: !!loop.looping,
           })}
         >
-          {loop.looping ? (
-            <Options
-              offset={70}
-              buttons={[
-                {
-                  props: {
-                    key: 'stop',
-                    onClick: handleClickGame,
-                    children: 'Stop',
-                  },
-                },
-              ]}
-            />
-          ) : (
-            <Options buttons={buttons} />
+          {!loop.looping && (
+            <Typography variant="h6" component="h3" className={classes.slap}>
+              Match the poses as quickly as you can.
+            </Typography>
           )}
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleClickGame}
+            disabled={!loop.ready}
+          >
+            {loop.looping ? 'Stop' : 'Play'}
+          </Button>
         </div>
         {webcam.isFullScreen && <BasicFooter />}
       </div>
