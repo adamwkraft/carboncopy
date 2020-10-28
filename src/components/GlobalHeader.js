@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useCallback } from 'react';
 import Dialog from '@material-ui/core/Dialog';
 import { makeStyles } from '@material-ui/styles';
 import { withStyles } from '@material-ui/core/styles';
@@ -103,9 +103,10 @@ const GlobalHeader = (props) => {
   const audio = useAudio();
   const [open, setOpen] = useState(false);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setOpen(false);
-  };
+    props.tutorial.markTutorialCompleted();
+  }, [props.tutorial]);
 
   const onHomeScreen = props.screen === screenStates.screen.DEFAULT;
   const styleProps = useSpring({ to: { opacity: !onHomeScreen ? 1 : 0 }, config: config.stiff });
@@ -121,7 +122,9 @@ const GlobalHeader = (props) => {
             <IconButton
               size="small"
               className={classnames(classes.btn, classes.back)}
-              onClick={props.players === screenStates.players.MULTIPLAYER ? props.goHome : props.goBack}
+              onClick={
+                props.players === screenStates.players.MULTIPLAYER ? props.goHome : props.goBack
+              }
             >
               <BackIcon />
             </IconButton>
@@ -134,7 +137,11 @@ const GlobalHeader = (props) => {
             >
               <b>i</b>
             </IconButton>
-            <Dialog onClose={handleClose} aria-labelledby="customized-dialog-title" open={open}>
+            <Dialog
+              onClose={handleClose}
+              aria-labelledby="customized-dialog-title"
+              open={open || !props.tutorial.completed}
+            >
               <DialogTitle id="customized-dialog-title" onClose={handleClose}>
                 Set Up
               </DialogTitle>
@@ -164,6 +171,7 @@ GlobalHeader.propTypes = {
   screen: PropTypes.string,
   goHome: PropTypes.func.isRequired,
   goBack: PropTypes.func.isRequired,
+  tutorial: PropTypes.object.isRequired,
 };
 
 export default memo(GlobalHeader);

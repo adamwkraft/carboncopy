@@ -38,6 +38,7 @@ const Game = ({ webcam }) => {
   return (
     <gameContext.Provider value={game}>
       <GlobalHeader
+        tutorial={game.tutorial}
         mode={game.screen.state.mode}
         screen={game.screen.state.screen}
         players={game.screen.state.players}
