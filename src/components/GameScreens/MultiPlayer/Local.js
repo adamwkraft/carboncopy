@@ -2,13 +2,11 @@ import React from 'react';
 import classnames from 'classnames';
 import Button from '@material-ui/core/Button';
 import ProgressBar from '../../ProgressBar';
-import { makeStyles, Typography } from '@material-ui/core';
+import { makeStyles, Paper, Typography } from '@material-ui/core';
 
 import { useGame, useGameMode } from '../../Game';
 
 import { useLocal } from '../../../hooks/screenHooks/local';
-import { useWebcam } from '../../../context/webcam';
-import BasicFooter from '../SinglePlayer/BasicFooter';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -17,6 +15,9 @@ const useStyles = makeStyles((theme) => ({
     overflow: 'hidden',
     position: 'relative',
     '& h2': {
+      marginBottom: theme.spacing(4),
+    },
+    '& h3': {
       marginBottom: theme.spacing(1),
     },
   },
@@ -66,11 +67,18 @@ const useStyles = makeStyles((theme) => ({
   container: {
     textAlign: 'center',
   },
+  paper: {
+    padding: theme.spacing(1),
+    paddingRight: theme.spacing(5),
+    paddingLeft: theme.spacing(5),
+    background: 'rgba(255,255,255,0.95)',
+    marginBottom: theme.spacing(2),
+  },
 }));
 
 const text = [
-  'Player One, get ready to capture your masks.',
-  'Player Two, get ready to capture your masks.',
+  'Player One, get ready to capture your poses.',
+  'Player Two, get ready to capture your poses.',
   'Player One, get ready to play!',
   'Player Two, get ready to play!',
 ];
@@ -83,8 +91,8 @@ const subtext = [
 ];
 
 const buttonText = [
-  "Capture Player One's Masks",
-  "Capture Player Two's Masks",
+  "Capture Player One's Poses",
+  "Capture Player Two's Poses",
   'Player One Play',
   'Player Two Play',
 ];
@@ -93,7 +101,6 @@ const Local = (props) => {
   const classes = useStyles();
   const game = useGame();
   const local = useGameMode(useLocal);
-  const webcam = useWebcam();
 
   return (
     <div className={classes.root}>
@@ -111,12 +118,19 @@ const Local = (props) => {
         >
           {!game.loop.looping ? (
             <>
-              <Typography component="h2" variant="h5">
-                {text[local.setupProgress]}
-              </Typography>
-              <Typography component="h2" variant="h6">
-                {subtext[local.setupProgress]}
-              </Typography>
+              {local.setupProgress < 4 && (
+                <Paper className={classes.paper}>
+                  <Typography component="h2" variant="h5">
+                    Take turns capturing poses and attempting to match your opponents.
+                  </Typography>
+                  <Typography component="h3" variant="h5">
+                    {text[local.setupProgress]}
+                  </Typography>
+                  <Typography component="h4" variant="h6">
+                    {subtext[local.setupProgress]}
+                  </Typography>
+                </Paper>
+              )}
               <Button
                 color="primary"
                 variant="contained"

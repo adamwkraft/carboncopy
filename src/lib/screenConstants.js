@@ -26,7 +26,7 @@ export const screenStates = {
       TIME_ATTACK: 'Time Attack',
     },
     [MULTIPLAYER]: {
-      LOCAL: 'Local Multiplayer',
+      LOCAL: 'Multiplayer',
       REMOTE: 'Remote Multiplayer',
     },
     DEFAULT: null,
@@ -34,9 +34,10 @@ export const screenStates = {
 };
 
 // identifies these values as works in progress, ie disabled buttons
-export const wipScreens = [
-  screenStates.mode[MULTIPLAYER].REMOTE,
-].reduce((acc, item) => ({ ...acc, [item]: !!1 }), {});
+export const wipScreens = [screenStates.mode[MULTIPLAYER].REMOTE].reduce(
+  (acc, item) => ({ ...acc, [item]: !!1 }),
+  {},
+);
 
 export const screenStatesArrays = Object.entries(screenStates).reduce(
   (acc, [stateKey, statesObj]) => ({
