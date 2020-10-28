@@ -109,8 +109,21 @@ export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
                 maskIterator.reset();
                 return stop();
               } else {
+                // Adjust time - multiply (decay) by 0.9.
+                // controller.timerRef.current.lapDuration =
+                //   Math.floor(Math.max(controller.timerRef.current.lapDuration * 0.9, 1) * 10) / 10;
+
+                // Adjust time linear - subtract a fixed value.
+                // controller.timerRef.current.lapDuration =
+                //   Math.floor(Math.max(controller.timerRef.current.lapDuration - 500, 1000) * 10) /
+                //   10;
+
+                // Adjust time, t + 1 = t - log(t) - small_constant
+                // Intervals are: [10, 9.3, 8.6, 7.9, 7.4, 6.7, 6.1, 5.6, 5.0, 4.5, 4.0, 3.6, 3.2, 2.7, 2.4, 2.0, 1.8, 1.5, 1.3, 1.1, 1.0 ...... 0.67]
+                const t_sec = controller.timerRef.current.lapDuration / 1000;
                 controller.timerRef.current.lapDuration =
-                  Math.floor(Math.max(controller.timerRef.current.lapDuration * 0.9, 1) * 10) / 10;
+                  (t_sec - Math.log(t_sec) / Math.log(50)) * 1000 - 100;
+
                 maskIterator.random();
               }
             });
