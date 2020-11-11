@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState, useEffect, useCallback } from 'react';
+import { useSfx } from './sfx';
 import { useSpeech } from './speech';
 
 const LS_AUDIO = '__audio_muted__';
@@ -8,6 +9,7 @@ export const useAudioController = () => {
   const [audioState, setAudioState] = useState(true);
 
   const speech = useSpeech(audioRef);
+  const sfx = useSfx(audioRef);
 
   useEffect(() => {
     const muteAudio = localStorage.getItem(LS_AUDIO);
@@ -35,9 +37,9 @@ export const useAudioController = () => {
     () => ({
       state: audioState,
       stateRef: audioRef,
-      handlers: { toggle, speech },
+      handlers: { toggle, speech, sfx },
     }),
-    [audioState, toggle, speech],
+    [audioState, toggle, speech, sfx],
   );
 
   return audio;

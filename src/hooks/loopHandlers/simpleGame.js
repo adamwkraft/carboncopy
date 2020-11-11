@@ -18,6 +18,7 @@ export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
   const {
     handlers: {
       speech: { say },
+      sfx: { playSuccessSound, playFailureSound },
     },
   } = useAudio();
 
@@ -149,6 +150,7 @@ export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
   const handleTimeAttackLoop = useCallback(
     async (controller) => {
       if (controller.time.first) {
+        maskIterator.resetAndShuffle();
         maskIterator.next();
         clearScores();
         roundTracker.current = 0;
@@ -178,7 +180,8 @@ export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
             const segmentationMs = time.elapsed - lastTimeAttackSuccess.current;
             if (segmentationMs / 1000 >= maxTimeAllowed) {
               lastTimeAttackSuccess.current = time.elapsed;
-              say('Missed it!');
+              // say('Missed it!');
+              playFailureSound();
               const dataUri = webcam.imageDataToDataUri(target);
               setScores((state) => [...state, { score: maxTimeAllowed, dataUri }]);
               webcam.clearCanvas();
@@ -205,7 +208,8 @@ export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
                   // if we hit this then we succeeded in the predict promise
                   // but fired a new lap before it succeeded
                   if (roundTracker.current >= currentMaskIdx) return;
-                  say('Got it!');
+                  // say('Got it!');
+                  playSuccessSound();
                   setScores((state) => [...state, { score: numSecs, dataUri }]);
                   webcam.clearCanvas();
                   maskIterator.next();

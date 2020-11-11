@@ -17,6 +17,34 @@ export const useIterateMask = () => {
     maskRef.current = null;
   }, []);
 
+  const shuffle = useCallback(() => {
+    const array = masks.slice();
+    var currentIndex = array.length,
+      temporaryValue,
+      randomIndex;
+
+    // While there remain elements to shuffle...
+    while (0 !== currentIndex) {
+      // Pick a remaining element...
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex -= 1;
+
+      // And swap it with the current element.
+      temporaryValue = array[currentIndex];
+      array[currentIndex] = array[randomIndex];
+      array[randomIndex] = temporaryValue;
+    }
+
+    setMasks(array);
+    masksRef.current = array;
+  }, [masks, setMasks]);
+
+  const resetAndShuffle = useCallback(() => {
+    maskIdxRef.current = 0;
+    maskRef.current = null;
+    shuffle();
+  }, [shuffle]);
+
   const next = useCallback(() => {
     const currentMask = masksRef.current[maskIdxRef.current];
 
@@ -50,8 +78,9 @@ export const useIterateMask = () => {
       setMasks,
       maskIdxRef,
       getNumMasks,
+      resetAndShuffle,
       hasMasks: !!masks.length,
     }),
-    [next, masks, random, reset, setMasks, getNumMasks],
+    [next, masks, random, reset, setMasks, resetAndShuffle, getNumMasks],
   );
 };
