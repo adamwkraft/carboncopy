@@ -4,12 +4,15 @@ import { useWebcam } from '../../context/webcam';
 import { useSimpleGame } from '../loopHandlers/simpleGame';
 import { useCaptureMasks } from '../loopHandlers/captureMasks';
 import { initialLapInfo } from '../lapTimer';
+import { DEBUG } from '../../lib/constants';
+
+const NUM_MASKS = DEBUG ? 1 : 3;
 
 export const useLocal = (loop) => {
   const webcam = useWebcam();
   const [lapTimeInfo, setLapTimeInfo] = useState(initialLapInfo);
   const simpleGame = useSimpleGame({ setLapTimeInfo });
-  const captureMasks = useCaptureMasks({ maxMasks: 3, setLapTimeInfo });
+  const captureMasks = useCaptureMasks({ maxMasks: NUM_MASKS, setLapTimeInfo });
 
   const [masks, setMasks] = useState([[], []]);
   const [setupProgress, setSetupProgress] = useState(0);
@@ -70,6 +73,7 @@ export const useLocal = (loop) => {
       lapTimeInfo,
       captureMasks,
       setupProgress,
+      NUM_MASKS,
     }),
     [simpleGame, lapTimeInfo, captureMasks, setupProgress, handleClick],
   );
