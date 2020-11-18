@@ -7,6 +7,7 @@ import { withStyles } from '@material-ui/core/styles';
 import HomeIcon from '@material-ui/icons/Home';
 import BackIcon from '@material-ui/icons/ArrowLeft';
 import IconButton from '@material-ui/core/IconButton';
+import VolumeUpIcon from '@material-ui/icons/VolumeUp';
 import VolumeOffIcon from '@material-ui/icons/VolumeOff';
 import MuteVolumeIcon from '@material-ui/icons/VolumeMute';
 
@@ -159,7 +160,7 @@ const GlobalHeader = (props) => {
       <div className={classes.right}>
         <WebcamSelect />
         <IconButton className={classes.volume} size="small" onClick={audio.handlers.toggle}>
-          {audio.state ? <MuteVolumeIcon /> : <VolumeOffIcon />}
+          {audio.state ? <VolumeUpIcon /> : <VolumeOffIcon />}
         </IconButton>
       </div>
     </div>
