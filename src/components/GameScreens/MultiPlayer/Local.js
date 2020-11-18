@@ -1,8 +1,18 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import classnames from 'classnames';
-import Button from '@material-ui/core/Button';
 import ProgressBar from '../../ProgressBar';
 import { makeStyles, Paper, Typography } from '@material-ui/core';
+import HelpIcon from '@material-ui/icons/Help';
+import IconButton from '@material-ui/core/IconButton';
+
+import Stepper from '@material-ui/core/Stepper';
+import Step from '@material-ui/core/Step';
+import StepLabel from '@material-ui/core/StepLabel';
+import StepConnector from '@material-ui/core/StepConnector';
+import CameraAltIcon from '@material-ui/icons/CameraAlt';
+import EmojiPeopleIcon from '@material-ui/icons/EmojiPeople';
+import PlayArrowIcon from '@material-ui/icons/PlayCircleOutline';
+import ReplayIcon from '@material-ui/icons/Replay';
 
 import { useGame, useGameMode } from '../../Game';
 
@@ -68,31 +78,82 @@ const useStyles = makeStyles((theme) => ({
     textAlign: 'center',
   },
   paper: {
+    position: 'relative',
     padding: theme.spacing(1),
     paddingRight: theme.spacing(5),
     paddingLeft: theme.spacing(5),
     background: 'rgba(255,255,255,0.95)',
+    marginTop: theme.spacing(2),
+  },
+  help: {
+    maxHeight: 200,
+    marginTop: theme.spacing(2),
+    '& > div > p': {
+      marginBottom: theme.spacing(1),
+      fontSize: 16,
+    },
+  },
+  helpBtn: {
+    position: 'absolute',
+    bottom: theme.spacing(1),
+    right: theme.spacing(1),
+  },
+  stepper: {
+    background: 'transparent',
     marginBottom: theme.spacing(2),
+  },
+  playIcon: {
+    fontSize: 50,
   },
 }));
 
-const text = [
-  'Player One, get ready to capture your poses.',
-  'Player Two, get ready to capture your poses.',
-  'Player One, get ready to play!',
-  'Player Two, get ready to play!',
-];
+const useColorlibStepIconStyles = makeStyles((theme) => ({
+  root: {
+    backgroundColor: '#ccc',
+    zIndex: 1,
+    color: '#fff',
+    width: 50,
+    height: 50,
+    display: 'flex',
+    borderRadius: '50%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  active: {
+    backgroundImage: `linear-gradient( 136deg, ${theme.palette.secondary.light} 0%, ${theme.palette.secondary.main} 50%, ${theme.palette.secondary.dark} 100%)`,
+    boxShadow: '0 4px 10px 0 rgba(0,0,0,.25)',
+  },
+  completed: {
+    backgroundImage: `linear-gradient( 136deg, ${theme.palette.primary.light} 0%, ${theme.palette.primary.main} 50%, ${theme.palette.primary.dark} 100%)`,
+  },
+}));
 
-const subtext = [
-  'Player Two, please leave the room.',
-  'Player One, please leave the room.',
-  'Good luck!',
-  'Good luck!',
-];
+function ColorlibStepIcon(props) {
+  const classes = useColorlibStepIconStyles();
+  const { active, completed } = props;
 
-const buttonText = [
-  "Capture Player One's Poses",
-  "Capture Player Two's Poses",
+  const icons = {
+    1: <CameraAltIcon />,
+    2: <CameraAltIcon />,
+    3: <EmojiPeopleIcon />,
+    4: <EmojiPeopleIcon />,
+  };
+
+  return (
+    <div
+      className={classnames(classes.root, {
+        [classes.active]: active,
+        [classes.completed]: completed,
+      })}
+    >
+      {icons[String(props.icon)]}
+    </div>
+  );
+}
+
+const stepperLabels = [
+  'Player One Capture',
+  'Player Two Capture',
   'Player One Play',
   'Player Two Play',
 ];
@@ -101,6 +162,26 @@ const Local = (props) => {
   const classes = useStyles();
   const game = useGame();
   const local = useGameMode(useLocal);
+
+  const [showHelp, setShowHelp] = useState(false);
+  const toggleHelp = useCallback(() => {
+    setShowHelp((a) => !a);
+  }, []);
+
+  const [primary, secondary] = [
+    ['One', 'Two'],
+    ['Two', 'One'],
+  ][local.setupProgress % 2];
+
+  const text =
+    local.setupProgress < 2
+      ? `Player ${primary}, get ready to capture ${local.NUM_MASKS} poses.`
+      : `Player ${primary}, get ready to play!`;
+
+  const subtext =
+    local.setupProgress < 2 ? `Player ${secondary}, please leave the room.` : `Good luck!`;
+
+  const replayPhase = local.setupProgress >= 4;
 
   return (
     <div className={classes.root}>
@@ -117,29 +198,63 @@ const Local = (props) => {
           })}
         >
           {!game.loop.looping ? (
-            <>
-              {local.setupProgress < 4 && (
-                <Paper className={classes.paper}>
-                  <Typography component="h2" variant="h5">
-                    Take turns capturing poses and attempting to match your opponents.
-                  </Typography>
-                  <Typography component="h3" variant="h5">
-                    {text[local.setupProgress]}
-                  </Typography>
-                  <Typography component="h4" variant="h6">
-                    {subtext[local.setupProgress]}
-                  </Typography>
-                </Paper>
+            <Paper className={classes.paper}>
+              {!replayPhase && (
+                <Stepper
+                  className={classes.stepper}
+                  alternativeLabel
+                  activeStep={local.setupProgress}
+                  connector={<StepConnector />}
+                >
+                  {stepperLabels.map((label) => (
+                    <Step key={label}>
+                      <StepLabel StepIconComponent={ColorlibStepIcon}>{label}</StepLabel>
+                    </Step>
+                  ))}
+                </Stepper>
               )}
-              <Button
-                color="primary"
-                variant="contained"
+              <Typography component="h3" variant="h5">
+                {replayPhase ? `Player One wins!` : text}
+                {/* TODO: Who won? */}
+              </Typography>
+              {!replayPhase && (
+                <Typography component="h4" variant="h6">
+                  {subtext}
+                </Typography>
+              )}
+              <IconButton
+                color="secondary"
+                size="medium"
                 disabled={!game.loop.ready}
                 onClick={local.handleClick}
+                className={classes.play}
               >
-                {buttonText[local.setupProgress] || 'Play Again'}
-              </Button>
-            </>
+                {replayPhase ? (
+                  <ReplayIcon className={classes.playIcon} />
+                ) : (
+                  <PlayArrowIcon className={classes.playIcon} />
+                )}
+              </IconButton>
+              {!replayPhase && (
+                <div className={classes.help}>
+                  {showHelp && (
+                    <div className={classes.helpContent}>
+                      <p>In this game mode two players will compete head to head.</p>
+                      <p>
+                        Each player will take turns capturing funky poses for their opponent to try
+                        and match.
+                      </p>
+                      <p>
+                        The player who does the best job matching their opponent's poses will win.
+                      </p>
+                    </div>
+                  )}
+                  <IconButton size="small" className={classes.helpBtn} onClick={toggleHelp}>
+                    <HelpIcon />
+                  </IconButton>
+                </div>
+              )}
+            </Paper>
           ) : (
             <div className={classes.progress}>
               <ProgressBar
