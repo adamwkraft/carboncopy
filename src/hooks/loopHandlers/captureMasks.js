@@ -57,7 +57,8 @@ export const useCaptureMasks = ({ maxMasks = 0, setLapTimeInfo } = {}) => {
         maskCountRef.current = masks.length;
         controller.useTimer({
           announceSeconds: true,
-          lapDuration: 3000,
+          lapDuration: 3000, // NOTE: This is the per-loop time used for multiplayer capture.
+          postLapDelay: 2500,
           maxLaps: maxMasks,
           setLapTimeInfo: setLapTimeInfo,
           // run a single prediction before starting the lap to ensure things roll smoothly
@@ -75,12 +76,21 @@ export const useCaptureMasks = ({ maxMasks = 0, setLapTimeInfo } = {}) => {
 
               webcam.clearCanvas();
               webcam.ctx.putImageData(overlayImageData, 0, 0);
+
               setMasks((state) => [...state, { overlay: overlayDataUri, binary: binaryDataUri }]);
 
+              await new Promise((resolve) => setTimeout(resolve, 1500));
+              webcam.clearCanvas();
+
               if (maxMasks && ++maskCountRef.current > maxMasks) {
+                // NOTE: This does not get called if maxLaps is set.
                 return stop();
               }
             });
+          },
+          onEnd: async ({ time, webcam, predict, stop }) => {
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+            webcam.clearCanvas();
           },
         });
       }
