@@ -31,6 +31,7 @@ export const useLapTimer = () => {
           onBeforeStartLap,
           onBeforeComplete: false,
           onBeforeStarted: false,
+          onEndCalled: false,
           onLap,
           onEnd,
           maxLaps,
@@ -68,11 +69,17 @@ export const useLapTimer = () => {
 
         if (lapTimer.current.maxLaps && lapTimer.current.numLaps === lapTimer.current.maxLaps) {
           if (lapTimer.current.onEnd) {
-            await lapTimer.current.onEnd({ time, webcam, predict, stop });
+            if (!lapTimer.current.onEndCalled) {
+              lapTimer.current.onEndCalled = true;
+              await lapTimer.current.onEnd({ time, webcam, predict, stop });
+              lapTimer.current = null;
+              return stop();
+            }
+            return;
+          } else {
+            lapTimer.current = null;
+            return stop();
           }
-
-          lapTimer.current = null;
-          return stop();
         }
 
         const secondsPassed = Math.floor(time.lapTime / 100) / 10;
