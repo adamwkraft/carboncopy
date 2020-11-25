@@ -34,13 +34,15 @@ export const useSfx = (audioRef) => {
     [audioRef],
   );
 
-  const playSuccessSound = useCallback(() => play(process.env.PUBLIC_URL + '/sounds/bell_1.ogg'), [
-    play,
-  ]);
+  const playSuccessSound = useCallback(
+    () => play(process.env.PUBLIC_URL + '/sounds/metallic_clank.ogg'),
+    [play],
+  );
 
-  const playFailureSound = useCallback(() => play(process.env.PUBLIC_URL + '/sounds/bell_2.ogg'), [
-    play,
-  ]);
+  const playFailureSound = useCallback(
+    () => play(process.env.PUBLIC_URL + '/sounds/glass_shatter.ogg'),
+    [play],
+  );
 
   return { playSuccessSound, playFailureSound };
 };
