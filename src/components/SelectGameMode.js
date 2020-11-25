@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
 import React, { useCallback, useMemo } from 'react';
-
+import { useCarbon } from '../context/carbon';
 import { screenStatesArrays, wipScreens } from '../lib/screenConstants';
 
 import Options from './Options';
@@ -29,6 +29,7 @@ const useStyles = makeStyles((theme) => ({
 
 const SelectGameMode = (props) => {
   const classes = useStyles();
+  const { carbonState } = useCarbon();
 
   const handleSetGameMode = useCallback(
     ({ currentTarget: { name } }) => {
@@ -39,16 +40,18 @@ const SelectGameMode = (props) => {
 
   const buttons = useMemo(
     () =>
-      screenStatesArrays.mode[props.screen.state.players]?.map((gameMode) => ({
-        props: {
-          key: gameMode,
-          name: gameMode,
-          children: gameMode,
-          onClick: handleSetGameMode,
-          disabled: !!wipScreens[gameMode],
-        },
-      })),
-    [props.screen.state.players, handleSetGameMode],
+      screenStatesArrays.mode[props.screen.state.players]
+        ?.map((gameMode) => ({
+          props: {
+            key: gameMode,
+            name: gameMode,
+            children: gameMode,
+            onClick: handleSetGameMode,
+            disabled: !!wipScreens[gameMode],
+          },
+        }))
+        .filter((obj) => (!carbonState ? obj.props.name !== 'Practice' : true)), // Only show Practice in Carbonate mode.
+    [props.screen.state.players, handleSetGameMode, carbonState],
   );
 
   return (
