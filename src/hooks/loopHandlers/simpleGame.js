@@ -6,10 +6,12 @@ import { useIterateMask } from '../iterateMask';
 import { useWebcam } from '../../context/webcam';
 import { rawScoreToTenBinScore } from '../../lib/score';
 import { getScoreAndOverlayForSegmentationAndImageData, getScore } from '../../lib/util';
+import { useCarbon } from '../../context/carbon';
 
 export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
   const promRef = useRef();
   const webcam = useWebcam();
+  const { carbonRef } = useCarbon();
   const roundTracker = useRef(0);
   const maskIterator = useIterateMask();
   const lastTimeAttackSuccess = useRef(0);
@@ -19,6 +21,7 @@ export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
   const {
     handlers: {
       sfx: { playSuccessSound, playFailureSound },
+      speech: { say },
     },
   } = useAudio();
 
@@ -199,8 +202,11 @@ export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
             const segmentationMs = time.elapsed - lastTimeAttackSuccess.current;
             if (segmentationMs / 1000 >= maxTimeAllowed) {
               lastTimeAttackSuccess.current = time.elapsed;
-              // say('Missed it!');
-              playFailureSound();
+              if (carbonRef.current) {
+                say('Missed it!');
+              } else {
+                playFailureSound();
+              }
               const dataUri = webcam.imageDataToDataUri(target);
               setScores((state) => [...state, { score: maxTimeAllowed, dataUri }]);
               webcam.clearCanvas();
@@ -227,8 +233,11 @@ export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
                   // if we hit this then we succeeded in the predict promise
                   // but fired a new lap before it succeeded
                   if (roundTracker.current >= currentMaskIdx) return;
-                  // say('Got it!');
-                  playSuccessSound();
+                  if (carbonRef.current) {
+                    say('Got it!');
+                  } else {
+                    playSuccessSound();
+                  }
                   setScores((state) => [...state, { score: numSecs, dataUri }]);
                   webcam.clearCanvas();
                   maskIterator.next();

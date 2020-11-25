@@ -9,6 +9,7 @@ import Main from '../components/Main';
 import WebcamProvider from '../context/webcam';
 import BodyPixProvider from '../context/bodyPix';
 import AudioProvider from '../context/audio';
+import CarbonProvider from '../context/carbon';
 
 const theme = createMuiTheme({
   palette: {
@@ -47,10 +48,12 @@ function App() {
       <WebcamProvider>
         <BodyPixProvider>
           <AudioProvider>
-            <>
-              <CssBaseline />
-              <Main cvReady={cvReady} />
-            </>
+            <CarbonProvider>
+              <>
+                <CssBaseline />
+                <Main cvReady={cvReady} />
+              </>
+            </CarbonProvider>
           </AudioProvider>
         </BodyPixProvider>
       </WebcamProvider>
