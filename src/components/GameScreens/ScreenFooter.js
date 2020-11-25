@@ -8,6 +8,7 @@ import { maxWidth } from '../../lib/constants';
 import { makeStyles } from '@material-ui/styles';
 import BasicFooter from './SinglePlayer/BasicFooter';
 import SurvivalFooter from './SinglePlayer/SurvivalFooter';
+import MultiplayerFooter from './MultiPlayer/MultiplayerFooter';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -29,7 +30,7 @@ const Footers = {
       [screenStates.mode[screenStates.players.SINGLE_PLAYER].TIME_ATTACK]: BasicFooter,
     },
     [screenStates.players.MULTIPLAYER]: {
-      [screenStates.mode[screenStates.players.MULTIPLAYER].LOCAL]: Null,
+      [screenStates.mode[screenStates.players.MULTIPLAYER].LOCAL]: MultiplayerFooter,
       [screenStates.mode[screenStates.players.MULTIPLAYER].REMOTE]: () => 'REMOTE footer',
     },
   },

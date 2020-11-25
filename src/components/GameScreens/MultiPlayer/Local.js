@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import classnames from 'classnames';
 import ProgressBar from '../../ProgressBar';
 import { makeStyles, Paper, Typography } from '@material-ui/core';
@@ -17,6 +17,8 @@ import ReplayIcon from '@material-ui/icons/Replay';
 import { useGame, useGameMode } from '../../Game';
 
 import { useLocal } from '../../../hooks/screenHooks/local';
+import { useWebcam } from '../../../context/webcam';
+import MultiplayerFooter from './MultiplayerFooter';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -105,6 +107,9 @@ const useStyles = makeStyles((theme) => ({
   playIcon: {
     fontSize: 50,
   },
+  subtext: (replayPhase) => ({
+    marginTop: replayPhase ? theme.spacing(2) : 0,
+  }),
 }));
 
 const useColorlibStepIconStyles = makeStyles((theme) => ({
@@ -159,9 +164,9 @@ const stepperLabels = [
 ];
 
 const Local = (props) => {
-  const classes = useStyles();
   const game = useGame();
   const local = useGameMode(useLocal);
+  const webcam = useWebcam();
 
   const [showHelp, setShowHelp] = useState(false);
   const toggleHelp = useCallback(() => {
@@ -182,6 +187,15 @@ const Local = (props) => {
     local.setupProgress < 2 ? `Player ${secondary}, please leave the room.` : `Good luck!`;
 
   const replayPhase = local.setupProgress >= 4;
+
+  const winnerText = useMemo(() => {
+    if (!replayPhase) return '';
+    if (local.multiplayerScoreSums[0] > local.multiplayerScoreSums[1]) return 'Player One wins!';
+    if (local.multiplayerScoreSums[0] < local.multiplayerScoreSums[1]) return 'Player Two wins!';
+    return "It's a tie!";
+  }, [local.multiplayerScoreSums, replayPhase]);
+
+  const classes = useStyles(replayPhase);
 
   return (
     <div className={classes.root}>
@@ -214,16 +228,16 @@ const Local = (props) => {
                 </Stepper>
               )}
               <Typography component="h3" variant="h5">
-                {replayPhase ? `Player One wins!` : text}
-                {/* TODO: Who won? */}
+                {replayPhase ? winnerText : text}
               </Typography>
-              {!replayPhase && (
-                <Typography component="h4" variant="h6">
-                  {subtext}
-                </Typography>
+              {replayPhase && webcam.isFullScreen && !game.loop.looping && (
+                <MultiplayerFooter isFullScreen={webcam.isFullScreen} />
               )}
+              <Typography component="h4" variant="h6" className={classes.subtext}>
+                {replayPhase ? 'Play again?' : subtext}
+              </Typography>
               <IconButton
-                color="secondary"
+                color={replayPhase ? 'primary' : 'secondary'}
                 size="medium"
                 disabled={!game.loop.ready}
                 onClick={local.handleClick}
@@ -264,7 +278,6 @@ const Local = (props) => {
             </div>
           )}
         </div>
-        {/* {webcam.isFullScreen && !game.loop.looping && <BasicFooter />} */}
       </div>
     </div>
   );
