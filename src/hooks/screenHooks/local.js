@@ -14,6 +14,23 @@ export const useLocal = (loop) => {
   const simpleGame = useSimpleGame({ setLapTimeInfo });
   const captureMasks = useCaptureMasks({ maxMasks: NUM_MASKS, setLapTimeInfo });
 
+  const multiplayerScoreSums = useMemo(
+    () =>
+      simpleGame.multiplayerScores.map((scores) =>
+        scores.length && !loop.looping ? scores.reduce((acc, { score }) => acc + score, 0) : 0,
+      ),
+    [simpleGame, loop],
+  );
+
+  const multiplayerResultsText = useMemo(
+    () =>
+      multiplayerScoreSums.map(
+        (score, playerIdx) =>
+          `Player ${playerIdx ? 'Two' : 'One'} scored a total of ${score} points`,
+      ),
+    [multiplayerScoreSums],
+  );
+
   const [masks, setMasks] = useState([[], []]);
   const [setupProgress, setSetupProgress] = useState(0);
   const incrementProgress = useCallback(() => {
@@ -43,8 +60,11 @@ export const useLocal = (loop) => {
   }, [loop, captureMasks, setupProgress, webcam, incrementProgress]);
 
   const handlePlayGame = useCallback(() => {
-    simpleGame.setMasks(masks[setupProgress === 2 ? 1 : 0]);
-    loop.start(simpleGame.handleLoop);
+    const maskIndex = setupProgress === 2 ? 1 : 0;
+    const playerIndex = setupProgress === 2 ? 0 : 1;
+
+    simpleGame.setMasks(masks[maskIndex]);
+    loop.start(simpleGame.handleMultiplayerLoop(playerIndex));
     incrementProgress();
   }, [loop, masks, simpleGame, setupProgress, incrementProgress]);
 
@@ -73,9 +93,19 @@ export const useLocal = (loop) => {
       lapTimeInfo,
       captureMasks,
       setupProgress,
+      multiplayerResultsText,
+      multiplayerScoreSums,
       NUM_MASKS,
     }),
-    [simpleGame, lapTimeInfo, captureMasks, setupProgress, handleClick],
+    [
+      simpleGame,
+      lapTimeInfo,
+      captureMasks,
+      setupProgress,
+      handleClick,
+      multiplayerResultsText,
+      multiplayerScoreSums,
+    ],
   );
 
   return local;
