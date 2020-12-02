@@ -1,9 +1,7 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import classnames from 'classnames';
 import ProgressBar from '../../ProgressBar';
-import { makeStyles, Paper, Typography } from '@material-ui/core';
-import HelpIcon from '@material-ui/icons/Help';
-import IconButton from '@material-ui/core/IconButton';
+import { makeStyles } from '@material-ui/core';
 
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
@@ -11,14 +9,13 @@ import StepLabel from '@material-ui/core/StepLabel';
 import StepConnector from '@material-ui/core/StepConnector';
 import CameraAltIcon from '@material-ui/icons/CameraAlt';
 import EmojiPeopleIcon from '@material-ui/icons/EmojiPeople';
-import PlayArrowIcon from '@material-ui/icons/PlayCircleOutline';
-import ReplayIcon from '@material-ui/icons/Replay';
 
 import { useGame, useGameMode } from '../../Game';
 
 import { useLocal } from '../../../hooks/screenHooks/local';
 import { useWebcam } from '../../../context/webcam';
 import MultiplayerFooter from './MultiplayerFooter';
+import GameInfoBox from '../../GameInfoBox';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -26,12 +23,6 @@ const useStyles = makeStyles((theme) => ({
     height: '100%',
     overflow: 'hidden',
     position: 'relative',
-    '& h2': {
-      marginBottom: theme.spacing(4),
-    },
-    '& h3': {
-      marginBottom: theme.spacing(1),
-    },
   },
   scrollContainer: {
     position: 'absolute',
@@ -64,12 +55,6 @@ const useStyles = makeStyles((theme) => ({
     paddingLeft: theme.spacing(10),
     paddingRight: theme.spacing(10),
   },
-  captures: {
-    width: '100%',
-    '& > div': {
-      marginTop: theme.spacing(1),
-    },
-  },
   progress: {
     position: 'absolute',
     top: theme.spacing(1),
@@ -79,37 +64,10 @@ const useStyles = makeStyles((theme) => ({
   container: {
     textAlign: 'center',
   },
-  paper: {
-    position: 'relative',
-    padding: theme.spacing(1),
-    paddingRight: theme.spacing(5),
-    paddingLeft: theme.spacing(5),
-    background: 'rgba(255,255,255,0.95)',
-    marginTop: theme.spacing(2),
-  },
-  help: {
-    maxHeight: 200,
-    marginTop: theme.spacing(2),
-    '& > div > p': {
-      marginBottom: theme.spacing(1),
-      fontSize: 16,
-    },
-  },
-  helpBtn: {
-    position: 'absolute',
-    bottom: theme.spacing(1),
-    right: theme.spacing(1),
-  },
   stepper: {
     background: 'transparent',
     marginBottom: theme.spacing(2),
   },
-  playIcon: {
-    fontSize: 50,
-  },
-  subtext: (replayPhase) => ({
-    marginTop: replayPhase ? theme.spacing(2) : 0,
-  }),
 }));
 
 const useColorlibStepIconStyles = makeStyles((theme) => ({
@@ -168,11 +126,6 @@ const Local = (props) => {
   const local = useGameMode(useLocal);
   const webcam = useWebcam();
 
-  const [showHelp, setShowHelp] = useState(false);
-  const toggleHelp = useCallback(() => {
-    setShowHelp((a) => !a);
-  }, []);
-
   const [primary, secondary] = [
     ['One', 'Two'],
     ['Two', 'One'],
@@ -212,63 +165,51 @@ const Local = (props) => {
           })}
         >
           {!game.loop.looping ? (
-            <Paper className={classes.paper}>
-              {!replayPhase && (
-                <Stepper
-                  className={classes.stepper}
-                  alternativeLabel
-                  activeStep={local.setupProgress}
-                  connector={<StepConnector />}
-                >
-                  {stepperLabels.map((label) => (
-                    <Step key={label}>
-                      <StepLabel StepIconComponent={ColorlibStepIcon}>{label}</StepLabel>
-                    </Step>
-                  ))}
-                </Stepper>
-              )}
-              <Typography component="h3" variant="h5">
-                {replayPhase ? winnerText : text}
-              </Typography>
-              {replayPhase && webcam.isFullScreen && !game.loop.looping && (
-                <MultiplayerFooter isFullScreen={webcam.isFullScreen} />
-              )}
-              <Typography component="h4" variant="h6" className={classes.subtext}>
-                {replayPhase ? 'Play again?' : subtext}
-              </Typography>
-              <IconButton
-                color={replayPhase ? 'primary' : 'secondary'}
-                size="medium"
-                disabled={!game.loop.ready}
-                onClick={local.handleClick}
-                className={classes.play}
-              >
-                {replayPhase ? (
-                  <ReplayIcon className={classes.playIcon} />
-                ) : (
-                  <PlayArrowIcon className={classes.playIcon} />
-                )}
-              </IconButton>
-              {!replayPhase && (
-                <div className={classes.help}>
-                  {showHelp && (
-                    <div className={classes.helpContent}>
-                      <p>In this game mode two players will compete head to head.</p>
-                      <p>
-                        Each player will take turns capturing funky poses for their opponent to try
-                        and match.
-                      </p>
-                      <p>
-                        The player who does the best job matching their opponent's poses will win.
-                      </p>
-                    </div>
-                  )}
-                  <IconButton size="small" className={classes.helpBtn} onClick={toggleHelp}>
-                    <HelpIcon />
-                  </IconButton>
-                </div>
-              )}
-            </Paper>
+            <GameInfoBox
+              headerContent={
+                !replayPhase && (
+                  <Stepper
+                    className={classes.stepper}
+                    alternativeLabel
+                    activeStep={local.setupProgress}
+                    connector={<StepConnector />}
+                  >
+                    {stepperLabels.map((label) => (
+                      <Step key={label}>
+                        <StepLabel StepIconComponent={ColorlibStepIcon}>{label}</StepLabel>
+                      </Step>
+                    ))}
+                  </Stepper>
+                )
+              }
+              primaryText={replayPhase ? winnerText : text}
+              middleContent={
+                local.setupProgress >= 3 &&
+                webcam.isFullScreen &&
+                !game.loop.looping && <MultiplayerFooter isFullScreen={webcam.isFullScreen} />
+              }
+              secondaryText={replayPhase ? 'Play again?' : subtext}
+              iconProps={{
+                color: replayPhase ? 'primary' : 'secondary',
+                loading: !game.loop.ready,
+                onClick: local.handleClick,
+              }}
+              Icon={replayPhase ? 'replay' : 'play'}
+              helpContent={
+                !replayPhase && (
+                  <>
+                    <p>In this game mode two players will compete head to head.</p>
+                    <p>
+                      Each player will take turns capturing funky poses for their opponent to try
+                      and match.
+                    </p>
+                    <p>
+                      The player who does the best job matching their opponent's poses will win.
+                    </p>
+                  </>
+                )
+              }
+            />
           ) : (
             <div className={classes.progress}>
               <ProgressBar
