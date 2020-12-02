@@ -70,8 +70,8 @@ export const useLocal = (loop) => {
 
   const handleReset = useCallback(() => {
     setSetupProgress(0);
-    // TODO: maybe needs more
-  }, []);
+    simpleGame.clearScores();
+  }, [simpleGame]);
 
   const handleClick = useCallback(() => {
     if (loop.looping) return;
