@@ -6,7 +6,7 @@ import { useCaptureMasks } from '../loopHandlers/captureMasks';
 import { initialLapInfo } from '../lapTimer';
 import { DEBUG } from '../../lib/constants';
 
-const NUM_MASKS = DEBUG ? 1 : 3;
+const NUM_MASKS = DEBUG ? 5 : 5;
 
 export const useLocal = (loop) => {
   const webcam = useWebcam();

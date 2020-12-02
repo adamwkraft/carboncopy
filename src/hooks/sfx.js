@@ -44,5 +44,9 @@ export const useSfx = (audioRef) => {
     [play],
   );
 
-  return { playSuccessSound, playFailureSound };
+  const playCameraSound = useCallback(() => play(process.env.PUBLIC_URL + '/sounds/camera.ogg'), [
+    play,
+  ]);
+
+  return { playSuccessSound, playFailureSound, playCameraSound };
 };
