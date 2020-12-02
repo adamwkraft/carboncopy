@@ -9,7 +9,6 @@ import BackIcon from '@material-ui/icons/ArrowLeft';
 import IconButton from '@material-ui/core/IconButton';
 import VolumeUpIcon from '@material-ui/icons/VolumeUp';
 import VolumeOffIcon from '@material-ui/icons/VolumeOff';
-import MuteVolumeIcon from '@material-ui/icons/VolumeMute';
 
 import WebcamSelect from './WebcamSelect';
 import { useAudio } from '../context/audio';

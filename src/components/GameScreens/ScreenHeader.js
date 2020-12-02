@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
 
-import Null from '../Null';
 import DefaultHeader from '../DefaultHeader';
 import { screenStates } from '../../lib/screenConstants';
 
