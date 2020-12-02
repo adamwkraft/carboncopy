@@ -44,7 +44,7 @@ const BasicFooter = (props) => {
         <ScoreResults
           label={resultsText}
           results={simpleGame.scores}
-          handleClose={simpleGame.clearScores}
+          handleClose={props.hideClose ? null : simpleGame.clearScores}
           {...showTimeAttackResults}
         />
       )}
