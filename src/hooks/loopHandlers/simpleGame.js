@@ -261,7 +261,16 @@ export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
         else controller.webcam.clearCanvas();
       };
     },
-    [webcam, maskIterator, clearScores, setLapTimeInfo, playFailureSound, playSuccessSound],
+    [
+      webcam,
+      maskIterator,
+      clearScores,
+      setLapTimeInfo,
+      playFailureSound,
+      playSuccessSound,
+      carbonRef,
+      say,
+    ],
   );
 
   return useMemo(
