@@ -1,12 +1,13 @@
 import React from 'react';
 import classnames from 'classnames';
-import { Button, makeStyles, Typography } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core';
 
 import BasicFooter from './BasicFooter';
 
 import { useGame, useGameMode } from '../../Game';
 import { useWebcam } from '../../../context/webcam';
 import { useTimeAttack } from '../../../hooks/screenHooks/timeAttack';
+import GameInfoBox from '../../GameInfoBox';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -32,12 +33,6 @@ const useStyles = makeStyles((theme) => ({
   overlay: {
     background: 'rgba(255,255,255,0.5)',
   },
-  rootTop: {
-    justifyContent: 'flex-start',
-  },
-  rootApart: {
-    justifyContent: 'space-between',
-  },
   optionsTop: {
     justifyContent: 'center',
     alignItems: 'center',
@@ -45,23 +40,6 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
     paddingLeft: theme.spacing(10),
     paddingRight: theme.spacing(10),
-  },
-  captures: {
-    width: '100%',
-    '& > div': {
-      marginTop: theme.spacing(1),
-    },
-  },
-  progress: {
-    position: 'absolute',
-    top: theme.spacing(1),
-    left: theme.spacing(8),
-    right: theme.spacing(8),
-  },
-  slap: {
-    background: 'rgba(255,255,255,0.95)',
-    padding: theme.spacing(1),
-    borderRadius: theme.spacing(0.5),
   },
   screen: {
     textAlign: 'center',
@@ -89,8 +67,6 @@ const TimeAttack = (props) => {
       <div
         className={classnames(classes.scrollContainer, {
           [classes.overlay]: !loop.looping,
-          [classes.rootTop]: !!loop.looping,
-          [classes.rootApart]: !!simpleGame.scores?.length && webcam.isFullScreen,
         })}
       >
         <div
@@ -99,22 +75,26 @@ const TimeAttack = (props) => {
           })}
         >
           {!loop.looping && (
-            <>
-              <Typography variant="h6" component="h3" className={classes.slap}>
-                Match the poses as quickly as you can.
-              </Typography>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleClickGame}
-                disabled={!loop.ready}
-              >
-                Play
-              </Button>
-            </>
+            <GameInfoBox
+              primaryText="Time Attack"
+              secondaryText={
+                simpleGame.scores?.length ? 'Play Again?' : 'Match the poses as quickly as you can.'
+              }
+              Icon={simpleGame.scores?.length ? 'replay' : 'play'}
+              iconProps={{
+                color: 'secondary',
+                loading: !loop.ready,
+                onClick: handleClickGame,
+              }}
+              middleContent={webcam.isFullScreen && <BasicFooter hideClose={true} />}
+              helpContent={[
+                'Match each pose as quickly as possible',
+                'Your score is based on your total time, and the average time per pose.',
+                'Hop to it!',
+              ]}
+            />
           )}
         </div>
-        {webcam.isFullScreen && <BasicFooter />}
       </div>
     </div>
   );
