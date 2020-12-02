@@ -130,8 +130,18 @@ export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
               if (tenBinScore < 4) {
                 // Game Over
                 maskIterator.reset();
+                if (carbonRef.current) {
+                  say('Missed it!');
+                } else {
+                  playFailureSound();
+                }
                 return stop();
               } else {
+                if (carbonRef.current) {
+                  say('Got it!');
+                } else {
+                  playSuccessSound();
+                }
                 // Adjust time - multiply (decay) by 0.9.
                 // controller.timerRef.current.lapDuration =
                 //   Math.floor(Math.max(controller.timerRef.current.lapDuration * 0.9, 1) * 10) / 10;
@@ -166,7 +176,16 @@ export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
         else controller.webcam.clearCanvas();
       };
     },
-    [webcam, maskIterator, setLapTimeInfo, clearScores],
+    [
+      webcam,
+      maskIterator,
+      setLapTimeInfo,
+      clearScores,
+      carbonRef,
+      playFailureSound,
+      playSuccessSound,
+      say,
+    ],
   );
 
   const handleTimeAttackLoop = useCallback(
@@ -220,6 +239,14 @@ export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
 
                 const tenBinScore = rawScoreToTenBinScore(score);
                 if (tenBinScore > 5) {
+                  // if we hit this then we succeeded in the predict promise
+                  // but fired a new lap before it succeeded
+                  if (roundTracker.current >= currentMaskIdx) return;
+                  if (carbonRef.current) {
+                    say('Got it!');
+                  } else {
+                    playSuccessSound();
+                  }
                   const segmentationSec = segmentationMs / 1000;
                   lastTimeAttackSuccess.current = time.elapsed;
                   const numSecs = Number(segmentationSec.toFixed(1));
@@ -230,14 +257,6 @@ export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
                     webcam.flipX,
                   );
                   const dataUri = webcam.imageDataToDataUri(targetOverlay);
-                  // if we hit this then we succeeded in the predict promise
-                  // but fired a new lap before it succeeded
-                  if (roundTracker.current >= currentMaskIdx) return;
-                  if (carbonRef.current) {
-                    say('Got it!');
-                  } else {
-                    playSuccessSound();
-                  }
                   setScores((state) => [...state, { score: numSecs, dataUri }]);
                   webcam.clearCanvas();
                   maskIterator.next();
