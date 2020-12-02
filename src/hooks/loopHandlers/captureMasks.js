@@ -1,15 +1,24 @@
 import JSZip from 'jszip';
 import imageDataUri from 'image-data-uri';
 import { useRef, useCallback, useState } from 'react';
+import { useAudio } from '../../context/audio';
 
 import { saveAs, getSegmentationeOverlayAndBinaryImageData } from '../../lib/util';
 import { useMemo } from 'react';
+import { useCarbon } from '../../context/carbon';
 
 export const useCaptureMasks = ({ maxMasks = 0, setLapTimeInfo } = {}) => {
   const promRef = useRef();
   const masksRef = useRef([]);
   const maskCountRef = useRef();
   const [masks, _setMasks] = useState([]);
+  const { carbonRef } = useCarbon();
+  const {
+    handlers: {
+      sfx: { playCameraSound },
+      speech: { say },
+    },
+  } = useAudio();
 
   const setMasks = useCallback((arg) => {
     if (typeof arg === 'function') {
@@ -71,6 +80,12 @@ export const useCaptureMasks = ({ maxMasks = 0, setLapTimeInfo } = {}) => {
                 overlayImageData,
                 binaryImageData,
               } = getSegmentationeOverlayAndBinaryImageData(segmentation, webcam.flipX);
+              // Play Sound
+              if (carbonRef.current) {
+                say('Gotcha!');
+              } else {
+                playCameraSound();
+              }
               const overlayDataUri = webcam.imageDataToDataUri(overlayImageData);
               const binaryDataUri = webcam.imageDataToDataUri(binaryImageData);
 
@@ -89,7 +104,8 @@ export const useCaptureMasks = ({ maxMasks = 0, setLapTimeInfo } = {}) => {
             });
           },
           onEnd: async ({ time, webcam, predict, stop }) => {
-            await new Promise((resolve) => setTimeout(resolve, 3000));
+            // This is the pause after the last capture to show the mask before clearing.
+            await new Promise((resolve) => setTimeout(resolve, 2000));
             webcam.clearCanvas();
           },
         });
@@ -113,7 +129,7 @@ export const useCaptureMasks = ({ maxMasks = 0, setLapTimeInfo } = {}) => {
         }
       };
     },
-    [masks.length, maxMasks, setLapTimeInfo, setMasks],
+    [masks.length, maxMasks, setLapTimeInfo, setMasks, playCameraSound, say, carbonRef],
   );
 
   return useMemo(

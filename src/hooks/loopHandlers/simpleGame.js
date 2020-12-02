@@ -121,27 +121,34 @@ export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
                 webcam.flipX,
               );
 
-              const dataUri = webcam.imageDataToDataUri(targetOverlay);
+              const scoreToProceed = 4;
 
-              setScores((state) => [...state, { score: rawScoreToTenBinScore(score), dataUri }]);
-
-              webcam.clearCanvas();
+              // Play Sound ASAP
               const tenBinScore = rawScoreToTenBinScore(score);
-              if (tenBinScore < 4) {
-                // Game Over
-                maskIterator.reset();
+              if (tenBinScore < scoreToProceed) {
                 if (carbonRef.current) {
                   say('Missed it!');
                 } else {
                   playFailureSound();
                 }
-                return stop();
               } else {
                 if (carbonRef.current) {
                   say('Got it!');
                 } else {
                   playSuccessSound();
                 }
+              }
+
+              const dataUri = webcam.imageDataToDataUri(targetOverlay);
+
+              setScores((state) => [...state, { score: rawScoreToTenBinScore(score), dataUri }]);
+
+              webcam.clearCanvas();
+              if (tenBinScore < scoreToProceed) {
+                // Game Over
+                maskIterator.reset();
+                return stop();
+              } else {
                 // Adjust time - multiply (decay) by 0.9.
                 // controller.timerRef.current.lapDuration =
                 //   Math.floor(Math.max(controller.timerRef.current.lapDuration * 0.9, 1) * 10) / 10;
