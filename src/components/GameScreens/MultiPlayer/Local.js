@@ -196,18 +196,11 @@ const Local = (props) => {
               }}
               Icon={replayPhase ? 'replay' : 'play'}
               helpContent={
-                !replayPhase && (
-                  <>
-                    <p>In this game mode two players will compete head to head.</p>
-                    <p>
-                      Each player will take turns capturing funky poses for their opponent to try
-                      and match.
-                    </p>
-                    <p>
-                      The player who does the best job matching their opponent's poses will win.
-                    </p>
-                  </>
-                )
+                !replayPhase && [
+                  'In this game mode two players will compete head to head.',
+                  'Each player will take turns capturing funky poses for their opponent to try and match.',
+                  "The player who does the best job matching their opponent's poses will win.",
+                ]
               }
             />
           ) : (
