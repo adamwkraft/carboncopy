@@ -92,7 +92,7 @@ const GameInfoBox = ({
         </Typography>
       )}
       {IconComponent && (
-        <IconButton className={classes.play} size="medium" disabled={isLoading} {...iconProps}>
+        <IconButton size="medium" disabled={isLoading} {...iconProps}>
           <IconComponent className={classes.icon} color={iconProps.color || 'primary'} />
         </IconButton>
       )}

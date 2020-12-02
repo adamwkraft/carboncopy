@@ -45,7 +45,6 @@ const useStyles = makeStyles((theme) => ({
     textAlign: 'center',
     '& > button': {
       marginTop: theme.spacing(2),
-      minWidth: 150,
     },
   },
 }));

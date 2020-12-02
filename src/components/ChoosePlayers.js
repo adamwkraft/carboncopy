@@ -2,8 +2,11 @@ import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
 import React, { useCallback, useMemo } from 'react';
 
+import PersonIcon from '@material-ui/icons/Person';
+import PeopleAltIcon from '@material-ui/icons/PeopleAlt';
+
 import Options from './Options';
-import { screenStatesArrays, wipScreens } from '../lib/screenConstants';
+import { screenStates, screenStatesArrays, wipScreens } from '../lib/screenConstants';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -12,10 +15,6 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
     flexDirection: 'column',
     justifyContent: 'center',
-    '& button': {
-      minWidth: 150,
-      marginTop: theme.spacing(2),
-    },
   },
   transition: {
     textAlign: 'center',
@@ -24,6 +23,11 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(2),
   },
 }));
+
+const Icons = {
+  [screenStates.players.SINGLE_PLAYER]: PersonIcon,
+  [screenStates.players.MULTIPLAYER]: PeopleAltIcon,
+};
 
 const ChoosePlayers = (props) => {
   const classes = useStyles();
@@ -44,6 +48,7 @@ const ChoosePlayers = (props) => {
           children: playerMode,
           onClick: handleSetPlayerMode,
           disabled: !!wipScreens[playerMode],
+          Icon: Icons[playerMode],
         },
       })),
     [handleSetPlayerMode],
@@ -51,7 +56,7 @@ const ChoosePlayers = (props) => {
 
   return (
     <div className={classes.root}>
-      <Options buttons={buttons} />
+      <Options label="Select Players" buttons={buttons} layout="h" />
     </div>
   );
 };

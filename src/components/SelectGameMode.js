@@ -14,7 +14,6 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'center',
     flexDirection: 'column',
     '& button': {
-      minWidth: 150,
       marginTop: theme.spacing(2),
     },
   },

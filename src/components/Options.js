@@ -1,6 +1,7 @@
 import React from 'react';
+import classnames from 'classnames';
 import Button from '@material-ui/core/Button';
-import { makeStyles } from '@material-ui/core';
+import { IconButton, makeStyles, Typography } from '@material-ui/core';
 import { animated, useTrail, config } from 'react-spring';
 
 const useStyles = makeStyles((theme) => ({
@@ -12,34 +13,97 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(1),
     '& > div > *': {
       marginTop: theme.spacing(2),
-      minWidth: 150,
     },
+  },
+  buttons: {
+    display: 'flex',
+  },
+  h: {
+    flexDirection: 'row',
+  },
+  v: {
+    flexDirection: 'column',
+  },
+  minWidth: {
+    minWidth: 150,
+  },
+  label: {
+    color: 'white',
+    fontWeight: 'bold',
+    background: theme.palette.primary.main,
+    padding: theme.spacing(1),
+    borderRadius: theme.spacing(1),
+    border: `${theme.spacing(0.5)}px solid white`,
+  },
+  icon: {
+    fontSize: 120,
+    border: `${theme.spacing(0.5)}px solid white`,
+    borderRadius: '50%',
+    padding: theme.spacing(1),
+    background: theme.palette.secondary.main,
+    color: 'white',
   },
 }));
 
+const getConfig = (offset) => ({
+  transform: 'translate3d(0,0px,0)',
+  from: { transform: `translate3d(0,-${offset}px,0)` },
+  config: config.wobbly,
+});
+
 const Options = (props) => {
   const classes = useStyles();
-  const trail = useTrail(props.buttons.length, {
-    transform: 'translate3d(0,0px,0)',
-    from: { transform: `translate3d(0,-${props.offset || 100}px,0)` },
-    config: config.stiff,
-  });
+  const trail = useTrail(props.buttons.length, getConfig(props.offset || 100));
+  const labelTrail = useTrail(1, getConfig((props.offset || 100) + 200));
 
   return (
     <div className={classes.root}>
-      {trail.map((styleProps, idx) => {
-        const { Component, visible = true, props: componentProps = {} } = props.buttons[idx];
-
-        return visible ? (
-          <animated.div key={componentProps.key} style={styleProps}>
-            {Component ? (
-              <Component {...componentProps} />
-            ) : (
-              <Button color="primary" variant="contained" {...componentProps} />
-            )}
+      {props.label &&
+        labelTrail.map((styleProps, idx) => (
+          <animated.div style={styleProps}>
+            <Typography component="h2" variant="h3" className={classes.label}>
+              {props.label}
+            </Typography>
           </animated.div>
-        ) : null;
-      })}
+        ))}
+      <div
+        className={classnames(classes.buttons, {
+          [classes.h]: props.layout === 'h',
+          [classes.v]: props.layout !== 'h',
+        })}
+      >
+        {trail.map((styleProps, idx) => {
+          const {
+            Component,
+            visible = true,
+            props: { Icon, ...componentProps } = {},
+          } = props.buttons[idx];
+
+          return visible ? (
+            <animated.div key={componentProps.key} style={styleProps}>
+              {Component ? (
+                <Component {...componentProps} />
+              ) : Icon ? (
+                <IconButton
+                  size="large"
+                  variant="contained"
+                  className={classes.iconButton}
+                  {...componentProps}
+                >
+                  <Icon className={classes.icon} />
+                </IconButton>
+              ) : (
+                <Button
+                  color="primary"
+                  variant="contained"
+                  {...componentProps}
+                  className={classes.minWidth}
+                />
+              )}
+            </animated.div>
+          ) : null;
+        })}
+      </div>
     </div>
   );
 };

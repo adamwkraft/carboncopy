@@ -29,7 +29,6 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(1),
     '& > *': {
       marginTop: theme.spacing(2),
-      minWidth: 150,
     },
   },
   optionsTop: {
