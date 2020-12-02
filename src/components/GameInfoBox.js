@@ -20,6 +20,7 @@ const useStyles = makeStyles((theme) => ({
     paddingLeft: theme.spacing(5),
     background: 'rgba(255,255,255,0.95)',
     marginTop: theme.spacing(2),
+    textAlign: 'center',
     '& h2': {
       marginBottom: theme.spacing(4),
     },
@@ -98,7 +99,19 @@ const GameInfoBox = ({
       {footerContent}
       {helpContent && (
         <div className={classes.help}>
-          {showHelp && <div className={classes.helpContent}>{helpContent}</div>}
+          {showHelp && (
+            <div className={classes.helpContent}>
+              {Array.isArray(helpContent) ? (
+                <>
+                  {helpContent.map((text) => (
+                    <p key={text}>{text}</p>
+                  ))}
+                </>
+              ) : (
+                helpContent
+              )}
+            </div>
+          )}
           <IconButton size="small" className={classes.helpBtn} onClick={toggleHelp}>
             <HelpIcon />
           </IconButton>
