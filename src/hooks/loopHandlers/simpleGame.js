@@ -214,9 +214,6 @@ export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
 
             // we will reach this
             if (!target) {
-              // stop(); TODO: Check if we need this.
-              roundTracker.current = 0;
-              maskIterator.reset();
               return stop();
             }
 
