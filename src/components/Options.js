@@ -36,7 +36,7 @@ const useStyles = makeStyles((theme) => ({
     border: `${theme.spacing(0.5)}px solid white`,
   },
   icon: {
-    fontSize: 120,
+    fontSize: 100,
     border: `${theme.spacing(0.5)}px solid white`,
     borderRadius: '50%',
     padding: theme.spacing(1),
@@ -61,7 +61,7 @@ const Options = (props) => {
       {props.label &&
         labelTrail.map((styleProps, idx) => (
           <animated.div style={styleProps}>
-            <Typography component="h2" variant="h3" className={classes.label}>
+            <Typography component="h2" variant="h4" className={classes.label}>
               {props.label}
             </Typography>
           </animated.div>
