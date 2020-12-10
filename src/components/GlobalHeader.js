@@ -148,9 +148,12 @@ const GlobalHeader = (props) => {
               <DialogContent dividers>
                 <Typography gutterBottom>
                   Place your webcam at a distance and ensure there is enough space around you to
-                  move safely.
+                  move safely. Your whole body should be in view of your webcam.
                 </Typography>
-                <img src={stickImage} className={classes.stickImage} alt="Stick Figure" />
+                <Typography gutterBottom>
+                  No personal images or data are collected by this application.
+                </Typography>
+                {/* <img src={stickImage} className={classes.stickImage} alt="Stick Figure" /> */}
               </DialogContent>
             </Dialog>
           </animated.div>
