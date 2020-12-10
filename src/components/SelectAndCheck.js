@@ -4,14 +4,17 @@ import React, { useMemo, useCallback, useState } from 'react';
 
 import Menu from '@material-ui/core/Menu';
 import Button from '@material-ui/core/Button';
+import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import MenuItem from '@material-ui/core/MenuItem';
 import Checkbox from '@material-ui/core/Checkbox';
 import ListItemText from '@material-ui/core/ListItemText';
 import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
+import SwitchCameraIcon from '@material-ui/icons/SwitchCamera';
 import { useRef } from 'react';
 import { useEffect } from 'react';
+import HeaderButton from './HeaderButton';
 
 const noop = () => {};
 
@@ -145,22 +148,14 @@ const SelectAndCheck = (props) => {
 
   return (
     <div className={classes.root}>
-      <Button
-        disableRipple
-        variant="outlined"
+      <HeaderButton
         aria-haspopup="true"
         className={classes.button}
         onClick={handleClickSelect}
         aria-controls={`select-and-check-${id}`}
+        Icon={SwitchCameraIcon}
         {...props.SelectProps}
-      >
-        {open ? props.activeTitle || props.title : props.title}
-        {open ? (
-          <ArrowDropUpIcon className={classes.arrowIcon} />
-        ) : (
-          <ArrowDropDownIcon className={classes.arrowIcon} />
-        )}
-      </Button>
+      />
       <Menu
         keepMounted
         open={open}

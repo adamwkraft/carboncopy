@@ -37,16 +37,9 @@ const Game = ({ webcam }) => {
 
   return (
     <gameContext.Provider value={game}>
-      <GlobalHeader
-        tutorial={game.tutorial}
-        mode={game.screen.state.mode}
-        screen={game.screen.state.screen}
-        players={game.screen.state.players}
-        goHome={game.screen.handlers.resetState}
-        goBack={game.screen.handlers.reverseState}
-      />
+      <GlobalHeader controller={game.headerController} />
       <ScreenHeader screenState={game.screen.state} />
-      <Webcam overlay={!game.screen.state.mode}>
+      <Webcam overlay={!game.screen.state.mode} headerController={game.headerController}>
         <ScreenContent screen={game.screen} />
       </Webcam>
       <ScreenFooter screen={game.screen} />

@@ -12,6 +12,7 @@ import { useWebcam } from '../context/webcam';
 
 import Loader from './Loader';
 import PermissionNeeded from './PermissionNeeded';
+import HeaderButtonGroup from './HeaderButtonGroup';
 
 const useStyles = makeStyles((theme) => ({
   root: ({ isFullScreen: fs }) => ({
@@ -111,6 +112,12 @@ const useStyles = makeStyles((theme) => ({
     right: theme.spacing(2),
     borderRadius: theme.spacing(1),
   },
+  buttons: {
+    position: 'absolute',
+    top: theme.spacing(1.5),
+    right: theme.spacing(1.5),
+    zIndex: 20,
+  },
 }));
 
 const Webcam = ({ overlay, ...props }) => {
@@ -156,6 +163,11 @@ const Webcam = ({ overlay, ...props }) => {
           )}
         </>
         {!webcam.isFullScreen && <Paper elevation={4} className={classes.paper} />}
+        {webcam.isFullScreen && (
+          <div className={classes.buttons}>
+            <HeaderButtonGroup controller={props.headerController} isFullScreen />
+          </div>
+        )}
       </animated.div>
       {webcam.permissionNeeded ? (
         <PermissionNeeded permissionDenied={webcam.permissionDenied} />
