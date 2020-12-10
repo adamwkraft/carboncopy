@@ -1,6 +1,7 @@
 import Particles from 'particlesjs';
+import { BrowserView, MobileView } from 'react-device-detect';
 import { hot } from 'react-hot-loader';
-import { CssBaseline } from '@material-ui/core';
+import { CssBaseline, Typography } from '@material-ui/core';
 import React, { useEffect, useState, useRef } from 'react';
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import primary from '@material-ui/core/colors/deepPurple';
@@ -45,18 +46,25 @@ function App() {
 
   return (
     <MuiThemeProvider theme={theme}>
-      <WebcamProvider>
-        <BodyPixProvider>
-          <AudioProvider>
-            <CarbonProvider>
-              <>
-                <CssBaseline />
-                <Main cvReady={cvReady} />
-              </>
-            </CarbonProvider>
-          </AudioProvider>
-        </BodyPixProvider>
-      </WebcamProvider>
+      <BrowserView>
+        <WebcamProvider>
+          <BodyPixProvider>
+            <AudioProvider>
+              <CarbonProvider>
+                <>
+                  <CssBaseline />
+                  <Main cvReady={cvReady} />
+                </>
+              </CarbonProvider>
+            </AudioProvider>
+          </BodyPixProvider>
+        </WebcamProvider>
+      </BrowserView>
+      <MobileView>
+        <Typography component="h1" variant="h6">
+          To play Carbon Copy, open this site on a laptop or desktop computer.
+        </Typography>
+      </MobileView>
     </MuiThemeProvider>
   );
 }
