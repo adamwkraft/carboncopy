@@ -12,11 +12,39 @@ import BodyPixProvider from '../context/bodyPix';
 import AudioProvider from '../context/audio';
 import CarbonProvider from '../context/carbon';
 
+export const getFonts = (...fonts) =>
+  [
+    ...fonts,
+    '-apple-system',
+    'BlinkMacSystemFont',
+    '"Segoe UI"',
+    'Roboto',
+    '"Helvetica Neue"',
+    'Arial',
+    'sans-serif',
+    '"Apple Color Emoji"',
+    '"Segoe UI Emoji"',
+    '"Segoe UI Symbol"',
+  ].join(',');
+
 const theme = createMuiTheme({
   palette: {
-    primary,
+    primary: { main: '#FFFFFF' },
+    secondary: { main: '#000000' },
   },
+  typography: {
+    useNextVariants: true,
+    fontFamily: getFonts('Orbitron'),
+    body1: {
+      fontWeight: 600,
+      fontFamily: getFonts('Rajdhani'),
+      fontSize: 18,
+    },
+  },
+  overrides: {},
 });
+
+console.log(theme);
 
 function App() {
   const [cvReady, setCvReady] = useState(false);
