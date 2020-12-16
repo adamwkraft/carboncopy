@@ -87,7 +87,7 @@ const useColorlibStepIconStyles = makeStyles((theme) => ({
     boxShadow: '0 4px 10px 0 rgba(0,0,0,.25)',
   },
   completed: {
-    backgroundImage: `linear-gradient( 136deg, ${theme.palette.primary.light} 0%, ${theme.palette.primary.main} 50%, ${theme.palette.primary.dark} 100%)`,
+    backgroundImage: `linear-gradient( 136deg, ${theme.palette.secondary.light} 0%, ${theme.palette.secondary.main} 50%, ${theme.palette.secondary.dark} 100%)`,
   },
 }));
 
@@ -190,7 +190,7 @@ const Local = (props) => {
               }
               secondaryText={replayPhase ? 'Play again?' : subtext}
               iconProps={{
-                color: replayPhase ? 'primary' : 'secondary',
+                color: 'secondary',
                 loading: !game.loop.ready,
                 onClick: local.handleClick,
               }}

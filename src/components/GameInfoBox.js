@@ -11,6 +11,7 @@ import IconButton from '@material-ui/core/IconButton';
 import PlayIcon from '@material-ui/icons/PlayCircleOutline';
 import HelpIcon from '@material-ui/icons/Help';
 import ReplayIcon from '@material-ui/icons/Replay';
+import { getFonts } from '../App/App';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -33,19 +34,30 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(2),
     '& > div > p': {
       marginBottom: theme.spacing(1),
-      fontSize: 16,
     },
   },
   helpBtn: {
     position: 'absolute',
     bottom: theme.spacing(1),
     right: theme.spacing(1),
+    color: theme.palette.secondary.main,
+    background: theme.palette.primary.main,
+    transition: '300ms all',
+    '&:hover': {
+      color: theme.palette.primary.main,
+      background: theme.palette.secondary.main,
+    },
   },
   icon: {
     fontSize: 50,
   },
   marginTop: {
     marginTop: theme.spacing(2),
+  },
+  helpContent: {
+    fontWeight: 600,
+    fontFamily: getFonts('Rajdhani'),
+    fontSize: 18,
   },
 }));
 
@@ -93,7 +105,7 @@ const GameInfoBox = ({
       )}
       {IconComponent && (
         <IconButton size="medium" disabled={isLoading} {...iconProps}>
-          <IconComponent className={classes.icon} color={iconProps.color || 'primary'} />
+          <IconComponent className={classes.icon} color={iconProps.color || 'secondary'} />
         </IconButton>
       )}
       {footerContent}

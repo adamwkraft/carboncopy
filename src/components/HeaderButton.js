@@ -6,7 +6,15 @@ import IconButton from '@material-ui/core/IconButton';
 
 const useStyles = makeStyles((theme) => ({
   btn: {
-    border: '2px solid grey',
+    border: `2px solid ${theme.palette.secondary.main}`,
+    background: theme.palette.primary.main,
+    color: theme.palette.secondary.main,
+    transition: '300ms all',
+    '&:hover': {
+      border: `2px solid ${theme.palette.primary.main}`,
+      background: theme.palette.secondary.main,
+      color: theme.palette.primary.main,
+    },
   },
 }));
 

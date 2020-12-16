@@ -28,20 +28,26 @@ const useStyles = makeStyles((theme) => ({
     minWidth: 150,
   },
   label: {
-    color: 'white',
+    color: theme.palette.primary.main,
     fontWeight: 'bold',
-    background: theme.palette.primary.main,
+    background: theme.palette.secondary.main,
     padding: theme.spacing(1),
     borderRadius: theme.spacing(1),
-    border: `${theme.spacing(0.5)}px solid white`,
+    border: `${theme.spacing(0.4)}px solid ${theme.palette.primary.main}`,
   },
   icon: {
     fontSize: 100,
-    border: `${theme.spacing(0.5)}px solid white`,
+    border: `${theme.spacing(0.4)}px solid ${theme.palette.secondary.main}`,
     borderRadius: '50%',
     padding: theme.spacing(1),
-    background: theme.palette.secondary.main,
-    color: 'white',
+    background: theme.palette.primary.main,
+    color: 'black',
+    transition: '300ms all',
+    '&:hover': {
+      border: `${theme.spacing(0.4)}px solid ${theme.palette.primary.main}`,
+      background: theme.palette.secondary.main,
+      color: theme.palette.primary.main,
+    },
   },
 }));
 
@@ -61,7 +67,7 @@ const Options = (props) => {
       {props.label &&
         labelTrail.map((styleProps, idx) => (
           <animated.div style={styleProps}>
-            <Typography component="h2" variant="h4" className={classes.label}>
+            <Typography component="h2" variant="h5" className={classes.label}>
               {props.label}
             </Typography>
           </animated.div>
@@ -94,7 +100,7 @@ const Options = (props) => {
                 </IconButton>
               ) : (
                 <Button
-                  color="primary"
+                  color="secondary"
                   variant="contained"
                   {...componentProps}
                   className={classes.minWidth}
