@@ -6,11 +6,8 @@ import { useWebcam } from '../context/webcam';
 import { animated, config, useSpring } from 'react-spring';
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    marginLeft: theme.spacing(2),
-  },
   heading: {
-    marginBottom: theme.spacing(1),
+    marginLeft: theme.spacing(2),
   },
 }));
 
@@ -28,11 +25,9 @@ const DefaultHeader = (props) => {
       (game?.screen?.state?.screen === 'play' ? 'Choose Mode' : 'Select Players');
 
   return (
-    <header className={classes.root}>
-      <Typography component="h1" variant="h6" className={classes.heading}>
-        <animated.div style={styleProps}>{text}</animated.div>
-      </Typography>
-    </header>
+    <Typography component="h1" variant="h6" className={classes.heading}>
+      <animated.div style={styleProps}>{text}</animated.div>
+    </Typography>
   );
 };
 
