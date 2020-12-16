@@ -2,8 +2,9 @@ import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
 import React, { useCallback, useMemo } from 'react';
 import { useCarbon } from '../context/carbon';
-import { screenStatesArrays, wipScreens } from '../lib/screenConstants';
-
+import { screenStates, screenStatesArrays, wipScreens } from '../lib/screenConstants';
+import TimerIcon from '@material-ui/icons/Timer';
+import WeightIcon from '@material-ui/icons/FitnessCenter';
 import Options from './Options';
 
 const useStyles = makeStyles((theme) => ({
@@ -26,6 +27,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const Icons = {
+  [screenStates.mode['Single Player'].SURVIVAL]: WeightIcon,
+  // [screenStates.mode['Single Player'].SURVIVAL]: InfinityIcon,
+  [screenStates.mode['Single Player'].TIME_ATTACK]: TimerIcon,
+};
+
 const SelectGameMode = (props) => {
   const classes = useStyles();
   const { carbonState } = useCarbon();
@@ -47,6 +54,8 @@ const SelectGameMode = (props) => {
             children: gameMode,
             onClick: handleSetGameMode,
             disabled: !!wipScreens[gameMode],
+            Icon: Icons[gameMode],
+            hover: true,
           },
         }))
         .filter((obj) => (!carbonState ? obj.props.name !== 'Practice' : true)), // Only show Practice in Carbonate mode.
@@ -56,7 +65,7 @@ const SelectGameMode = (props) => {
   return (
     <div className={classes.root}>
       <div className={classes.gameMode}>
-        <Options buttons={buttons} />
+        <Options buttons={buttons} label="Choose Mode" layout="h" />
       </div>
     </div>
   );
