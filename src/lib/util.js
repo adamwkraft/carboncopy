@@ -1,6 +1,91 @@
 /* global cv:false */
 import inside from 'point-in-polygon';
 
+export const jitterMask = (mask) => {
+  let maskMatIn = cv.matFromImageData(mask);
+  const height = maskMatIn.rows;
+  const width = maskMatIn.cols;
+
+  // Do a random rotate
+  let randomRotate = (Math.random() - 0.5) * 30.0; // Random between -15, 15
+  let maskMat = new cv.Mat();
+  let center = new cv.Point(width / 2, height / 2);
+
+  let M = cv.getRotationMatrix2D(center, randomRotate, 1.0);
+  cv.warpAffine(maskMatIn, maskMat, M, maskMatIn.size(), cv.INTER_NEAREST, cv.BORDER_REPLICATE);
+
+  let rgbaPlanes = new cv.MatVector();
+  cv.split(maskMat, rgbaPlanes);
+  // Step 1. Find ROI
+  let roi_x_min = -1,
+    roi_y_min = -1,
+    roi_x_max = -1,
+    roi_y_max = -1;
+  let res1 = new cv.Mat();
+  let res2 = new cv.Mat();
+  cv.reduce(rgbaPlanes.get(2), res1, 0, cv.REDUCE_MAX); // Results in Width len vector
+  for (let i = 0; i < width; ++i) {
+    if (roi_x_min === -1 && res1.data[i] > 0) {
+      roi_x_min = i;
+      break;
+    }
+  }
+  for (let i = width - 1; i >= 0; i--) {
+    if (roi_x_max === -1 && res1.data[i] > 0) {
+      roi_x_max = i;
+      break;
+    }
+  }
+  cv.reduce(rgbaPlanes.get(2), res1, 1, cv.REDUCE_MAX); // Results in Height len vector
+  for (let i = 0; i < height; ++i) {
+    if (roi_y_min === -1 && res1.data[i] > 0) {
+      roi_y_min = i;
+      break;
+    }
+  }
+  for (let i = height - 1; i >= 0; i--) {
+    if (roi_y_max === -1 && res1.data[i] > 0) {
+      roi_y_max = i;
+      break;
+    }
+  }
+  const roi_width = roi_x_max - roi_x_min + 1;
+  const roi_height = roi_y_max - roi_y_min + 1;
+  let rect_obj = new cv.Rect(roi_x_min, roi_y_min, roi_width, roi_height);
+  res1 = maskMat.roi(rect_obj);
+
+  const randomScale = 0.9 + Math.random() * 0.2; // Random between 0.9-1.1
+
+  let dsize = new cv.Size(res1.cols * randomScale, res1.rows * randomScale);
+  cv.resize(res1, res2, dsize, 0, 0, cv.INTER_NEAREST);
+
+  const rect_width = res2.cols;
+  const rect_height = res2.rows;
+
+  const minX = 200;
+  const maxX = width - rect_width - 200;
+
+  let randomX = Math.floor(minX + Math.random() * (maxX - minX));
+
+  let rect_paste = new cv.Rect(randomX, height - rect_height, rect_width, rect_height);
+
+  let output = new cv.Mat.zeros(height, width, maskMat.type());
+  res2.copyTo(output.roi(rect_paste));
+
+  const jitteredResult = new ImageData(
+    new Uint8ClampedArray(output.data),
+    output.cols,
+    output.rows,
+  );
+
+  maskMat.delete();
+  maskMatIn.delete();
+  res1.delete();
+  res2.delete();
+  output.delete();
+  return jitteredResult;
+};
+
 export const polygonToArray = (polygon, width, height) => {
   const bytes = new Uint8ClampedArray(width * height * 4);
   for (let i = 0; i < height * width; ++i) {
