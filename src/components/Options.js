@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import classnames from 'classnames';
 import Button from '@material-ui/core/Button';
 import { IconButton, makeStyles, Typography } from '@material-ui/core';
@@ -62,13 +62,15 @@ const Options = (props) => {
   const trail = useTrail(props.buttons.length, getConfig(props.offset || 100));
   const labelTrail = useTrail(1, getConfig((props.offset || 100) + 200));
 
+  const [label, setLabel] = useState(props.label);
+
   return (
     <div className={classes.root}>
       {props.label &&
         labelTrail.map((styleProps, idx) => (
           <animated.div style={styleProps}>
             <Typography component="h2" variant="h5" className={classes.label}>
-              {props.label}
+              {label}
             </Typography>
           </animated.div>
         ))}
@@ -82,8 +84,20 @@ const Options = (props) => {
           const {
             Component,
             visible = true,
-            props: { Icon, ...componentProps } = {},
+            props: { Icon, hover, ...componentProps } = {},
           } = props.buttons[idx];
+
+          const mouseEffects = {};
+
+          if (hover && componentProps.name && props.label) {
+            mouseEffects.onMouseEnter = () => {
+              setLabel(componentProps.name);
+            };
+
+            mouseEffects.onMouseLeave = () => {
+              setLabel(props.label);
+            };
+          }
 
           return visible ? (
             <animated.div key={componentProps.key} style={styleProps}>
@@ -94,6 +108,7 @@ const Options = (props) => {
                   size="large"
                   variant="contained"
                   className={classes.iconButton}
+                  {...mouseEffects}
                   {...componentProps}
                 >
                   <Icon className={classes.icon} />
