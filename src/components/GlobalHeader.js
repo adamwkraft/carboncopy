@@ -6,6 +6,7 @@ import Typography from '@material-ui/core/Typography';
 import { maxWidth } from '../lib/constants';
 import HeaderButtonGroup from './HeaderButtonGroup';
 import HelpDialog from './HelpDialog';
+import carbonCopy from '../images/logo512.png';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -28,7 +29,15 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: 'bold',
     fontStyle: 'italic',
   },
-  title: {},
+  title: {
+    display: 'flex',
+    alignItems: 'center',
+    '& > img': {
+      width: 34,
+      marginRight: theme.spacing(1),
+    },
+    '& > h1': {},
+  },
 }));
 
 const GlobalHeader = (props) => {
@@ -37,9 +46,12 @@ const GlobalHeader = (props) => {
   return (
     <>
       <div className={classes.root}>
-        <Typography variant="h4" component="h1" className={classes.title}>
-          Carbon Copy
-        </Typography>
+        <div className={classes.title}>
+          <img src={carbonCopy} alt="Carbon Copy Logo" />
+          <Typography variant="h4" component="h1">
+            Carbon Copy
+          </Typography>
+        </div>
         <HeaderButtonGroup controller={props.controller} />
       </div>
       <HelpDialog open={props.controller.helpOpen} handleClose={props.controller.closeHelp} />

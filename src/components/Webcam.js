@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Paper from '@material-ui/core/Paper';
 import { makeStyles } from '@material-ui/styles';
-import IconButton from '@material-ui/core/IconButton';
 import { useSpring, animated, config } from 'react-spring';
 import EnterFullScreen from '@material-ui/icons/Fullscreen';
 import ExitFullScreen from '@material-ui/icons/FullscreenExit';
@@ -10,9 +9,11 @@ import ExitFullScreen from '@material-ui/icons/FullscreenExit';
 import { maxWidth } from '../lib/constants';
 import { useWebcam } from '../context/webcam';
 
+import logo from '../images/logo512.png';
 import Loader from './Loader';
 import PermissionNeeded from './PermissionNeeded';
 import HeaderButtonGroup from './HeaderButtonGroup';
+import HeaderButton from './HeaderButton';
 
 const useStyles = makeStyles((theme) => ({
   root: ({ isFullScreen: fs }) => ({
@@ -74,9 +75,6 @@ const useStyles = makeStyles((theme) => ({
     bottom: theme.spacing(1.5),
     right: ({ isFullScreen: fs }) => theme.spacing(fs ? 1.5 : 3),
     zIndex: 20,
-    '&:hover': {
-      background: 'rgba(255,255,255,0.25)',
-    },
   },
   overlay: ({ overlayColor, isFullScreen }) => ({
     background: overlayColor,
@@ -118,6 +116,13 @@ const useStyles = makeStyles((theme) => ({
     right: theme.spacing(1.5),
     zIndex: 20,
   },
+  logo: {
+    position: 'absolute',
+    top: theme.spacing(1.5),
+    left: theme.spacing(1.5),
+    zIndex: 20,
+    width: 34,
+  },
 }));
 
 const Webcam = ({ overlay, ...props }) => {
@@ -149,24 +154,21 @@ const Webcam = ({ overlay, ...props }) => {
             <div className={classes.children}>{props.children}</div>
           )}
           {webcam.hasFullScreen && (
-            <IconButton
-              color="secondary"
+            <HeaderButton
               className={classes.fullScreen}
               onClick={webcam.toggleFullScreen}
-            >
-              {webcam.isFullScreen ? (
-                <ExitFullScreen color="secondary" />
-              ) : (
-                <EnterFullScreen color="secondary" />
-              )}
-            </IconButton>
+              Icon={webcam.isFullScreen ? ExitFullScreen : EnterFullScreen}
+            />
           )}
         </>
         {!webcam.isFullScreen && <Paper elevation={4} className={classes.paper} />}
         {webcam.isFullScreen && (
-          <div className={classes.buttons}>
-            <HeaderButtonGroup controller={props.headerController} isFullScreen />
-          </div>
+          <>
+            <div className={classes.buttons}>
+              <HeaderButtonGroup controller={props.headerController} isFullScreen />
+            </div>
+            <img className={classes.logo} alt="Carbon Copy Logo" src={logo} />
+          </>
         )}
       </animated.div>
       {webcam.permissionNeeded ? (
