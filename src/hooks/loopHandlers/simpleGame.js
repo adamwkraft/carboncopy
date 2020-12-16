@@ -199,7 +199,7 @@ export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
     async (controller) => {
       if (controller.time.first) {
         maskIterator.resetAndShuffle();
-        maskIterator.next();
+        maskIterator.next(true);
         clearScores();
         roundTracker.current = 0;
         lastTimeAttackSuccess.current = 0;
@@ -233,7 +233,7 @@ export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
               const dataUri = webcam.imageDataToDataUri(target);
               setScores((state) => [...state, { score: maxTimeAllowed, dataUri }]);
               webcam.clearCanvas();
-              maskIterator.next();
+              maskIterator.next(true);
               roundTracker.current++;
             }
 
@@ -263,7 +263,7 @@ export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
                   const dataUri = webcam.imageDataToDataUri(targetOverlay);
                   setScores((state) => [...state, { score: numSecs, dataUri }]);
                   webcam.clearCanvas();
-                  maskIterator.next();
+                  maskIterator.next(true);
                   roundTracker.current++;
                 }
               })

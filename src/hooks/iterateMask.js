@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState, useCallback } from 'react';
+import { jitterMask } from '../lib/util';
 
 // set masks, iterate masks, retain ref to current mask
 export const useIterateMask = () => {
@@ -45,7 +46,7 @@ export const useIterateMask = () => {
     shuffle();
   }, [shuffle]);
 
-  const next = useCallback(() => {
+  const next = useCallback((jitter = false) => {
     const currentMask = masksRef.current[maskIdxRef.current];
 
     if (!currentMask) {
@@ -55,16 +56,23 @@ export const useIterateMask = () => {
       return null;
     }
 
-    maskRef.current = currentMask;
-    maskIdxRef.current++;
-
-    return currentMask;
+    if (jitter) {
+      const mask = jitterMask(currentMask);
+      maskRef.current = mask;
+      return mask;
+    } else {
+      maskRef.current = currentMask;
+      maskIdxRef.current++;
+      return currentMask;
+    }
   }, []);
 
   const getNumMasks = useCallback(() => masksRef.current.length, []);
 
   const random = useCallback(() => {
-    const mask = masks[Math.floor(Math.random() * masks.length)];
+    let orig_mask = masks[Math.floor(Math.random() * masks.length)];
+    // Always jittering for random (used by survival)
+    const mask = jitterMask(orig_mask);
     maskRef.current = mask;
     return mask;
   }, [masks]);
