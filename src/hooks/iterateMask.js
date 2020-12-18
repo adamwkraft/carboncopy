@@ -59,6 +59,7 @@ export const useIterateMask = () => {
     if (jitter) {
       const mask = jitterMask(currentMask);
       maskRef.current = mask;
+      maskIdxRef.current++;
       return mask;
     } else {
       maskRef.current = currentMask;

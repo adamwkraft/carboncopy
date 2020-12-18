@@ -2,12 +2,19 @@
 import inside from 'point-in-polygon';
 
 export const jitterMask = (mask) => {
+  // Input mask as ImageData
   let maskMatIn = cv.matFromImageData(mask);
   const height = maskMatIn.rows;
   const width = maskMatIn.cols;
 
+  // JITTER PARAMS
+  const maxRotate = 15.0; // Random Rotate +/-
+  const minScaleJitter = 0.9;
+  const maxScaleJitter = 1.1;
+  const maxXJitter = 300;
+
   // Do a random rotate
-  let randomRotate = (Math.random() - 0.5) * 30.0; // Random between -15, 15
+  let randomRotate = (Math.random() - 0.5) * (2 * maxRotate);
   let maskMat = new cv.Mat();
   let center = new cv.Point(width / 2, height / 2);
 
@@ -54,7 +61,17 @@ export const jitterMask = (mask) => {
   let rect_obj = new cv.Rect(roi_x_min, roi_y_min, roi_width, roi_height);
   res1 = maskMat.roi(rect_obj);
 
-  const randomScale = 0.9 + Math.random() * 0.2; // Random between 0.9-1.1
+  const rect1_width = res1.cols;
+  const rect1_height = res1.rows;
+
+  const maxWidthResize = width / rect1_width;
+  const maxHeightResize = height / rect1_height;
+  const maxResize = Math.min(maxWidthResize, maxHeightResize);
+
+  const randomScale = Math.min(
+    minScaleJitter + Math.random() * (maxScaleJitter - minScaleJitter),
+    maxResize,
+  );
 
   let dsize = new cv.Size(res1.cols * randomScale, res1.rows * randomScale);
   cv.resize(res1, res2, dsize, 0, 0, cv.INTER_NEAREST);
@@ -62,12 +79,14 @@ export const jitterMask = (mask) => {
   const rect_width = res2.cols;
   const rect_height = res2.rows;
 
-  const minX = 200;
-  const maxX = width - rect_width - 200;
-
-  let randomX = Math.floor(minX + Math.random() * (maxX - minX));
+  // Shift X such that the midpoint can only go at most +/- pixels
+  const centeredLeft = (width - rect_width) / 2; // Left point when rect is centered (also the most it can jitter)
+  const xJitter = (Math.random() - 0.5) * (2 * Math.min(maxXJitter, centeredLeft));
+  const randomX = centeredLeft + xJitter;
 
   let rect_paste = new cv.Rect(randomX, height - rect_height, rect_width, rect_height);
+
+  // Copy and return
 
   let output = new cv.Mat.zeros(height, width, maskMat.type());
   res2.copyTo(output.roi(rect_paste));
