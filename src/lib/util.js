@@ -8,7 +8,7 @@ export const jitterMask = (mask) => {
   const width = maskMatIn.cols;
 
   // JITTER PARAMS
-  const maxRotate = 15.0; // Random Rotate +/-
+  const maxRotate = 10.0; // Random Rotate +/-
   const minScaleJitter = 0.9;
   const maxScaleJitter = 1.1;
   const maxXJitter = 300;
@@ -19,7 +19,15 @@ export const jitterMask = (mask) => {
   let center = new cv.Point(width / 2, height / 2);
 
   let M = cv.getRotationMatrix2D(center, randomRotate, 1.0);
-  cv.warpAffine(maskMatIn, maskMat, M, maskMatIn.size(), cv.INTER_NEAREST, cv.BORDER_REPLICATE);
+  cv.warpAffine(
+    maskMatIn,
+    maskMat,
+    M,
+    maskMatIn.size(),
+    cv.INTER_NEAREST,
+    cv.BORDER_CONSTANT,
+    new cv.Scalar(0, 0, 0, 0),
+  );
 
   let rgbaPlanes = new cv.MatVector();
   cv.split(maskMat, rgbaPlanes);

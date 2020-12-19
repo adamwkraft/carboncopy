@@ -23,7 +23,8 @@ export const useTimeAttack = (loop) => {
   useEffect(() => {
     if (!loadedRef.current) {
       loadedRef.current = true;
-      simpleGame.zip.handleLoadPreparedMasks('survival_2.zip');
+      // simpleGame.zip.handleLoadPreparedMasks('survival_2.zip');
+      simpleGame.zip.handleLoadPreparedMasks('custom_mask.zip');
     }
   }, [simpleGame]);
 

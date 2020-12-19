@@ -21,7 +21,8 @@ export const useSurvival = (loop) => {
   useEffect(() => {
     if (!loadedRef.current) {
       loadedRef.current = true;
-      simpleGame.zip.handleLoadPreparedMasks('survival_2.zip'); // TODO: Make a BETTER Survival Set.
+      // simpleGame.zip.handleLoadPreparedMasks('survival_2 copy.zip'); // TODO: Make a BETTER Survival Set.
+      simpleGame.zip.handleLoadPreparedMasks('custom_mask.zip'); // TODO: Make a BETTER Survival Set.
     }
   }, [simpleGame]);
 
