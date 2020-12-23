@@ -68,7 +68,7 @@ const Options = (props) => {
     <div className={classes.root}>
       {props.label &&
         labelTrail.map((styleProps, idx) => (
-          <animated.div style={styleProps}>
+          <animated.div style={styleProps} key={idx}>
             <Typography component="h2" variant="h5" className={classes.label}>
               {label}
             </Typography>
@@ -105,7 +105,7 @@ const Options = (props) => {
                 <Component {...componentProps} />
               ) : Icon ? (
                 <IconButton
-                  size="large"
+                  size="medium"
                   variant="contained"
                   className={classes.iconButton}
                   {...mouseEffects}
