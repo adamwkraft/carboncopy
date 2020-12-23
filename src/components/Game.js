@@ -8,6 +8,7 @@ import ScreenFooter from './GameScreens/ScreenFooter';
 import ScreenContent from './GameScreens/ScreenContent';
 
 import { useGameController } from '../hooks/game';
+import Warning from './Warning';
 
 const gameContext = createContext();
 
@@ -37,6 +38,7 @@ const Game = ({ webcam }) => {
 
   return (
     <gameContext.Provider value={game}>
+      <Warning open={!game.warning.completed} handleClose={game.warning.handleCloseWarning} />
       <GlobalHeader controller={game.headerController} />
       <ScreenHeader screenState={game.screen.state} />
       <Webcam overlay={!game.screen.state.mode} headerController={game.headerController}>
