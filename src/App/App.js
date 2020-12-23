@@ -4,7 +4,6 @@ import { hot } from 'react-hot-loader';
 import { CssBaseline, Typography } from '@material-ui/core';
 import React, { useEffect, useState, useRef } from 'react';
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
-import primary from '@material-ui/core/colors/deepPurple';
 
 import Main from '../components/Main';
 import WebcamProvider from '../context/webcam';
@@ -43,8 +42,6 @@ const theme = createMuiTheme({
   },
   overrides: {},
 });
-
-console.log(theme);
 
 function App() {
   const [cvReady, setCvReady] = useState(false);

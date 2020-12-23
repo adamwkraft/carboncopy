@@ -36,16 +36,6 @@ const Main = (props) => {
 
   const classes = useStyles();
 
-  // console.log(
-  //   !hasVideo
-  //     ? 'no webcam'
-  //     : !cameras.length || currentDeviceId === undefined
-  //     ? 'webcams is loading'
-  //     : !currentDeviceId
-  //     ? 'no webcam chosen'
-  //     : 'rendering game',
-  // );
-
   return (
     <main className={classes.root}>{!hasVideo ? <NoWebcam /> : <Game webcam={webcam} />}</main>
   );

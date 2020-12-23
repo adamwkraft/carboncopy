@@ -30,8 +30,6 @@ const HeaderButtonGroup = (props) => {
   } = props;
   const styleProps = useSpring({ to: { opacity: !onHomeScreen ? 1 : 0 }, config: config.stiff });
 
-  console.log({ fs: props.isFullScreen });
-
   return (
     <div className={classes.root}>
       {!onHomeScreen && (
