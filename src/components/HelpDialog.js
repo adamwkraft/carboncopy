@@ -47,7 +47,7 @@ const HelpDialog = ({ open, handleClose }) => {
           enough space around you to move safely.
         </Typography>
         <Typography gutterBottom>
-          Be prepared to move side to side, forward and back, and even to jump and crouch.
+          Be prepared to move side to side, forward and back, and even crouch.
         </Typography>
         <Typography component="h2" variant="h6">
           Performance
