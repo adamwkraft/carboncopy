@@ -198,6 +198,7 @@ export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
   const handleTimeAttackLoop = useCallback(
     async (controller) => {
       if (controller.time.first) {
+        const numMasksPerGame = 10; // Use only this many masks in a game.
         maskIterator.resetAndShuffle();
         maskIterator.next(true);
         clearScores();
@@ -213,13 +214,14 @@ export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
             const target = maskIterator.maskRef.current;
 
             // we will reach this
-            if (!target) {
+            if (!target || roundTracker.current >= numMasksPerGame) {
               return stop();
             }
 
             // if we hit this then we succeeded in the predict promise
             // but fired a new lap before it succeeded
-            if (roundTracker.current >= currentMaskIdx) return;
+            if (roundTracker.current >= currentMaskIdx || roundTracker.current >= numMasksPerGame)
+              return;
 
             const maxTimeAllowed = 10.0;
             const segmentationMs = time.elapsed - lastTimeAttackSuccess.current;
@@ -233,8 +235,10 @@ export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
               const dataUri = webcam.imageDataToDataUri(target);
               setScores((state) => [...state, { score: maxTimeAllowed, dataUri }]);
               webcam.clearCanvas();
-              maskIterator.next(true);
               roundTracker.current++;
+              if (roundTracker.current < numMasksPerGame) {
+                maskIterator.next(true);
+              }
             }
 
             promRef.current = predict(webcam.videoRef.current)
@@ -245,12 +249,19 @@ export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
                 if (tenBinScore > 5) {
                   // if we hit this then we succeeded in the predict promise
                   // but fired a new lap before it succeeded
-                  if (roundTracker.current >= currentMaskIdx) return;
+                  if (
+                    roundTracker.current >= currentMaskIdx ||
+                    roundTracker.current >= numMasksPerGame
+                  ) {
+                    return;
+                  }
+
                   if (carbonRef.current) {
                     say('Got it!');
                   } else {
                     playSuccessSound();
                   }
+
                   const segmentationSec = segmentationMs / 1000;
                   lastTimeAttackSuccess.current = time.elapsed;
                   const numSecs = Number(segmentationSec.toFixed(1));
@@ -263,8 +274,10 @@ export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
                   const dataUri = webcam.imageDataToDataUri(targetOverlay);
                   setScores((state) => [...state, { score: numSecs, dataUri }]);
                   webcam.clearCanvas();
-                  maskIterator.next(true);
                   roundTracker.current++;
+                  if (roundTracker.current < numMasksPerGame) {
+                    maskIterator.next(true);
+                  }
                 }
               })
               .catch(console.error);
