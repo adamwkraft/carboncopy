@@ -10,7 +10,7 @@ export const useGameController = () => {
   const loop = useLoop();
   const [mode, setMode] = useState(null);
   const [screenState, screenHandlers] = useScreenController();
-  const [warningAcknowledged, setWarningAcknowledged] = useState(true);
+  const [warningAcknowledged, setWarningAcknowledged] = useState(false);
   const warningRef = useRef();
   const audio = useAudio();
   const [helpOpen, setHelpOpen] = useState(false);
