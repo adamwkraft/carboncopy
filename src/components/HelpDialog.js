@@ -47,7 +47,7 @@ const HelpDialog = ({ open, handleClose }) => {
           enough space around you to move safely.
         </Typography>
         <Typography gutterBottom>
-          Be prepared to run side to side, forward and back, and even to jump and crouch.
+          Be prepared to move side to side, forward and back, and even to jump and crouch.
         </Typography>
         <Typography component="h2" variant="h6">
           Performance
@@ -55,15 +55,14 @@ const HelpDialog = ({ open, handleClose }) => {
         <Typography gutterBottom>
           This game relies on state-of-the-art computer vision algorithms in order to detect the
           location of your body. This requires significant compute power. Don't be afraid if you
-          hear your computer fan turn on. Trust that it's trying its hardest to deliver you the best
-          game possible.
+          hear your computer making noise.
         </Typography>
         <Typography component="h2" variant="h6">
           Privacy
         </Typography>
         <Typography gutterBottom>
           Although this game requires your webcam to function, no personal images or data are
-          collected by this application. <span className={classes.ever}>Ever!</span>
+          collected by this application.
         </Typography>
       </MuiDialogContent>
     </Dialog>
