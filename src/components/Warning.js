@@ -39,7 +39,7 @@ const Warning = ({ open, handleClose }) => {
           physically demanding
         </Typography>
         <Typography gutterBottom>
-          Check with a medical professional before playing, and please be careful.
+          Be careful when moving. Consider consulting a medical professional before playing.
         </Typography>
         <div className={classes.group}>
           <Typography component="h2" variant="h6">
