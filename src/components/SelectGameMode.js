@@ -5,6 +5,7 @@ import { useCarbon } from '../context/carbon';
 import { screenStates, screenStatesArrays, wipScreens } from '../lib/screenConstants';
 import TimerIcon from '@material-ui/icons/Timer';
 import WeightIcon from '@material-ui/icons/FitnessCenter';
+import BeachIcon from '@material-ui/icons/BeachAccess';
 import Options from './Options';
 
 const useStyles = makeStyles((theme) => ({
@@ -29,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
 
 const Icons = {
   [screenStates.mode['Single Player'].SURVIVAL]: WeightIcon,
-  // [screenStates.mode['Single Player'].SURVIVAL]: InfinityIcon,
+  [screenStates.mode['Single Player'].PRACTICE]: BeachIcon,
   [screenStates.mode['Single Player'].TIME_ATTACK]: TimerIcon,
 };
 
