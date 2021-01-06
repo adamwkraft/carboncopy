@@ -2,10 +2,12 @@ import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
 import React, { useCallback, useMemo } from 'react';
 import { useCarbon } from '../context/carbon';
-import { screenStates, screenStatesArrays, wipScreens } from '../lib/screenConstants';
+import { screenStates, screenStatesArrays } from '../lib/screenConstants';
 import TimerIcon from '@material-ui/icons/Timer';
 import WeightIcon from '@material-ui/icons/FitnessCenter';
 import BeachIcon from '@material-ui/icons/BeachAccess';
+import HomeIcon from '@material-ui/icons/Home';
+import WebIcon from '@material-ui/icons/Language';
 import Options from './Options';
 
 const useStyles = makeStyles((theme) => ({
@@ -32,6 +34,8 @@ const Icons = {
   [screenStates.mode['Single Player'].SURVIVAL]: WeightIcon,
   [screenStates.mode['Single Player'].PRACTICE]: BeachIcon,
   [screenStates.mode['Single Player'].TIME_ATTACK]: TimerIcon,
+  [screenStates.mode['Multi Player'].LOCAL]: HomeIcon,
+  [screenStates.mode['Multi Player'].REMOTE]: WebIcon,
 };
 
 const SelectGameMode = (props) => {
@@ -54,7 +58,6 @@ const SelectGameMode = (props) => {
             name: gameMode,
             children: gameMode,
             onClick: handleSetGameMode,
-            disabled: !!wipScreens[gameMode],
             Icon: Icons[gameMode],
             hover: true,
           },

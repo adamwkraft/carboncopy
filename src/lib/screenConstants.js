@@ -26,8 +26,8 @@ export const screenStates = {
       TIME_ATTACK: 'Time Attack',
     },
     [MULTIPLAYER]: {
-      LOCAL: 'Multiplayer',
-      REMOTE: 'Remote Multiplayer',
+      LOCAL: 'In Person',
+      REMOTE: 'Online',
     },
     DEFAULT: null,
   },

@@ -47,7 +47,6 @@ const ChoosePlayers = (props) => {
           name: playerMode,
           children: playerMode,
           onClick: handleSetPlayerMode,
-          disabled: !!wipScreens[playerMode],
           Icon: Icons[playerMode],
           hover: true,
         },

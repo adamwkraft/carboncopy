@@ -60,13 +60,8 @@ export const useScreenController = () => {
       throw new Error(`Unknown playerMode: ${playerMode}`);
     }
 
-    // TODO: remove this hack
-    if (playerMode === screenStates.players.MULTIPLAYER) {
-      setGameMode(screenStates.mode[screenStates.players.MULTIPLAYER].LOCAL)
-    }
-    
     dispatch({ type: screenTypes.SET_PLAYER_MODE, value: playerMode });
-  }, [setGameMode]);
+  }, []);
 
   const resetState = useCallback(() => {
     dispatch({ type: screenTypes.RESET });

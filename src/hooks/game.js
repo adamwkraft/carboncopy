@@ -30,10 +30,7 @@ export const useGameController = () => {
   const headerController = useMemo(
     () => ({
       onHomeScreen: screenState.screen === screenStates.screen.DEFAULT,
-      handleBack:
-        screenState.players === screenStates.players.MULTIPLAYER
-          ? screenHandlers.resetState
-          : screenHandlers.reverseState,
+      handleBack: screenHandlers.reverseState,
       toggleAudio: audio.handlers.toggle,
       audioState: audio.state,
       openHelp: handleOpenHelp,
