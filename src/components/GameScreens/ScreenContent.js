@@ -10,6 +10,7 @@ import Survival from './SinglePlayer/Survival';
 import ChoosePlayers from '../ChoosePlayers';
 import TimeAttack from './SinglePlayer/TimeAttack';
 import Local from './MultiPlayer/Local';
+import Remote from './MultiPlayer/Remote';
 
 const Screens = {
   [screenStates.screen.PLAY]: {
@@ -20,7 +21,7 @@ const Screens = {
     },
     [screenStates.players.MULTIPLAYER]: {
       [screenStates.mode[screenStates.players.MULTIPLAYER].LOCAL]: Local,
-      [screenStates.mode[screenStates.players.MULTIPLAYER].REMOTE]: () => 'REMOTE Content',
+      [screenStates.mode[screenStates.players.MULTIPLAYER].REMOTE]: Remote,
     },
   },
 };
