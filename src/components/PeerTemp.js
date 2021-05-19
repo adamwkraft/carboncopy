@@ -26,7 +26,7 @@ const PeerTemp = (props) => {
       <Button disabled={!!peerJs.peer} variant="outlined" onClick={peerJs.init}>Initialize</Button>
       <TextField className={classes.text} disabled={!peerJs.peer || !!peerJs.connection} onChange={e => setPeerId(e.target.value)} />
       <Button disabled={!peerJs.peer || !peerId || !!peerJs.connection} variant="outlined" onClick={() => peerJs.connect(peerId)}>Connect</Button>
-      <TextField className={classes.text} disabled={!peerJs.connection} onChange={e => setMessage(e.target.value)} />
+      <TextField value={message} className={classes.text} disabled={!peerJs.connection} onChange={e => setMessage(e.target.value)} />
       <Button variant="outlined" disabled={!peerJs.connection} onClick={() => {
         peerJs.send(message);
         setMessage('');
