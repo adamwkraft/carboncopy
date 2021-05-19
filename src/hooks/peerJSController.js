@@ -6,6 +6,18 @@ export const usePeerJSController = () => {
   const [myId, setId] = useState(null);
   const [connection, setConnection] = useState(null);
 
+  const handleConnect = (conn) => {
+    setConnection(conn);
+
+    conn.on('open', () => {
+      console.log('Connection established');
+    });
+
+    conn.on('data', data => {
+      console.log('Received:', data);
+    });
+  }
+
   const init = () => {
     const _peer = new Peer();
     setPeer(_peer);
@@ -15,18 +27,7 @@ export const usePeerJSController = () => {
       setId(id);
     })
 
-    _peer.on('connection', (conn) => {
-      console.log('Connection request:', conn)
-      setConnection(conn);
-
-      conn.on('open', () => {
-        conn.on('data', data => {
-          console.log('Received:', data);
-        });
-
-        conn.send('Hey there, bub!');
-      });
-    });
+    _peer.on('connection', handleConnect);
 
     _peer.on('error', err => {
       console.log(err);
@@ -35,7 +36,8 @@ export const usePeerJSController = () => {
 
   const connect = (id) => {
     console.log('Connecting to peer:', id);
-    peer.connect(id);
+    const conn = peer.connect(id);
+    handleConnect(conn);
   }
 
   const send = (message) => {
