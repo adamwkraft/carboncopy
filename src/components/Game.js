@@ -9,6 +9,7 @@ import ScreenContent from './GameScreens/ScreenContent';
 
 import { useGameController } from '../hooks/game';
 import Warning from './Warning';
+import PeerTemp from './PeerTemp';
 
 const gameContext = createContext();
 
@@ -38,6 +39,7 @@ const Game = ({ webcam }) => {
 
   return (
     <gameContext.Provider value={game}>
+      <PeerTemp />
       <Warning open={!game.warning.completed} handleClose={game.warning.handleCloseWarning} />
       <GlobalHeader controller={game.headerController} />
       <ScreenHeader screenState={game.screen.state} />
