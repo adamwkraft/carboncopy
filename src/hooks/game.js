@@ -1,16 +1,18 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 
-import { useScreenController } from './screenController';
 import { useEffect } from 'react';
-import { screenStates } from '../lib/screenConstants';
+
 import { useLoop } from './loop';
+import { DEBUG } from '../lib/constants';
 import { useAudio } from '../context/audio';
+import { useScreenController } from './screenController';
+import { screenStates } from '../lib/screenConstants';
 
 export const useGameController = () => {
   const loop = useLoop();
   const [mode, setMode] = useState(null);
   const [screenState, screenHandlers] = useScreenController();
-  const [warningAcknowledged, setWarningAcknowledged] = useState(false);
+  const [warningAcknowledged, setWarningAcknowledged] = useState(DEBUG);
   const warningRef = useRef();
   const audio = useAudio();
   const [helpOpen, setHelpOpen] = useState(false);

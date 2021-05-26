@@ -6,7 +6,7 @@ import PersonIcon from '@material-ui/icons/Person';
 import PeopleAltIcon from '@material-ui/icons/PeopleAlt';
 
 import Options from './Options';
-import { screenStates, screenStatesArrays, wipScreens } from '../lib/screenConstants';
+import { screenStates, screenStatesArrays } from '../lib/screenConstants';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -47,7 +47,6 @@ const ChoosePlayers = (props) => {
           name: playerMode,
           children: playerMode,
           onClick: handleSetPlayerMode,
-          disabled: !!wipScreens[playerMode],
           Icon: Icons[playerMode],
           hover: true,
         },

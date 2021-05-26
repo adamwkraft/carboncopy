@@ -2,10 +2,17 @@ import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
 import React, { useCallback, useMemo } from 'react';
 import { useCarbon } from '../context/carbon';
-import { screenStates, screenStatesArrays, wipScreens } from '../lib/screenConstants';
+import {
+  MULTIPLAYER,
+  SINGLE_PLAYER,
+  screenStates,
+  screenStatesArrays,
+} from '../lib/screenConstants';
 import TimerIcon from '@material-ui/icons/Timer';
 import WeightIcon from '@material-ui/icons/FitnessCenter';
 import BeachIcon from '@material-ui/icons/BeachAccess';
+import HouseIcon from '@material-ui/icons/House';
+import LanguageIcon from '@material-ui/icons/Language';
 import Options from './Options';
 
 const useStyles = makeStyles((theme) => ({
@@ -29,9 +36,11 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Icons = {
-  [screenStates.mode['Single Player'].SURVIVAL]: WeightIcon,
-  [screenStates.mode['Single Player'].PRACTICE]: BeachIcon,
-  [screenStates.mode['Single Player'].TIME_ATTACK]: TimerIcon,
+  [screenStates.mode[SINGLE_PLAYER].SURVIVAL]: WeightIcon,
+  [screenStates.mode[SINGLE_PLAYER].PRACTICE]: BeachIcon,
+  [screenStates.mode[SINGLE_PLAYER].TIME_ATTACK]: TimerIcon,
+  [screenStates.mode[MULTIPLAYER].LOCAL]: HouseIcon,
+  [screenStates.mode[MULTIPLAYER].REMOTE]: LanguageIcon,
 };
 
 const SelectGameMode = (props) => {
@@ -54,7 +63,6 @@ const SelectGameMode = (props) => {
             name: gameMode,
             children: gameMode,
             onClick: handleSetGameMode,
-            disabled: !!wipScreens[gameMode],
             Icon: Icons[gameMode],
             hover: true,
           },

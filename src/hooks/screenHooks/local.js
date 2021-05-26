@@ -1,10 +1,11 @@
 import { useMemo, useCallback, useState } from 'react';
 
+import { DEBUG } from '../../lib/constants';
+import { initialLapInfo } from '../lapTimer';
 import { useWebcam } from '../../context/webcam';
+import { screenStates } from '../../lib/screenConstants';
 import { useSimpleGame } from '../loopHandlers/simpleGame';
 import { useCaptureMasks } from '../loopHandlers/captureMasks';
-import { initialLapInfo } from '../lapTimer';
-import { DEBUG } from '../../lib/constants';
 
 const NUM_MASKS = DEBUG ? 1 : 5;
 
@@ -87,7 +88,7 @@ export const useLocal = (loop) => {
 
   const local = useMemo(
     () => ({
-      name: 'local',
+      name: screenStates.mode['Multi Player'].LOCAL,
       simpleGame,
       handleClick,
       lapTimeInfo,
