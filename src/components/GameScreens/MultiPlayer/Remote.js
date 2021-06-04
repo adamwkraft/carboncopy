@@ -199,19 +199,19 @@ const Remote = (props) => {
     <GameInfoBox
       headerContent={null}
       primaryText={"Connect to a friend to play remotely"}
-      middleContent={"Put the connection controles hers"}
+      middleContent={`Your Peer Id is: ${remote.peerJs.peerId}       TODO: COPY BUTTON`}
       secondaryText={<PeerTemp />}
       iconProps={{
         color: 'secondary',
         disabled: true,
         onClick: remote.handleClick,
       }}
-      Icon={'play'}
-      helpContent={[
-          'Your peer id is: lkjsdlfkjsdlkfjsdlfkj',
-          'Send this to a friend and have them type it into the box',
-        ]
-      }
+      // Icon={'play'}
+      // helpContent={[
+      //     'Your peer id is: lkjsdlfkjsdlkfjsdlfkj',
+      //     'Send this to a friend and have them type it into the box',
+      //   ]
+      // }
     />
   );
 
@@ -230,7 +230,7 @@ const Remote = (props) => {
           })}
         >
           {!game.loop.looping ? (
-            remote.peerJs.connection
+            remote.peerJs.isConnected
               ? ConnectedGameBox
               : UnconnectedGameBox
           ) : (

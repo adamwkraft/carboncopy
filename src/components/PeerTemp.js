@@ -23,14 +23,8 @@ const PeerTemp = (props) => {
 
   return (
     <div className={classes.root}>
-      <Button disabled={!!peerJs.peer} variant="outlined" onClick={peerJs.init}>Initialize</Button>
-      <TextField className={classes.text} disabled={!peerJs.peer || !!peerJs.connection} onChange={e => setPeerId(e.target.value)} />
+      <TextField className={classes.text} disabled={!peerJs.peer || !!peerJs.connection} onChange={e => setPeerId(e.target.value)} placeholder="Enter your friend's Peer ID" />
       <Button disabled={!peerJs.peer || !peerId || !!peerJs.connection} variant="outlined" onClick={() => peerJs.connect(peerId)}>Connect</Button>
-      <TextField value={message} className={classes.text} disabled={!peerJs.connection} onChange={e => setMessage(e.target.value)} />
-      <Button variant="outlined" disabled={!peerJs.connection} onClick={() => {
-        peerJs.send(message);
-        setMessage('');
-      }}>Send Message</Button>
     </div>
   );
 };
