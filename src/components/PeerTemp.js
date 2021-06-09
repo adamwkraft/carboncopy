@@ -18,8 +18,6 @@ const PeerTemp = (props) => {
   const classes = useStyles();
   const peerJs = usePeerJS();
   const [peerId, setPeerId] = useState('');
-  const [message, setMessage] = useState('');
-  console.log(peerJs);
 
   return (
     <div className={classes.root}>
