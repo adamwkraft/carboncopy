@@ -14,6 +14,7 @@
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
     "classnames": "^2.2.6",
+    "faker": "^5.5.3",
     "hex-rgb": "^4.1.0",
     "image-data-uri": "^2.0.1",
     "jszip": "^3.5.0",
