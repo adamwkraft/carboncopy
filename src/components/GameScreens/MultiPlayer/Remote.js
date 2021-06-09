@@ -164,8 +164,6 @@ const Remote = (props) => {
 
   const classes = useStyles(replayPhase);
 
-  // console.log({peer: remote.peerJs});
-
   const ConnectedGameBox = (
     <GameInfoBox
       headerContent={
