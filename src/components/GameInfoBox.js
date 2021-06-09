@@ -20,6 +20,7 @@ const useStyles = makeStyles((theme) => ({
     paddingRight: theme.spacing(5),
     paddingLeft: theme.spacing(5),
     background: 'rgba(255,255,255,0.95)',
+    paddingBottom: theme.spacing(2),
     marginTop: theme.spacing(2),
     textAlign: 'center',
     '& h2': {
