@@ -3,6 +3,8 @@ import classnames from 'classnames';
 import ProgressBar from '../../ProgressBar';
 import { makeStyles } from '@material-ui/core';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
+import IconButton from '@material-ui/core/IconButton';
+import {CopyToClipboard} from 'react-copy-to-clipboard';
 
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
@@ -75,12 +77,10 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    '& span': {
-      marginRight: theme.spacing(1),
-    }
   },
   bold: {
     fontWeight: 'bold',
+    fontSize:18
   }
 }));
 
@@ -214,7 +214,11 @@ const Remote = (props) => {
       middleContent={(
         <div className={classes.idContainer}>
           <span>Your name is: <span className={classes.bold}>{remote.peerJs.peerId}</span></span>
-          <FileCopyIcon />
+          <CopyToClipboard text={remote.peerJs.peerId}>
+            <IconButton aria-label="copy" color="secondary">
+              <FileCopyIcon />
+            </IconButton>
+          </CopyToClipboard>
         </div>
       )}
       secondaryText={<PeerTemp />}
