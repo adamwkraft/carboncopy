@@ -1,7 +1,14 @@
 import Peer from 'peerjs';
 import { useState } from 'react';
+import {
+  getRandomId,
+  makeNameOk,
+  makePeerId,
+  cleanPeerId
+} from '../lib/peerUtils';
 
 export const usePeerJSController = () => {
+  const [myName, setMyName] = useState(makeNameOk(getRandomId()));
   const [peer, setPeer] = useState(null);
   const [myId, setId] = useState(null);
   const [connection, setConnection] = useState(null);
@@ -12,60 +19,58 @@ export const usePeerJSController = () => {
     setConnection(conn);
     setIsConnecting(true);
 
-    conn.on('open', () => {
-      console.log('conn Connection established');
+    conn.on('open', (dunno) => {
+      console.log('CONN: open', dunno);
       setIsConnected(true);
       setIsConnecting(false);
     });
 
     conn.on('data', data => {
-      console.log('Received:', data);
+      console.log('CONN: data:', data);
     });
 
     conn.on('disconnected', (id) => {
-      console.log('conn Got disconnected')
+      console.log('CONN: Got disconnected', id)
     })
 
     conn.on('close', (id) => {
-      console.log('conn Got close')
+      console.log('CONN: close', id)
     })
 
     conn.on('connection', _connection => {
-      console.log("conn I am calling this");
+      console.log("CONN connection:", _connection);
     });
 
     conn.on('error', err => {
-      console.log('conn Got error')
-      console.log(err);
+      console.log('CONN: error', err);
     })
   }
 
   const init = () => {
-    const _peer = new Peer();
+    const _peer = new Peer(makePeerId(myName));
     setPeer(_peer);
 
     _peer.on('disconnected', (id) => {
-      console.log('Got disconnected')
+      console.log('PEER: disconnected', id)
     })
 
     _peer.on('close', (id) => {
-      console.log('Got close')
+      console.log('PEER: close', id)
     })
 
     _peer.on('open', (id) => {
-      console.log('Got open')
-      console.log('Peer id is:', id);
+      console.log('PEER: open', id);
       setId(id);
     })
 
     _peer.on('connection', _connection => {
-      console.log("I am calling this");
+      console.log("PEER: connection", _connection);
       handleConnect(_connection);
     });
 
     _peer.on('error', err => {
-      console.log('peer Got error')
-      console.log(err);
+      console.log('PEER: error', err);
+
       // If error is that we couldn't connect, then unset the connection object
       if (err.message.includes("Could not connect to peer")) {
         setConnection(null);
@@ -76,8 +81,8 @@ export const usePeerJSController = () => {
 
   const connect = (id) => {
     console.log('Connecting to peer:', id);
-    const conn = peer.connect(id);
-    // Don't call handleConnect if the connection is bad.
+    const conn = peer.connect(makePeerId(id));
+
     handleConnect(conn);
   }
 
@@ -85,5 +90,13 @@ export const usePeerJSController = () => {
     connection.send(message)
   }
 
-  return { init, connect, send, peer, connection, peerId: myId, isConnecting, isConnected };
+  return {
+    init,
+    connect,
+    send,
+    peer,
+    connection,
+    peerId: cleanPeerId(myId),
+    isConnecting,
+    isConnected };
 };
