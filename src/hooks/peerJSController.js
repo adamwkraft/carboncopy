@@ -81,7 +81,7 @@ export const usePeerJSController = () => {
 
   const connect = (id) => {
     console.log('Connecting to peer:', id);
-    const conn = peer.connect(makePeerId(id));
+    const conn = peer.connect(makePeerId(id), {serialization: 'json'});
 
     handleConnect(conn);
   }
