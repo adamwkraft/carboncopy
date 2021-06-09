@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import classnames from 'classnames';
 import ProgressBar from '../../ProgressBar';
 import { makeStyles } from '@material-ui/core';
+import FileCopyIcon from '@material-ui/icons/FileCopy';
 
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
@@ -70,6 +71,17 @@ const useStyles = makeStyles((theme) => ({
     background: 'transparent',
     marginBottom: theme.spacing(2),
   },
+  idContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    '& span': {
+      marginRight: theme.spacing(1),
+    }
+  },
+  bold: {
+    fontWeight: 'bold',
+  }
 }));
 
 const useColorlibStepIconStyles = makeStyles((theme) => ({
@@ -152,7 +164,7 @@ const Remote = (props) => {
 
   const classes = useStyles(replayPhase);
 
-  console.log({peer: remote.peerJs});
+  // console.log({peer: remote.peerJs});
 
   const ConnectedGameBox = (
     <GameInfoBox
@@ -199,7 +211,12 @@ const Remote = (props) => {
     <GameInfoBox
       headerContent={null}
       primaryText={"Connect to a friend to play remotely"}
-      middleContent={`Your Peer Id is: ${remote.peerJs.peerId}       TODO: COPY BUTTON`}
+      middleContent={(
+        <div className={classes.idContainer}>
+          <span>Your name is: <span className={classes.bold}>{remote.peerJs.peerId}</span></span>
+          <FileCopyIcon />
+        </div>
+      )}
       secondaryText={<PeerTemp />}
       iconProps={{
         color: 'secondary',
