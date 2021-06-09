@@ -15,7 +15,7 @@ export const usePeerJSController = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
 
-  const handleConnect = (conn, initiated=false) => {
+  const handleConnect = (conn, initiated = false) => {
     setConnection(conn);
     setIsConnecting(true);
 
@@ -72,7 +72,8 @@ export const usePeerJSController = () => {
       console.log('PEER: error', err);
 
       // If error is that we couldn't connect, then unset the connection object
-      if (err.message.includes("Could not connect to peer")) {
+      if (err.message.includes("Could not connect to peer") ||
+        err.message.includes("Called in wrong state")) {
         setConnection(null);
         setIsConnecting(false);
       }
@@ -98,5 +99,6 @@ export const usePeerJSController = () => {
     connection,
     peerId: cleanPeerId(myId),
     isConnecting,
-    isConnected };
+    isConnected
+  };
 };
