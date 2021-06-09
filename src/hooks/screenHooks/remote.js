@@ -53,20 +53,34 @@ export const useRemote = (loop) => {
       incrementProgress();
       loop.start(
         captureMasks.handleLoop(async () => {
-          const imageData = await Promise.all(
-            captureMasks.getMasks().map(({ overlay }) => webcam.dataUriToImageData(overlay)),
-          );
-
+          const maskDataURIs = captureMasks.getMasks().map(({ overlay }) => overlay);
+          
           if (setupProgress === 0) {
+
+            // Proof of concept of sending data (don't fire me!!!)
+            const sendData = JSON.stringify(maskDataURIs)
+            console.log(sendData)
+            peerJs.send({
+              eventName: 'initialMasks',
+              maskDataURIs: sendData
+            })
+            // END roof of concept of sending data
+
+
+            const imageData = await Promise.all(
+              maskDataURIs.map((overlay) => webcam.dataUriToImageData(overlay))
+            );
             setMasks([imageData, []]);
-          } else if (setupProgress === 1) {
-            setMasks((state) => [[...state[0]], imageData]);
-          }
+          } 
+          // Remove altogether
+          // else if (setupProgress === 1) {
+          //   setMasks((state) => [[...state[0]], imageData]);
+          // }
           captureMasks.removeAllMasks();
         }),
       );
     }
-  }, [loop, captureMasks, setupProgress, webcam, incrementProgress]);
+  }, [loop, captureMasks, setupProgress, webcam, peerJs, incrementProgress]);
 
   const handlePlayGame = useCallback(() => {
     const maskIndex = setupProgress === 2 ? 1 : 0;
