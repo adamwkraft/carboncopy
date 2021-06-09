@@ -27,6 +27,7 @@ export const usePeerJSController = () => {
 
     conn.on('data', data => {
       console.log('CONN: data:', data);
+      // TODO: need to pass handler for accepting data
     });
 
     conn.on('disconnected', (id) => {
@@ -34,7 +35,10 @@ export const usePeerJSController = () => {
     })
 
     conn.on('close', (id) => {
-      console.log('CONN: close', id)
+      console.log('CONN: close', id);
+      setConnection(null);
+      setIsConnected(false);
+      setIsConnecting(false);
     })
 
     conn.on('connection', _connection => {
@@ -74,6 +78,7 @@ export const usePeerJSController = () => {
       // If error is that we couldn't connect, then unset the connection object
       if (err.message.includes("Could not connect to peer")) {
         setConnection(null);
+        setIsConnected(false);
         setIsConnecting(false);
       }
     })
