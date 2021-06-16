@@ -40,7 +40,10 @@ export const useRemote = (loop) => {
     [multiplayerScoreSums],
   );
 
-  const [masks, setMasks] = useState([[], []]);
+  // setupProgress States:
+  // 0 : Both players capture masks simultaneously
+  // 1 : Player 1 Plays (using Player 2's masks) 
+  // 2 : Player 2 Plays (using Player 3's masks)
   const [setupProgress, setSetupProgress] = useState(0);
   const incrementProgress = useCallback(() => {
     setSetupProgress((_) => _ + 1);
@@ -54,28 +57,22 @@ export const useRemote = (loop) => {
       loop.start(
         captureMasks.handleLoop(async () => {
           const maskDataURIs = captureMasks.getMasks().map(({ overlay }) => overlay);
-          
           if (setupProgress === 0) {
-
-            // Proof of concept of sending data (don't fire me!!!)
-            const sendData = JSON.stringify(maskDataURIs)
-            console.log(sendData)
             peerJs.send({
               eventName: 'initialMasks',
-              maskDataURIs: sendData
+              maskDataURIs
             })
-            // END roof of concept of sending data
-
-
             const imageData = await Promise.all(
               maskDataURIs.map((overlay) => webcam.dataUriToImageData(overlay))
             );
-            setMasks([imageData, []]);
-          } 
-          // Remove altogether
-          // else if (setupProgress === 1) {
-          //   setMasks((state) => [[...state[0]], imageData]);
-          // }
+            peerJs.setMasks((state) => {
+              const playerOneMasks = peerJs.isPlayerOne() ? imageData : state[0];
+              const playerTwoMasks = peerJs.isPlayerOne() ? state[1] : imageData;
+              return [playerOneMasks, playerTwoMasks]
+            });
+          } else {
+            console.error("Called handleCapture without setupProgress === 0")
+          }
           captureMasks.removeAllMasks();
         }),
       );
@@ -83,13 +80,28 @@ export const useRemote = (loop) => {
   }, [loop, captureMasks, setupProgress, webcam, peerJs, incrementProgress]);
 
   const handlePlayGame = useCallback(() => {
-    const maskIndex = setupProgress === 2 ? 1 : 0;
-    const playerIndex = setupProgress === 2 ? 0 : 1;
-
-    simpleGame.setMasks(masks[maskIndex]);
-    loop.start(simpleGame.handleMultiplayerLoop(playerIndex));
-    incrementProgress();
-  }, [loop, masks, simpleGame, setupProgress, incrementProgress]);
+    if (setupProgress === 1) {
+      // Player one plays
+      if (peerJs.isPlayerOne()) {
+        simpleGame.setMasks(peerJs.masks[1]);
+        loop.start(simpleGame.handleMultiplayerLoop(0));
+        incrementProgress();
+      } else {
+        // Do nothing...
+        incrementProgress();
+      }
+    } else if (setupProgress === 2) {
+      // Player two plays
+      if (!peerJs.isPlayerOne()) {
+        simpleGame.setMasks(peerJs.masks[0]);
+        loop.start(simpleGame.handleMultiplayerLoop(1));
+        incrementProgress();
+      } else {
+        // Do nothing...
+        incrementProgress();
+      }
+    }
+  }, [loop, peerJs.masks, simpleGame, setupProgress, incrementProgress]);
 
   const handleReset = useCallback(() => {
     setSetupProgress(0);
@@ -99,9 +111,9 @@ export const useRemote = (loop) => {
   const handleClick = useCallback(() => {
     if (loop.looping) return;
 
-    if (setupProgress < 2) {
+    if (setupProgress === 0) {
       handleCapture();
-    } else if (setupProgress < 4) {
+    } else if (setupProgress < 3) {
       handlePlayGame();
     } else {
       handleReset();

@@ -111,9 +111,8 @@ function ColorlibStepIcon(props) {
 
   const icons = {
     1: <CameraAltIcon />,
-    2: <CameraAltIcon />,
+    2: <EmojiPeopleIcon />,
     3: <EmojiPeopleIcon />,
-    4: <EmojiPeopleIcon />,
   };
 
   return (
@@ -128,32 +127,35 @@ function ColorlibStepIcon(props) {
   );
 }
 
-const stepperLabels = [
-  'Connect',
-  'Capture',
-  'Player One Play',
-  'Player Two Play',
-];
-
 const Remote = (props) => {
   const game = useGame();
   const remote = useGameMode(useRemote);
   const webcam = useWebcam();
 
-  const [primary, secondary] = [
-    ['One', 'Two'],
-    ['Two', 'One'],
-  ][remote.setupProgress % 2];
+  const stepperLabels = [
+    'Capture',
+    remote.peerJs.isPlayerOne() ? "You Play" : "They Play",
+    remote.peerJs.isPlayerOne() ? "They Play" : "You Play" 
+  ];
 
-  const text =
-    remote.setupProgress < 2
-      ? `Player ${primary}, get ready to capture ${remote.NUM_MASKS} poses.`
-      : `Player ${primary}, get ready to play!`;
+  const text = [
+    `${remote.peerJs.myName}, get ready to capture ${remote.NUM_MASKS} poses.`,
+    remote.peerJs.isPlayerOne() ? (remote.peerJs.masks[1].length ? `${remote.peerJs.myName}, get ready to play!` : 'Waiting for opponent.')
+     : `${remote.peerJs.opponentName}'s turn to play.`,
+    remote.peerJs.isPlayerOne() ? `${remote.peerJs.opponentName}'s turn to play.` : `${remote.peerJs.myName}, get ready to play!`, 
+  ][remote.setupProgress];
 
-  const subtext =
-    remote.setupProgress < 2 ? `Player ${secondary}, please leave the room.` : `Good luck!`;
+  console.log(remote.peerJs.masks);
 
-  const replayPhase = remote.setupProgress >= 4;
+  // Removing subtext for now. It seems redundant.
+  const subtext = '';
+  // const subtext = [
+  //   'Press the play button to begin.',
+  //   remote.peerJs.isPlayerOne() ? 'Press the play button to begin.' : 'You are up next.',
+  //   remote.peerJs.isPlayerOne() ? 'Something!!' : 'Press the play button to begin.',
+  // ][remote.setupProgress];
+
+  const replayPhase = remote.setupProgress >= 3;
 
   const winnerText = useMemo(() => {
     if (!replayPhase) return '';
@@ -184,7 +186,7 @@ const Remote = (props) => {
       }
       primaryText={replayPhase ? winnerText : text}
       middleContent={
-        remote.setupProgress >= 3 &&
+        remote.setupProgress >= 2 &&
         webcam.isFullScreen &&
         !game.loop.looping && <MultiplayerFooter isFullScreen={webcam.isFullScreen} />
       }
