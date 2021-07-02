@@ -1,12 +1,13 @@
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
-import React, { useRef, useEffect, memo } from 'react';
+import React, { useRef, useEffect, memo, createContext, useContext, useState } from 'react';
 
 import { useWebcam } from '../../context/webcam';
 
 import Game from '../Game';
 import NoWebcam from './NoWebcam';
 import { maxWidth } from '../../lib/constants';
+import PeerJSProvider from '../../context/peer';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -14,6 +15,18 @@ const useStyles = makeStyles((theme) => ({
     margin: `0 auto ${theme.spacing(2)}px`,
   },
 }));
+
+const multiplayerScoreContext = createContext();
+
+export const useMultiplayerScores = () => {
+  const state = useContext(multiplayerScoreContext);
+
+  if (!state) {
+    throw new Error('useMultiplayerScoreContext must be called from inside the <Game> component.');
+  }
+
+  return state;
+};
 
 const Main = (props) => {
   const webcam = useWebcam();
@@ -36,8 +49,20 @@ const Main = (props) => {
 
   const classes = useStyles();
 
+  const multiplayerScores = useState([[], []]);
+
   return (
-    <main className={classes.root}>{!hasVideo ? <NoWebcam /> : <Game webcam={webcam} />}</main>
+    <main className={classes.root}>{
+      !hasVideo
+        ? <NoWebcam />
+        : (
+          <multiplayerScoreContext.Provider value={multiplayerScores}>
+            <PeerJSProvider>
+              <Game webcam={webcam} />
+            </PeerJSProvider>
+          </multiplayerScoreContext.Provider>
+        )
+      }</main>
   );
 };
 

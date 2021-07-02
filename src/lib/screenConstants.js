@@ -6,8 +6,8 @@ export const screenTypes = {
   RESET: 'reset_state',
 };
 
-const SINGLE_PLAYER = 'Single Player';
-const MULTIPLAYER = 'Multi Player';
+export const SINGLE_PLAYER = 'Single Player';
+export const MULTIPLAYER = 'Multi Player';
 
 export const screenStates = {
   screen: {
@@ -26,18 +26,12 @@ export const screenStates = {
       TIME_ATTACK: 'Time Attack',
     },
     [MULTIPLAYER]: {
-      LOCAL: 'Multiplayer',
-      REMOTE: 'Remote Multiplayer',
+      'LOCAL': 'Local',
+      'REMOTE': 'P2P',
     },
     DEFAULT: null,
   },
 };
-
-// identifies these values as works in progress, ie disabled buttons
-export const wipScreens = [screenStates.mode[MULTIPLAYER].REMOTE].reduce(
-  (acc, item) => ({ ...acc, [item]: !!1 }),
-  {},
-);
 
 export const screenStatesArrays = Object.entries(screenStates).reduce(
   (acc, [stateKey, statesObj]) => ({

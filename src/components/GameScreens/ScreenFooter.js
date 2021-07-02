@@ -31,7 +31,7 @@ const Footers = {
     },
     [screenStates.players.MULTIPLAYER]: {
       [screenStates.mode[screenStates.players.MULTIPLAYER].LOCAL]: MultiplayerFooter,
-      [screenStates.mode[screenStates.players.MULTIPLAYER].REMOTE]: () => 'REMOTE footer',
+      [screenStates.mode[screenStates.players.MULTIPLAYER].REMOTE]: MultiplayerFooter,
     },
   },
 };
