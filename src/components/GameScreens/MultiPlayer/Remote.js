@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import classnames from 'classnames';
 import ProgressBar from '../../ProgressBar';
 import { makeStyles } from '@material-ui/core';
@@ -20,6 +20,7 @@ import { useWebcam } from '../../../context/webcam';
 import MultiplayerFooter from './MultiplayerFooter';
 import GameInfoBox from '../../GameInfoBox';
 import PeerTemp from '../../PeerTemp';
+import { useMultiplayerScores } from '../../Main';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -129,8 +130,9 @@ function ColorlibStepIcon(props) {
 
 const Remote = (props) => {
   const game = useGame();
-  const remote = useGameMode(useRemote);
   const webcam = useWebcam();
+  const remote = useGameMode(useRemote);
+  const [multiplayerScores] = useMultiplayerScores();
 
   const stepperLabels = [
     'Capture',
@@ -138,14 +140,36 @@ const Remote = (props) => {
     remote.peerJs.isPlayerOne() ? "They Play" : "You Play" 
   ];
 
+  const opponentMaskIdx = remote.peerJs.isPlayerOne() ? 1 : 0;
+  const hasOpponentMasks = remote.peerJs.masks[opponentMaskIdx].length > 0;
+  const isYourTurn = (remote.setupProgress === 1 && remote.peerJs.isPlayerOne()) || (remote.setupProgress === 2 && !remote.peerJs.isPlayerOne())
+
+  useEffect(() => {
+    if (!isYourTurn && multiplayerScores[opponentMaskIdx].length && remote.setupProgress < 3) {
+      remote.incrementProgress();
+    }
+  }, [isYourTurn, multiplayerScores, opponentMaskIdx, remote]);
+
   const text = [
-    `${remote.peerJs.myName}, get ready to capture ${remote.NUM_MASKS} poses.`,
-    remote.peerJs.isPlayerOne() ? (remote.peerJs.masks[1].length ? `${remote.peerJs.myName}, get ready to play!` : 'Waiting for opponent.')
-     : `${remote.peerJs.opponentName}'s turn to play.`,
-    remote.peerJs.isPlayerOne() ? `${remote.peerJs.opponentName}'s turn to play.` : `${remote.peerJs.myName}, get ready to play!`, 
+    `${remote.peerJs.myName}, click play to capture ${remote.NUM_MASKS} poses.`,
+    remote.peerJs.isPlayerOne()
+      ? (hasOpponentMasks
+        ? "It's your turn. Press play to start!"
+        : "Waiting for opponent's masks"
+      ) : `${remote.peerJs.opponentName}'s turn to play.`,
+    remote.peerJs.isPlayerOne()
+      ? `${remote.peerJs.opponentName}'s turn to play.`
+      : (hasOpponentMasks
+        ? "It's your turn. Press play to start!"
+        : "Waiting for opponent's masks"
+      ),
   ][remote.setupProgress];
 
-  console.log(remote.peerJs.masks);
+  const isPlayButtonDisabled = () => {
+    if (remote.setupProgress === 0 || remote.setupProgress === 3) return false;
+
+    return !(isYourTurn && hasOpponentMasks);
+  };
 
   // Removing subtext for now. It seems redundant.
   const subtext = '';
@@ -196,7 +220,7 @@ const Remote = (props) => {
         loading: !game.loop.ready,
         onClick: remote.handleClick,
       }}
-      Icon={replayPhase ? 'replay' : 'play'}
+      Icon={isPlayButtonDisabled() ? null : replayPhase ? 'replay' : 'play'}
       helpContent={
         !replayPhase && [
           'In this game mode two players will compete head to head.',

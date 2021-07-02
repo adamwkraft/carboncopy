@@ -10,11 +10,11 @@ import { usePeerJS } from '../../context/peer';
 
 const NUM_MASKS = DEBUG ? 1 : 5;
 
-export const useRemote = (loop) => {
+export const useRemote = (loop, multiplayerScoreThing) => {
   const webcam = useWebcam();
   const peerJs = usePeerJS();
   const [lapTimeInfo, setLapTimeInfo] = useState(initialLapInfo);
-  const simpleGame = useSimpleGame({ setLapTimeInfo });
+  const simpleGame = useSimpleGame({ setLapTimeInfo, multiplayerScoreThing });
   const captureMasks = useCaptureMasks({ maxMasks: NUM_MASKS, setLapTimeInfo });
 
   useEffect(() => {
@@ -84,7 +84,7 @@ export const useRemote = (loop) => {
       // Player one plays
       if (peerJs.isPlayerOne()) {
         simpleGame.setMasks(peerJs.masks[1]);
-        loop.start(simpleGame.handleMultiplayerLoop(0));
+        loop.start(simpleGame.handleMultiplayerLoop(0, peerJs.sendResults));
         incrementProgress();
       } else {
         // Do nothing...
@@ -94,19 +94,32 @@ export const useRemote = (loop) => {
       // Player two plays
       if (!peerJs.isPlayerOne()) {
         simpleGame.setMasks(peerJs.masks[0]);
-        loop.start(simpleGame.handleMultiplayerLoop(1));
+        loop.start(simpleGame.handleMultiplayerLoop(1, peerJs.sendResults));
         incrementProgress();
       } else {
         // Do nothing...
         incrementProgress();
       }
     }
-  }, [loop, peerJs.masks, simpleGame, setupProgress, incrementProgress]);
+  }, [loop, peerJs, simpleGame, setupProgress, incrementProgress]);
 
   const handleReset = useCallback(() => {
     setSetupProgress(0);
     simpleGame.clearScores();
-  }, [simpleGame]);
+    peerJs.resetGame();
+  }, [simpleGame, peerJs]);
+
+  const handleOpponentReset = useCallback(() => {
+    setSetupProgress(0);
+    simpleGame.clearScores();
+    peerJs.setOpponentClickedReset(false);
+  }, [peerJs, simpleGame]);
+
+  useEffect(() => {
+    if (peerJs.opponentClickedReset) {
+      handleOpponentReset();
+    }
+  }, [peerJs, handleOpponentReset]);
 
   const handleClick = useCallback(() => {
     if (loop.looping) return;
@@ -131,6 +144,7 @@ export const useRemote = (loop) => {
       setupProgress,
       multiplayerResultsText,
       multiplayerScoreSums,
+      incrementProgress,
       NUM_MASKS,
     }),
     [
@@ -142,6 +156,7 @@ export const useRemote = (loop) => {
       handleClick,
       multiplayerResultsText,
       multiplayerScoreSums,
+      incrementProgress,
     ],
   );
 

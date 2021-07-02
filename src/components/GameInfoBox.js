@@ -137,7 +137,7 @@ const GameInfoBox = ({
 GameInfoBox.propTypes = {
   headerContent: PropTypes.node,
   primaryText: PropTypes.string,
-  secondaryText: PropTypes.string,
+  secondaryText: PropTypes.node,
   children: PropTypes.node,
   helpContent: PropTypes.node,
   footerContent: PropTypes.node,

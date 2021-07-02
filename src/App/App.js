@@ -10,7 +10,6 @@ import WebcamProvider from '../context/webcam';
 import BodyPixProvider from '../context/bodyPix';
 import AudioProvider from '../context/audio';
 import CarbonProvider from '../context/carbon';
-import PeerJSProvider from '../context/peer';
 
 export const getFonts = (...fonts) =>
   [
@@ -77,12 +76,10 @@ function App() {
           <BodyPixProvider>
             <AudioProvider>
               <CarbonProvider>
-                <PeerJSProvider>
-                  <>
-                    <CssBaseline />
-                    <Main cvReady={cvReady} />
-                  </>
-                </PeerJSProvider>
+                <>
+                  <CssBaseline />
+                  <Main cvReady={cvReady} />
+                </>
               </CarbonProvider>
             </AudioProvider>
           </BodyPixProvider>

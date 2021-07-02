@@ -7,6 +7,7 @@ import { useWebcam } from '../../context/webcam';
 import { rawScoreToTenBinScore } from '../../lib/score';
 import { getScoreAndOverlayForSegmentationAndImageData, getScore } from '../../lib/util';
 import { useCarbon } from '../../context/carbon';
+import { useMultiplayerScores } from '../../components/Main';
 
 export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
   const promRef = useRef();
@@ -16,8 +17,9 @@ export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
   const maskIterator = useIterateMask();
   const lastTimeAttackSuccess = useRef(0);
   const [scores, setScores] = useState([]);
-  const [multiplayerScores, setMultiplayerScores] = useState([[], []]);
   const zip = useZip(maskIterator.setMasks);
+  const [multiplayerScores, setMultiplayerScores] = useMultiplayerScores();
+
   const {
     handlers: {
       sfx: { playSuccessSound, playFailureSound },
@@ -28,10 +30,10 @@ export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
   const clearScores = useCallback(() => {
     setScores([]);
     setMultiplayerScores([[], []]);
-  }, []);
+  }, [setMultiplayerScores]);
 
   const handleBasicLoop = useCallback(
-    (playerIndex) => async (controller) => {
+    (playerIndex, sendResults = () => {}) => async (controller) => {
       if (controller.time.first) {
         maskIterator.next(); // load the first mask
         if (!playerIndex) clearScores();
@@ -56,11 +58,14 @@ export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
               const dataUri = webcam.imageDataToDataUri(targetOverlay);
 
               if (playerIndex !== undefined) {
+                const scorePacket = { score: rawScoreToTenBinScore(score), dataUri };
+
+                sendResults(scorePacket);
                 setMultiplayerScores((state) => {
                   const newState = [...state];
                   newState[playerIndex] = [
                     ...newState[playerIndex],
-                    { score: rawScoreToTenBinScore(score), dataUri },
+                    scorePacket,
                   ];
 
                   return newState;
@@ -88,12 +93,12 @@ export const useSimpleGame = ({ setLapTimeInfo } = {}) => {
         else controller.webcam.clearCanvas();
       };
     },
-    [webcam, maskIterator, setLapTimeInfo, clearScores],
+    [maskIterator, clearScores, setLapTimeInfo, webcam, setMultiplayerScores],
   );
 
   const handleLoop = useCallback(() => handleBasicLoop(), [handleBasicLoop]);
 
-  const handleMultiplayerLoop = useCallback((playerIndex) => handleBasicLoop(playerIndex), [
+  const handleMultiplayerLoop = useCallback((playerIndex, sendResults) => handleBasicLoop(playerIndex, sendResults), [
     handleBasicLoop,
   ]);
 
