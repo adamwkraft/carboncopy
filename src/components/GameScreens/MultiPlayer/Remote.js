@@ -15,7 +15,7 @@ import EmojiPeopleIcon from '@material-ui/icons/EmojiPeople';
 
 import { useGame, useGameMode } from '../../Game';
 
-import { useRemote } from '../../../hooks/screenHooks/remote';
+import { NUM_MASKS, useRemote } from '../../../hooks/screenHooks/remote';
 import { useWebcam } from '../../../context/webcam';
 import MultiplayerFooter from './MultiplayerFooter';
 import GameInfoBox from '../../GameInfoBox';
@@ -141,11 +141,11 @@ const Remote = (props) => {
   ];
 
   const opponentMaskIdx = remote.peerJs.isPlayerOne() ? 1 : 0;
-  const hasOpponentMasks = remote.peerJs.masks[opponentMaskIdx].length > 0;
+  const hasOpponentMasks = remote.peerJs.masks[opponentMaskIdx].length === NUM_MASKS;
   const isYourTurn = (remote.setupProgress === 1 && remote.peerJs.isPlayerOne()) || (remote.setupProgress === 2 && !remote.peerJs.isPlayerOne())
 
   useEffect(() => {
-    if (!isYourTurn && multiplayerScores[opponentMaskIdx].length && remote.setupProgress < 3) {
+    if (!isYourTurn && multiplayerScores[opponentMaskIdx].length === NUM_MASKS && remote.setupProgress < 3) {
       remote.incrementProgress();
     }
   }, [isYourTurn, multiplayerScores, opponentMaskIdx, remote]);

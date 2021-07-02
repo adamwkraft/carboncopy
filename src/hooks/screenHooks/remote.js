@@ -8,7 +8,7 @@ import { useSimpleGame } from '../loopHandlers/simpleGame';
 import { useCaptureMasks } from '../loopHandlers/captureMasks';
 import { usePeerJS } from '../../context/peer';
 
-const NUM_MASKS = DEBUG ? 1 : 5;
+export const NUM_MASKS = DEBUG ? 3 : 5;
 
 export const useRemote = (loop, multiplayerScoreThing) => {
   const webcam = useWebcam();
