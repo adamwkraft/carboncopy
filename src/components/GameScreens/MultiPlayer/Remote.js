@@ -150,18 +150,52 @@ const Remote = (props) => {
     }
   }, [isYourTurn, multiplayerScores, opponentMaskIdx, remote]);
 
+  const opponentIsPlaying = Boolean(
+    multiplayerScores[
+      Number(remote.peerJs.isPlayerOne())
+    ].length
+  );
+
+  const opponentsTurn = (
+    <div>
+      <p>Please wait...</p>
+      <br />
+      <p>It's {remote.peerJs.opponentName}'s turn to play.</p>
+      <br />
+    </div>
+  );
+  const opponentIsPlayingText = (
+    <div>
+      <p>{remote.peerJs.opponentName} has started playing!</p>
+      <br />
+    </div>
+  );
+
+  const yourTurn = (
+    <div>
+      <p>It's your turn.</p>
+      <br />
+      <p>Press play to start!</p>
+    </div>
+  );
+  const waiting = (
+    <div>
+      <p>Waiting for {remote.peerJs.opponentName}'s masks.</p>
+      <p>One moment please...</p>
+    </div>
+  );
   const text = [
     `${remote.peerJs.myName}, click play to capture ${remote.NUM_MASKS} poses.`,
     remote.peerJs.isPlayerOne()
       ? (hasOpponentMasks
-        ? "It's your turn. Press play to start!"
-        : "Waiting for opponent's masks"
-      ) : `${remote.peerJs.opponentName}'s turn to play.`,
+        ? yourTurn
+        : waiting
+      ) : opponentIsPlaying ? opponentIsPlayingText : opponentsTurn,
     remote.peerJs.isPlayerOne()
-      ? `${remote.peerJs.opponentName}'s turn to play.`
+      ? opponentIsPlaying ? opponentIsPlayingText : opponentsTurn
       : (hasOpponentMasks
-        ? "It's your turn. Press play to start!"
-        : "Waiting for opponent's masks"
+        ? yourTurn
+        : waiting
       ),
   ][remote.setupProgress];
 
@@ -183,10 +217,10 @@ const Remote = (props) => {
 
   const winnerText = useMemo(() => {
     if (!replayPhase) return '';
-    if (remote.multiplayerScoreSums[0] > remote.multiplayerScoreSums[1]) return 'Player One wins!';
-    if (remote.multiplayerScoreSums[0] < remote.multiplayerScoreSums[1]) return 'Player Two wins!';
+    if (remote.multiplayerScoreSums[0] > remote.multiplayerScoreSums[1]) return remote.peerJs.isPlayerOne() ? 'You won!' : `You lost.`;
+    if (remote.multiplayerScoreSums[0] < remote.multiplayerScoreSums[1]) return !remote.peerJs.isPlayerOne() ? 'You won!' : `You lost.`;
     return "It's a tie!";
-  }, [remote.multiplayerScoreSums, replayPhase]);
+  }, [remote.multiplayerScoreSums, remote.peerJs, replayPhase]);
 
   const classes = useStyles(replayPhase);
 

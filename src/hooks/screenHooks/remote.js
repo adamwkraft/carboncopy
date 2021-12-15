@@ -32,12 +32,16 @@ export const useRemote = (loop, multiplayerScoreThing) => {
   );
 
   const multiplayerResultsText = useMemo(
-    () =>
+    () => 
       multiplayerScoreSums.map(
-        (score, playerIdx) =>
-          `Player ${playerIdx ? 'Two' : 'One'} scored a total of ${score} points`,
+        (score, playerIdx) => {
+          const myPlayerIdx = Number(!peerJs.isPlayerOne())
+          const name = myPlayerIdx === playerIdx ? 'You' : peerJs.opponentName;
+
+          return `${name} scored a total of ${score} points`;
+        }
       ),
-    [multiplayerScoreSums],
+    [multiplayerScoreSums, peerJs],
   );
 
   // setupProgress States:
