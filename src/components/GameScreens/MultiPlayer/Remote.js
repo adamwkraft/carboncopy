@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import classnames from 'classnames';
 import ProgressBar from '../../ProgressBar';
 import { makeStyles } from '@material-ui/core';
@@ -21,6 +21,7 @@ import MultiplayerFooter from './MultiplayerFooter';
 import GameInfoBox from '../../GameInfoBox';
 import PeerTemp from '../../PeerTemp';
 import { useMultiplayerScores } from '../../Main';
+import Name from '../../Name';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -133,6 +134,8 @@ const Remote = (props) => {
   const webcam = useWebcam();
   const remote = useGameMode(useRemote);
   const [multiplayerScores] = useMultiplayerScores();
+
+  const [disableConnect, setDisableConnect] = useState(false);
 
   const stepperLabels = [
     'Capture',
@@ -271,26 +274,24 @@ const Remote = (props) => {
       primaryText={"Connect to a friend to play remotely"}
       middleContent={(
         <div className={classes.idContainer}>
-          <span>Your name is: <span className={classes.bold}>{remote.peerJs.peerId}</span></span>
-          <CopyToClipboard text={remote.peerJs.peerId}>
+          <Name
+            name={remote.peerJs.peerId}
+            updateName={remote.peerJs.updateName}
+            setDisableConnect={setDisableConnect}
+          />
+          <CopyToClipboard text={remote.peerJs.myName}>
             <IconButton aria-label="copy" color="secondary">
               <FileCopyIcon />
             </IconButton>
           </CopyToClipboard>
         </div>
       )}
-      secondaryText={<PeerTemp />}
+      secondaryText={<PeerTemp disableConnect={disableConnect} />}
       iconProps={{
         color: 'secondary',
         disabled: true,
         onClick: remote.handleClick,
       }}
-      // Icon={'play'}
-      // helpContent={[
-      //     'Your peer id is: lkjsdlfkjsdlkfjsdlfkj',
-      //     'Send this to a friend and have them type it into the box',
-      //   ]
-      // }
     />
   );
 

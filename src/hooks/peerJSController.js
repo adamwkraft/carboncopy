@@ -2,6 +2,7 @@ import Peer from 'peerjs';
 import { useRef, useState } from 'react';
 import { useMultiplayerScores } from '../components/Main';
 import { useWebcam } from '../context/webcam';
+import { MIN_NAME_LENGTH } from '../lib/constants';
 import {
   getRandomId,
   makeNameOk,
@@ -10,6 +11,7 @@ import {
 } from '../lib/peerUtils';
 
 export const usePeerJSController = () => {
+  const reconnectRef = useRef();
   const webcam = useWebcam();
   const playerOneRef = useRef(false);
   const [myId, setId] = useState(null);
@@ -105,8 +107,8 @@ export const usePeerJSController = () => {
     })
   }
 
-  const init = () => {
-    const _peer = new Peer(makePeerId(myName));
+  const init = (newName, enableConnect) => {
+    const _peer = new Peer(makePeerId(newName || myName));
     setPeer(_peer);
 
     _peer.on('disconnected', (id) => {
@@ -119,6 +121,12 @@ export const usePeerJSController = () => {
 
     _peer.on('open', (id) => {
       console.log('PEER: open', id);
+      reconnectRef.current = false;
+      
+      if (enableConnect) {
+        enableConnect();
+      }
+
       setId(id);
     })
 
@@ -139,7 +147,29 @@ export const usePeerJSController = () => {
     })
   }
 
+  const updateName = (newName, enableConnect) => {
+    if (!newName || newName.length < MIN_NAME_LENGTH) {
+      return;
+    }
+
+    reconnectRef.current = true;
+
+    if (peer) {
+      peer.destroy();
+    }
+    
+    const myNewName = makeNameOk(newName);
+    setMyName(myNewName);
+    init(myNewName, enableConnect);
+  }
+
   const connect = (id) => {
+    if (reconnectRef.current) {
+      console.log('Connecting too soon after name change. Hold your horses cowboy.');
+
+      return;
+    }
+
     console.log('Connecting to peer:', id);
     const conn = peer.connect(makePeerId(id), {serialization: 'json'});
     setOpponentName(id);
@@ -168,6 +198,7 @@ export const usePeerJSController = () => {
     peer,
     connection,
     myName,
+    updateName,
     peerId: cleanPeerId(myId),
     isConnecting,
     isConnected,

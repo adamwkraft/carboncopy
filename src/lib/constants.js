@@ -5,3 +5,5 @@ export const numShippedMasks = 3;
 export const DEBUG = process.env.NODE_ENV !== 'production';
 
 export const PEER_ID_BASE = 'CARBON_COPY_';
+
+export const MIN_NAME_LENGTH = 5;
