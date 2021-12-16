@@ -4,6 +4,7 @@ import { hot } from 'react-hot-loader';
 import { CssBaseline, Typography } from '@material-ui/core';
 import React, { useEffect, useState, useRef } from 'react';
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
+import {SnackbarProvider} from 'notistack';
 
 import Main from '../components/Main';
 import WebcamProvider from '../context/webcam';
@@ -72,23 +73,33 @@ function App() {
   return (
     <MuiThemeProvider theme={theme}>
       <BrowserView>
-        <WebcamProvider>
-          <BodyPixProvider>
-            <AudioProvider>
-              <CarbonProvider>
-                <>
-                  <CssBaseline />
-                  <Main cvReady={cvReady} />
-                </>
-              </CarbonProvider>
-            </AudioProvider>
-          </BodyPixProvider>
-        </WebcamProvider>
+        <SnackbarProvider maxSnack={3}>
+          <WebcamProvider>
+            <BodyPixProvider>
+              <AudioProvider>
+                <CarbonProvider>
+                  <>
+                    <CssBaseline />
+                    <Main cvReady={cvReady} />
+                  </>
+                </CarbonProvider>
+              </AudioProvider>
+            </BodyPixProvider>
+          </WebcamProvider>
+        </SnackbarProvider>
       </BrowserView>
       <MobileView>
-        <Typography component="h1" variant="h6">
-          To play Carbon Copy, open this site on a laptop or desktop computer.
-        </Typography>
+        <div style={{
+          display: 'flex',
+          width: '100vw',
+          height: '100vh',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}>
+          <Typography component="h1" variant="h6" style={{textAlign: 'center'}}>
+            To play Carbon Copy, open this site on a laptop or desktop computer.
+          </Typography>
+        </div>
       </MobileView>
     </MuiThemeProvider>
   );

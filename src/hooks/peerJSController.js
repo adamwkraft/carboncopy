@@ -1,5 +1,5 @@
 import Peer from 'peerjs';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useMultiplayerScores } from '../components/Main';
 import { useWebcam } from '../context/webcam';
 import { MIN_NAME_LENGTH } from '../lib/constants';
@@ -9,10 +9,19 @@ import {
   makePeerId,
   cleanPeerId
 } from '../lib/peerUtils';
+import * as localStorageCache from '../lib/localStorageCache';
+import { useSnack } from './snack';
 
 export const usePeerJSController = () => {
   const reconnectRef = useRef();
+  const snack = useSnack();
   const webcam = useWebcam();
+  const cachedLocalStorageNames = useRef({
+    name: null,
+    opponentName: null,
+  });
+  const lastName = useRef(null);
+  const opponentConnectNameCache = useRef(null);
   const playerOneRef = useRef(false);
   const [myId, setId] = useState(null);
   const [peer, setPeer] = useState(null);
@@ -23,7 +32,29 @@ export const usePeerJSController = () => {
   const [isConnecting, setIsConnecting] = useState(false);
   const [, setMultiplayerScores] = useMultiplayerScores();
   const [opponentClickedReset, setOpponentClickedReset] = useState(false);
-  const [myName, setMyName] = useState(makeNameOk(getRandomId()));
+  const [myName, setMyName] = useState(null);
+  const [disableConnect, setDisableConnect] = useState(false);
+  const [cachedOpponentName, setCachedOpponentName] = useState('');
+
+  const generateRandomName = () => {
+    updateName(makeNameOk(getRandomId()));
+  };
+
+  useEffect(() => {
+    if (myName) {
+      return;
+    }
+
+    const lsCache = localStorageCache.getLocalStorage();
+
+    const okName = makeNameOk(lsCache.name || getRandomId());
+    setMyName(okName);
+    cachedLocalStorageNames.current.name = lsCache.name ? makeNameOk(lsCache.name) : null;
+    cachedLocalStorageNames.current.opponentName = lsCache.opponentName ? makeNameOk(lsCache.opponentName) : null;
+    if (lsCache.opponentName) {
+      setCachedOpponentName(cachedLocalStorageNames.current.opponentName);
+    }
+  }, [myName]);
 
   const isPlayerOne = () => playerOneRef.current;
 
@@ -35,6 +66,7 @@ export const usePeerJSController = () => {
   }
   
   const resetEverything = () => {
+    opponentConnectNameCache.current = false;
     setConnection(null);
     setIsConnected(false);
     setIsConnecting(false);
@@ -48,10 +80,13 @@ export const usePeerJSController = () => {
     setConnection(conn);
     setIsConnecting(true);
 
-    conn.on('open', (dunno) => {
-      console.log('CONN: open', dunno);
+    conn.on('open', () => {
+      console.log('CONN: open');
       setIsConnected(true);
       setIsConnecting(false);
+      if (opponentConnectNameCache.current) {
+        snack.info(`You've connected to ${opponentConnectNameCache.current}!`)
+      }
     });
 
     conn.on('data', async data => {
@@ -95,6 +130,7 @@ export const usePeerJSController = () => {
 
     conn.on('close', (id) => {
       console.log('CONN: close', id);
+      snack.error("Uh oh, it looks like the other player has left.")
       resetEverything();
     })
 
@@ -107,7 +143,7 @@ export const usePeerJSController = () => {
     })
   }
 
-  const init = (newName, enableConnect) => {
+  const init = (newName) => {
     const _peer = new Peer(makePeerId(newName || myName));
     setPeer(_peer);
 
@@ -122,9 +158,17 @@ export const usePeerJSController = () => {
     _peer.on('open', (id) => {
       console.log('PEER: open', id);
       reconnectRef.current = false;
+      const cleanName = cleanPeerId(id);
+      if (cleanName !== lastName.current) {
+        snack.info(`Listening for connections as "${cleanName}"`);
+      }
+
+      lastName.current = cleanName;
       
-      if (enableConnect) {
-        enableConnect();
+      setDisableConnect(false);
+
+      if (cachedLocalStorageNames.current.name !== cleanName) {
+        localStorageCache.setLocalStorageName(cleanName);
       }
 
       setId(id);
@@ -132,22 +176,47 @@ export const usePeerJSController = () => {
 
     _peer.on('connection', _connection => {
       console.log("PEER: connection", _connection);
-      setOpponentName(cleanPeerId(_connection.peer))
+      const cleanOpponentName = cleanPeerId(_connection.peer);
+      setOpponentName(cleanOpponentName);
+      snack.info(`${cleanOpponentName} connected with you!`);
+      if (cachedLocalStorageNames.current.opponentName !== cleanOpponentName) {
+        localStorageCache.setLocalStorageOpponentName(cleanOpponentName);
+      }
+
       handleConnect(_connection);
     });
 
     _peer.on('error', err => {
       console.log('PEER: error', err);
 
+      if (err.message.includes('ID') && err.message.includes('is taken')) {
+        const stripped = err.message
+          .replace('ID', '')
+          .replace('is taken', '')
+          .slice(1, -1);
+
+        const takenName = cleanPeerId(stripped);
+        snack.error(`The name ${takenName} is not available.`);
+        console.log('Error: Name already taken:', takenName);
+        generateRandomName();
+      }
+
       // If error is that we couldn't connect, then unset the connection object
       if (err.message.includes("Could not connect to peer") ||
         err.message.includes("Called in wrong state")) {
+        
+        if (err.message.includes("Could not connect to peer")) {
+          const peerName = err.message.replace('Could not connect to peer ');
+          const cleanPeerName = cleanPeerId(peerName);
+          snack.error(`Could not find user "${cleanPeerName}"`);
+        }
+
         resetEverything();
       }
     })
   }
 
-  const updateName = (newName, enableConnect) => {
+  const updateName = (newName) => {
     if (!newName || newName.length < MIN_NAME_LENGTH) {
       return;
     }
@@ -160,20 +229,21 @@ export const usePeerJSController = () => {
     
     const myNewName = makeNameOk(newName);
     setMyName(myNewName);
-    init(myNewName, enableConnect);
+    init(myNewName);
   }
 
-  const connect = (id) => {
+  const connect = (requestedOpponent) => {
     if (reconnectRef.current) {
       console.log('Connecting too soon after name change. Hold your horses cowboy.');
 
       return;
     }
 
-    console.log('Connecting to peer:', id);
-    const conn = peer.connect(makePeerId(id), {serialization: 'json'});
-    setOpponentName(id);
+    console.log('Attempting to connect to peer:', requestedOpponent);
+    const conn = peer.connect(makePeerId(requestedOpponent), {serialization: 'json'});
+    setOpponentName(requestedOpponent);
     playerOneRef.current = true;
+    opponentConnectNameCache.current = requestedOpponent
     handleConnect(conn);
   }
 
@@ -192,6 +262,8 @@ export const usePeerJSController = () => {
   };
 
   return {
+    generateRandomName,
+    cachedOpponentName,
     init,
     connect,
     send,
@@ -199,6 +271,8 @@ export const usePeerJSController = () => {
     connection,
     myName,
     updateName,
+    disableConnect,
+    setDisableConnect,
     peerId: cleanPeerId(myId),
     isConnecting,
     isConnected,

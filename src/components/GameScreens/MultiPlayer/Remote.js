@@ -1,10 +1,7 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import classnames from 'classnames';
 import ProgressBar from '../../ProgressBar';
 import { makeStyles } from '@material-ui/core';
-import FileCopyIcon from '@material-ui/icons/FileCopy';
-import IconButton from '@material-ui/core/IconButton';
-import {CopyToClipboard} from 'react-copy-to-clipboard';
 
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
@@ -30,6 +27,9 @@ const useStyles = makeStyles((theme) => ({
     height: '100%',
     overflow: 'hidden',
     position: 'relative',
+  },
+  buttons: {
+    marginLeft: theme.spacing(1),
   },
   scrollContainer: {
     position: 'absolute',
@@ -135,8 +135,6 @@ const Remote = (props) => {
   const remote = useGameMode(useRemote);
   const [multiplayerScores] = useMultiplayerScores();
 
-  const [disableConnect, setDisableConnect] = useState(false);
-
   const stepperLabels = [
     'Capture',
     remote.peerJs.isPlayerOne() ? "You Play" : "They Play",
@@ -188,7 +186,7 @@ const Remote = (props) => {
     </div>
   );
   const text = [
-    `${remote.peerJs.myName}, click play to capture ${remote.NUM_MASKS} poses.`,
+    `Click play to capture ${remote.NUM_MASKS} poses.`,
     remote.peerJs.isPlayerOne()
       ? (hasOpponentMasks
         ? yourTurn
@@ -210,11 +208,7 @@ const Remote = (props) => {
 
   // Removing subtext for now. It seems redundant.
   const subtext = '';
-  // const subtext = [
-  //   'Press the play button to begin.',
-  //   remote.peerJs.isPlayerOne() ? 'Press the play button to begin.' : 'You are up next.',
-  //   remote.peerJs.isPlayerOne() ? 'Something!!' : 'Press the play button to begin.',
-  // ][remote.setupProgress];
+
 
   const replayPhase = remote.setupProgress >= 3;
 
@@ -276,17 +270,14 @@ const Remote = (props) => {
         <div className={classes.idContainer}>
           <Name
             name={remote.peerJs.peerId}
+            myName={remote.peerJs.myName}
             updateName={remote.peerJs.updateName}
-            setDisableConnect={setDisableConnect}
+            setDisableConnect={remote.peerJs.setDisableConnect}
+            generateRandomName={remote.peerJs.generateRandomName}
           />
-          <CopyToClipboard text={remote.peerJs.myName}>
-            <IconButton aria-label="copy" color="secondary">
-              <FileCopyIcon />
-            </IconButton>
-          </CopyToClipboard>
         </div>
       )}
-      secondaryText={<PeerTemp disableConnect={disableConnect} />}
+      secondaryText={<PeerTemp />}
       iconProps={{
         color: 'secondary',
         disabled: true,

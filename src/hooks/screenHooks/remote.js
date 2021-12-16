@@ -18,7 +18,7 @@ export const useRemote = (loop, multiplayerScoreThing) => {
   const captureMasks = useCaptureMasks({ maxMasks: NUM_MASKS, setLapTimeInfo });
 
   useEffect(() => {
-    if (!peerJs.peer) {
+    if (!peerJs.peer && peerJs.myName) {
       peerJs.init();
     }
   }, [peerJs]);
