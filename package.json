@@ -17,7 +17,7 @@
     "faker": "^5.5.3",
     "hex-rgb": "^4.1.0",
     "image-data-uri": "^2.0.1",
-    "jszip": "^3.5.0",
+    "jszip": "^3.7.0",
     "jszip-utils": "^0.1.0",
     "notistack": "^1.0.10",
     "particlesjs": "^2.2.3",
